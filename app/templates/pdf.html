@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{user.name}} PGP</title>
+
+        <style>
+            body {
+                font-family: Helvetica, Arial, sans-serif;
+                line-height: 1.2;
+                font-size: 16px;
+            }
+            table {
+                font-family: Helvetica, Arial, sans-serif;
+                table-layout: fixed;
+                width: 100%;
+                text-align: left;
+                border-collapse: collapse;
+            }
+
+            table th,
+            td {
+                padding: 10px;
+            }
+
+            table thead th,
+            tfoot td {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            table thead th {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            table tfoot td:first-child {
+                background-color: transparent;
+            }
+
+            table tfoot td {
+                border-top: 1px solid rgba(0, 0, 0, 0.5);
+                font-weight: 800;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ user.name }}</h1>
+        <p>{{user.email}}</p>
+        <hr />
+        <table>
+            <thead>
+                <th>Event</th>
+                <th>Date</th>
+                <th>PGP (hrs.)</th>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{event.title}}</td>
+                    <td>{{event.start}}</td>
+                    <td>{{event.total}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td>Total:</td>
+                    <td>{{total}}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <br />
+        <br />
+        <p><b>Brian Bennett</b></p>
+        <a href="mailto:bbennett@elkhart.k12.in.us"
+            >bbennett@elkhart.k12.in.us</a
+        >
+        <p>Coordinator of Professional Learning</p>
+        <hr />
+        <p>
+            <i
+                >This form is provided to staff in acknowledgement of his/her
+                participation in professional development activities carried out
+                within Elkhart Community Schools. The employee is responsible
+                for maintaining receipt of this record and for submitting
+                documentation on their behalf to the Indiana Department of
+                Education or their school district administration.</i
+            >
+        </p>
+    </body>
+</html>

@@ -1,0 +1,8 @@
+.venv/
+.flaskenv
+__pycache__/
+app.db
+.python-version
+token.json
+app/client/*
+
