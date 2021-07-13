@@ -9,11 +9,12 @@ from webargs.flaskparser import parser
 
 from app import db
 from app.calendar import CalendarService
-from app.models import Course, CourseUserAttended, User
+from app.models import Course, CourseType, CourseUserAttended, User
 from app.schemas import (
     CourseAttendingSchema,
     CoursePresenterSchema,
     CourseSchema,
+    CourseTypeSchema,
     NewCourseSchema,
     PublicCourseSchema,
     UserAttended,
@@ -44,7 +45,10 @@ class CourseListAPI(MethodView):
 
         # This filters events down to active, future events.
         # TODO: accept arguments to filter per request rather than all.
-        courses = Course.query.filter(Course.active == True, Course.starts >= now).all()
+        if current_user.role.name == 'SuperAdmin':
+            courses = Course.query.all()
+        else:
+            courses = Course.query.filter(Course.active == True, Course.starts >= now).all()
 
         if len(courses) > 0:
 
@@ -134,6 +138,79 @@ class CourseAPI(MethodView):
         db.session.commit()
 
         return {"message": "Course successfully deleted"}
+
+
+class CourseTypesAPI(MethodView):
+    def get(self: None) -> List[CourseType]:
+        """ Get all coursetypes
+
+        Returns:
+            List[CourseType]: List of <CourseType> as JSON
+        """
+        course_types = CourseType.query.all()
+        print(CourseTypeSchema(many=True).dump(course_types))
+        return jsonify(CourseTypeSchema(many=True).dump(course_types))
+    
+    def post(self: None) -> CourseType:
+        """ Create a new CourseType in the database
+
+        Returns:
+            CourseType: <CourseType> as JSON
+        """
+        args = parser.parse(CourseTypeSchema(), location='json')
+        try:
+            course_type = CourseType().create(CourseType, args)
+            result = CourseType.query.get(course_type.id)
+            return jsonify(CourseTypeSchema().dump(result))
+        except Exception as e:
+            return jsonify(e)
+
+
+class CourseTypeAPI(MethodView):
+    def get(self: None, coursetype_id: int) -> CourseType:
+        course_type = CourseType.query.get(coursetype_id)
+        if course_type is None:
+            abort(404)
+        
+        return jsonify(CourseTypeSchema().dump(course_type))
+    
+    def put(self: None, coursetype_id: int) -> CourseType:
+        """ Update details for a single CourseType
+
+        Args:
+            coursetype_id (int): valid course type ID
+
+        Returns:
+            CourseType: <CourseType> as JSON.
+        """
+        args = parser.parse(CourseTypeSchema(), location='json')
+        course_type = CourseType.query.get(coursetype_id)
+        if course_type is None:
+            abort(404)
+        
+        try:
+            course_type.update(args)
+            return jsonify(CourseTypeSchema().dump(course_type))
+        except Exception as e:
+            return jsonify(e)
+    
+    def delete(self: None, coursetype_id: int) -> dict:
+        """ Delete a course type.
+
+        Args:
+            coursetype_id (int): valid course type ID
+
+        Returns:
+            dict: Status of the deletion
+        """
+        course_type = CourseType.query.get(coursetype_id)
+        if course_type is None:
+            abort(404)
+        
+        db.session.delete(course_type)
+        db.session.commit()
+
+        return jsonify({"message": "Successfully deleted course type."})
 
 
 class CoursePresentersAPI(MethodView):

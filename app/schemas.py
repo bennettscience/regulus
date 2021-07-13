@@ -28,6 +28,8 @@ class CourseLocationSchema(Schema):
 
 
 class CourseTypeSchema(Schema):
+    id = fields.Int(dump_only=True)
+    description = fields.Str()
     name = fields.Str()
 
 

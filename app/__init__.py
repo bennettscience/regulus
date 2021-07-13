@@ -50,6 +50,8 @@ from resources.courselinks import CourseLinkAPI, CourseLinksAPI
 from resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
 from resources.courses import (
     CourseAPI,
+    CourseTypesAPI,
+    CourseTypeAPI,
     CourseAttendeeAPI,
     CourseAttendeesAPI,
     CourseListAPI,
@@ -78,6 +80,8 @@ from app.schemas import UserSchema, CourseSchema
 # https://flask.palletsprojects.com/en/2.0.x/views/#method-views-for-apis
 courses_view = CourseListAPI.as_view("courses_api")
 course_view = CourseAPI.as_view("course_api")
+course_types_view = CourseTypesAPI.as_view("course_types_api")
+course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_links_view = CourseLinksAPI.as_view("course_links_api")
 course_link_view = CourseLinkAPI.as_view("course_link_api")
 course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
@@ -278,6 +282,12 @@ app.add_url_rule(
     "/courses/<int:course_id>/registrations/<int:user_id>",
     view_func=course_attendee_view,
     methods=["PUT", "POST", "DELETE"],
+)
+app.add_url_rule(
+    "/courses/types", view_func=course_types_view, methods=["GET", "POST"]
+)
+app.add_url_rule(
+    "/courses/types/<int:coursetype_id>", view_func=course_type_view, methods=["GET", "PUT", "DELETE"]
 )
 app.add_url_rule(
     "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
