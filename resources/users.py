@@ -29,6 +29,7 @@ class UserListAPI(MethodView):
         if current_user.usertype_id != 1:
             abort(401)
 
+        # TODO: Filter by user type
         users = User.query.all()
         return jsonify(UserSchema(many=True).dump(users))
 

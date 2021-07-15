@@ -13,11 +13,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 path = os.path.join(basedir, 'token.json')
 
 # Set scope constants for the ECS PD account
-scopes = ['https://www.googleapis.com/auth/calendar.readonly']
+scopes = ['https://www.googleapis.com/auth/calendar']
 
 
 credentials = service_account.Credentials.from_service_account_file(path, scopes=scopes)
-# delegated_credentials = credentials.with_subject(subject)
 
 
 class CalendarService:

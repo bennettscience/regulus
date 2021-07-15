@@ -116,6 +116,7 @@ class NewCourseLinkTypeSchema(Schema):
 
 
 class CourseLinkTypeSchema(Schema):
+    id = fields.Int(dump_only=True)
     name = fields.Str()
     description = fields.Str()
 

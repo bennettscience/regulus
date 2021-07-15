@@ -39,7 +39,6 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 
-# TODO: Rename <Course> to <Event>?
 # TODO: Check all sensititve API routes for access control logic.
 from app import app, db, errors
 from app.logging import create_log
@@ -223,19 +222,37 @@ def generate_single_pdf(user_id, course_id):
 # TODO: wait on delegated access to be allowed for the service account.
 @app.route('/calendar')
 def get_google_calendar():
+    # calendar_id = 'c_15rtdv79lhafcsf9eoehhl2l88@group.calendar.google.com'
+    calendar_id = 'pd@elkhart.k12.in.us'
     service = CalendarService().build()
     now = datetime.utcnow().isoformat() + 'Z'
 
+    event = {
+        'summary': 'Test Event',
+        'description': 'This is a test',
+        'start': {
+            'date': '2021-07-15'
+        },
+        'end': {
+            'date': '2021-07-16'
+        }
+    }
+
+    # service.events().insert(
+    #     calendarId=calendar_id,
+    #     body=event
+    # ).execute()
+
     event_results = service.events().list(
-        calendarId='elkhart.k12.in.us_j2gh78bk5e5bje6n6k19ijr2j8@group.calendar.google.com',
+        calendarId=calendar_id,
         maxResults=10,
         timeMin=now,
         orderBy='startTime',
         singleEvents=True
     ).execute()
-    # events = event_results.get('items', [])
+    events = event_results.get('items', [])
     
-    return jsonify({'events': event_results})
+    return jsonify(event_results)
 
 
 # Logging
@@ -343,22 +360,23 @@ app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"
 #     response.content_type = "application/json"
 #     return response
 
-# @app.errorhandler(422)
-# @app.errorhandler(400)
-# def handle_error(err):
-#     response = err.get_response()
-#     messages = err.data.get("messages", ["Invalid request."])
-#     response.data = json.dumps(
-#         {
-#             "code": err.code,
-#             "name": err.name,
-#             "description": "Unprocessable request. See messages for details.",
-#             "messages": messages
-#         }
-#     )
+@app.errorhandler(422)
+@app.errorhandler(400)
+def handle_error(err):
+    response = err.get_response()
+    messages = err.data.get("messages", ["Invalid request."])
+    print(messages)
+    response.data = json.dumps(
+        {
+            "code": err.code,
+            "name": err.name,
+            "description": "Unprocessable request. See messages for details.",
+            "messages": messages
+        }
+    )
 
-#     response.content_type = "application/json"
-#     return response
+    response.content_type = "application/json"
+    return response
 
 
 # @app.errorhandler(404)
