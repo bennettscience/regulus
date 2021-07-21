@@ -18,19 +18,39 @@ from app.schemas import (
 
 
 class UserListAPI(MethodView):
-    def get(self: None) -> List[User]:
+    @parser.use_kwargs({'user_type': fields.Int()}, location="querystring")
+    def get(self: None, user_type=None) -> List[User]:
         """ Get a list of all users.
 
         Returns:
             List[User]: List of users.
         """
 
-        # Only allow SuperAdmins to request this resource.
-        if current_user.usertype_id != 1:
+        print(user_type is None)
+        print(current_user.usertype_id == 1)
+        print(current_user.usertype_id == 1 and user_type is None)
+        # TODO: Clean this up somehow?
+        if current_user.usertype_id == 4:
+            print('Teacher')
             abort(401)
+        elif current_user.usertype_id != 1 and user_type is None:
+            print('Not a teacher or admin')
+            # abort a request from non-admins for all users
+            abort(401)
+        elif current_user.usertype_id < 4 and current_user.usertype_id != 1 and user_type != 1:
+            print('Not a teacher, not requesting an admin')
+            # presenters, observers, and admins can request non-admins
+            users = User.query.filter_by(usertype_id=user_type).all()
+        elif current_user.usertype_id == 1 and user_type:
+            print('Admin looking for a specfic type')
+            users = User.query.filter_by(usertype_id=user_type).all()
+        elif current_user.usertype_id == 1 and user_type is None:
+            print('Admin looking for all users')
+            users = User.query.all()
+            print(users)
+        else:
+            abort(422)
 
-        # TODO: Filter by user type
-        users = User.query.all()
         return jsonify(UserSchema(many=True).dump(users))
 
     def post(self: None) -> User:
@@ -77,7 +97,7 @@ class UserAPI(MethodView):
         """
 
         # Limit this to SuperAdmins or the user making the request.
-        if current_user.usertype_id != 1 or user_id is not current_user.id:
+        if current_user.usertype_id != 1:
             abort(401)
 
         args = parser.parse(UserSchema(), location="json")
@@ -108,7 +128,7 @@ class UserAPI(MethodView):
 
         args = parser.parse(UserSchema(), location="query")
         user = User.query.get(user_id)
-        
+
         if user is None:
             abort(404)
 
@@ -150,13 +170,12 @@ class UserLocationAPI(MethodView):
         user = User.query.get(user_id)
         if user is None:
             abort(404)
-        
+
         try:
             user.update(args)
             return jsonify(UserLocationSchema().dump(user.location))
         except Exception as e:
             return jsonify(e)
-
 
     def delete(self: None, user_id: int) -> User:
         """ Delete a user's location
@@ -170,7 +189,7 @@ class UserLocationAPI(MethodView):
         user = User.query.get(user_id)
         if user is None:
             abort(404)
-        
+
         user.location = None
         db.session.commit()
 
