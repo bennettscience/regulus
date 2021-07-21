@@ -112,6 +112,7 @@ def load_user(id):
 @app.route('/admin')
 @app.route('/create')
 @app.route('/documents')
+@app.route('/people')
 def base():
     return send_from_directory('client/public', 'index.html')
 
@@ -218,42 +219,6 @@ def generate_single_pdf(user_id, course_id):
 
     html = render_template('pdf.html', user=user, events=events, total=total)
     return render_pdf(HTML(string=html))
-
-# TODO: wait on delegated access to be allowed for the service account.
-@app.route('/calendar')
-def get_google_calendar():
-    # calendar_id = 'c_15rtdv79lhafcsf9eoehhl2l88@group.calendar.google.com'
-    calendar_id = 'pd@elkhart.k12.in.us'
-    service = CalendarService().build()
-    now = datetime.utcnow().isoformat() + 'Z'
-
-    event = {
-        'summary': 'Test Event',
-        'description': 'This is a test',
-        'start': {
-            'date': '2021-07-15'
-        },
-        'end': {
-            'date': '2021-07-16'
-        }
-    }
-
-    # service.events().insert(
-    #     calendarId=calendar_id,
-    #     body=event
-    # ).execute()
-
-    event_results = service.events().list(
-        calendarId=calendar_id,
-        maxResults=10,
-        timeMin=now,
-        orderBy='startTime',
-        singleEvents=True
-    ).execute()
-    events = event_results.get('items', [])
-    
-    return jsonify(event_results)
-
 
 # Logging
 @app.before_request
