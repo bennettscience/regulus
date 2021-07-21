@@ -8,6 +8,9 @@ from flask_login import current_user
 from webargs.flaskparser import parser
 
 from app import db
+
+from config import Config
+
 from app.calendar import CalendarService
 from app.models import Course, CourseType, CourseUserAttended, User
 from app.schemas import (
@@ -34,7 +37,7 @@ attendee_schema = UserAttended(many=True)
 
 class CourseListAPI(MethodView):
     def get(self: None) -> List[Course]:
-        """ Get a list of future active courses.
+        """Get a list of future active courses.
 
         Returns:
             List: List of Course objects.
@@ -45,10 +48,12 @@ class CourseListAPI(MethodView):
 
         # This filters events down to active, future events.
         # TODO: accept arguments to filter per request rather than all.
-        if current_user.role.name == 'SuperAdmin':
+        if current_user.role.name == "SuperAdmin":
             courses = Course.query.all()
         else:
-            courses = Course.query.filter(Course.active == True, Course.starts >= now).all()
+            courses = Course.query.filter(
+                Course.active == True, Course.starts >= now
+            ).all()
 
         if len(courses) > 0:
 
@@ -56,24 +61,49 @@ class CourseListAPI(MethodView):
             for course in courses:
                 course.available = course.available_size()
 
-            if current_user.role.name == 'SuperAdmin':
+            if current_user.role.name == "SuperAdmin":
                 return jsonify(CourseSchema(many=True).dump(courses))
             return jsonify(PublicCourseSchema(many=True).dump(courses))
         else:
             return jsonify({"message": "No courses"})
 
     def post(self: None) -> Course:
-        """ Create a new event
+        """Create a new event
 
         Returns:
             Course: JSON representation of the event
         """
-        # TODO: Add Google Calendar event to public page. Store the event ID with the event
         args = parser.parse(NewCourseSchema(), location="json")
 
-        args['starts'] = datetime.fromtimestamp(args['starts'])
-        args['ends'] = datetime.fromtimestamp(args['ends'])
-        # args['ext_calendar'] = ''
+        # Add Google Calendar event to public page. Store the event ID with the event
+        calendar_id = Config.GOOGLE_CALENDAR_ID
+
+        service = CalendarService().build()
+        starts = CalendarService().convertToISO(args["starts"])
+        ends = CalendarService().convertToISO(args["ends"])
+
+        body = {
+            "summary": args["title"],
+            "description": args["description"],
+            "start": {
+                "dateTime": starts,
+                "timeZone": "America/Indiana/Indianapolis",
+            },
+            "end": {
+                "dateTime": ends,
+                "timeZone": "America/Indiana/Indianapolis",
+            },
+            "creator": {
+                "email": current_user.email,
+            },
+        }
+
+        event = service.events().insert(calendarId=calendar_id, body=body).execute()
+
+        # Upate the args object before posting to the database
+        args["ext_calendar"] = event["id"]
+        args["starts"] = datetime.fromtimestamp(args["starts"])
+        args["ends"] = datetime.fromtimestamp(args["ends"])
 
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
@@ -84,7 +114,7 @@ class CourseListAPI(MethodView):
 
 class CourseAPI(MethodView):
     def get(self: None, course_id: int) -> Course:
-        """ Get a single event
+        """Get a single event
 
         Args:
             course_id (int): valid event ID
@@ -96,14 +126,14 @@ class CourseAPI(MethodView):
         if course is None:
             abort(404)
 
-        if current_user.role.name == 'SuperAdmin':
+        if current_user.role.name == "SuperAdmin":
             return jsonify(CourseSchema().dump(course))
 
         # TODO: Do we need a different version of the object?
         return jsonify(PublicCourseSchema().dump(course))
 
     def put(self: None, course_id: int) -> Course:
-        """ Update details for an event
+        """Update details for an event
 
         Args:
             course_id (int): valid event ID
@@ -117,12 +147,50 @@ class CourseAPI(MethodView):
             abort(404)
         try:
             course.update(args)
-            return jsonify({"message": "success", "course": CourseSchema().dump(course)}), 200
+            if "starts" in args or "ends" in args:
+                if "starts" in args:
+                    starts = CalendarService().convertToISO(
+                        datetime.timestamp(args["starts"])
+                    )
+                if "ends" in args:
+                    ends = CalendarService().convertToISO(
+                        datetime.timestamp(args["ends"])
+                    )
+
+                calendar_id = Config.GOOGLE_CALENDAR_ID
+                service = CalendarService().build()
+
+                body = {
+                    "start": {
+                        "dateTime": starts,
+                        "timeZone": "America/Indiana/Indianapolis",
+                    },
+                    "end": {
+                        "dateTime": ends,
+                        "timeZone": "America/Indiana/Indianapolis",
+                    },
+                }
+
+                event = (
+                    service.events()
+                    .patch(
+                        calendarId=calendar_id,
+                        eventId=course.ext_calendar,
+                        sendUpdates="all",
+                        body=body,
+                    )
+                    .execute()
+                )
+
+            return (
+                jsonify({"message": "success", "course": CourseSchema().dump(course)}),
+                200,
+            )
         except Exception as e:
             return jsonify(e)
 
     def delete(self: None, course_id: int) -> dict:
-        """ Remove an event
+        """Remove an event
 
         Args:
             course_id (int): valid event ID
@@ -134,6 +202,13 @@ class CourseAPI(MethodView):
         if course is None:
             abort(404)
 
+        service = CalendarService().build()
+        calendar_id = Config.GOOGLE_CALENDAR_ID
+
+        service.events().delete(
+            calendarId=calendar_id, eventId=course.ext_calendar, sendUpdates="all"
+        ).execute()
+
         db.session.delete(course)
         db.session.commit()
 
@@ -142,7 +217,7 @@ class CourseAPI(MethodView):
 
 class CourseTypesAPI(MethodView):
     def get(self: None) -> List[CourseType]:
-        """ Get all coursetypes
+        """Get all coursetypes
 
         Returns:
             List[CourseType]: List of <CourseType> as JSON
@@ -150,14 +225,14 @@ class CourseTypesAPI(MethodView):
         course_types = CourseType.query.all()
         print(CourseTypeSchema(many=True).dump(course_types))
         return jsonify(CourseTypeSchema(many=True).dump(course_types))
-    
+
     def post(self: None) -> CourseType:
-        """ Create a new CourseType in the database
+        """Create a new CourseType in the database
 
         Returns:
             CourseType: <CourseType> as JSON
         """
-        args = parser.parse(CourseTypeSchema(), location='json')
+        args = parser.parse(CourseTypeSchema(), location="json")
         try:
             course_type = CourseType().create(CourseType, args)
             result = CourseType.query.get(course_type.id)
@@ -171,11 +246,11 @@ class CourseTypeAPI(MethodView):
         course_type = CourseType.query.get(coursetype_id)
         if course_type is None:
             abort(404)
-        
+
         return jsonify(CourseTypeSchema().dump(course_type))
-    
+
     def put(self: None, coursetype_id: int) -> CourseType:
-        """ Update details for a single CourseType
+        """Update details for a single CourseType
 
         Args:
             coursetype_id (int): valid course type ID
@@ -183,19 +258,19 @@ class CourseTypeAPI(MethodView):
         Returns:
             CourseType: <CourseType> as JSON.
         """
-        args = parser.parse(CourseTypeSchema(), location='json')
+        args = parser.parse(CourseTypeSchema(), location="json")
         course_type = CourseType.query.get(coursetype_id)
         if course_type is None:
             abort(404)
-        
+
         try:
             course_type.update(args)
             return jsonify(CourseTypeSchema().dump(course_type))
         except Exception as e:
             return jsonify(e)
-    
+
     def delete(self: None, coursetype_id: int) -> dict:
-        """ Delete a course type.
+        """Delete a course type.
 
         Args:
             coursetype_id (int): valid course type ID
@@ -206,7 +281,7 @@ class CourseTypeAPI(MethodView):
         course_type = CourseType.query.get(coursetype_id)
         if course_type is None:
             abort(404)
-        
+
         db.session.delete(course_type)
         db.session.commit()
 
@@ -215,7 +290,7 @@ class CourseTypeAPI(MethodView):
 
 class CoursePresentersAPI(MethodView):
     def get(self: None, course_id: int) -> list:
-        """ Get all presenters for an event
+        """Get all presenters for an event
 
         Args:
             id int: valid event id
@@ -230,7 +305,7 @@ class CoursePresentersAPI(MethodView):
         return jsonify(CoursePresenterSchema(many=True).dump(presenters))
 
     def post(self: None, course_id: int, *args: list) -> List[User]:
-        """ Bulk add presenter(s) to an event. Accepts a list of any length.
+        """Bulk add presenter(s) to an event. Accepts a list of any length.
 
         Args:
             course_id (int): course id
@@ -251,6 +326,10 @@ class CoursePresentersAPI(MethodView):
         for user_id in args["user_ids"]:
             user = User.query.get(user_id)
             if user is not None:
+
+                # Update the user to a presenter so they get the dashboard at login
+                if user.usertype_id != 1 and user.usertype_id != 2:
+                    user.update({"usertype_id": 2})
                 course.presenters.append(user)
 
         db.session.commit()
@@ -260,7 +339,7 @@ class CoursePresentersAPI(MethodView):
 
 class CoursePresenterAPI(MethodView):
     def post(self: None, course_id: int, user_id: int) -> List[User]:
-        """ Add a single user as a presenter to an event.
+        """Add a single user as a presenter to an event.
 
         Args:
             course_id (int): valid event ID.
@@ -277,12 +356,16 @@ class CoursePresenterAPI(MethodView):
         if user is None:
             abort(404)
 
+        # Update the user to a presenter so they get the dashboard at login
+        if user.usertype_id != 2 and user.usertype_id != 1:
+            user.update({"usertype_id": 2})
+
         course.presenters.append(user)
         db.session.commit()
         return jsonify(CoursePresenterSchema().dump(course.presenters))
 
     def delete(self: None, course_id: int, user_id: int) -> List[User]:
-        """ Remove a single presenter from an event.
+        """Remove a single presenter from an event.
 
         Args:
             course_id (int): valid event ID
@@ -323,7 +406,7 @@ class CourseAttendeesAPI(MethodView):
         return jsonify(UserAttended(many=True).dump(registrations))
 
     def put(self: None, course_id: int, *args: list) -> List[User]:
-        """ Bulk update user attended status.
+        """Bulk update user attended status.
 
         Args:
             course_id (int): valid event ID
@@ -355,7 +438,7 @@ class CourseAttendeesAPI(MethodView):
         return jsonify(UserAttended(many=True).dump(course.registrations))
 
     def post(self: None, course_id: int, *args: list) -> List[User]:
-        """ Add multiple users to a course as an attendee
+        """Add multiple users to a course as an attendee
 
         Each user can have one registration record per course. This filters the user's current
         course registrations before creating a record.
@@ -383,15 +466,11 @@ class CourseAttendeesAPI(MethodView):
             # TODO: Handle NoneType IDs with an error?
             # Store NoneType IDs in an array and pass them back in a note that those users are NOT registered.
             if user is not None:
-                current = [
-                    course.course.id for course in user.registrations
-                ]
+                current = [course.course.id for course in user.registrations]
                 if course.id not in current:
                     course.registrations.append(
                         CourseUserAttended(course_id=course.id, user_id=user.id)
                     )
-
-            # TODO: Send calendar invite from course object
 
         db.session.commit()
 
@@ -400,7 +479,7 @@ class CourseAttendeesAPI(MethodView):
 
 class CourseAttendeeAPI(MethodView):
     def post(self: None, course_id: int, user_id: int) -> User:
-        """ Register a single user for a course
+        """Register a single user for a course
 
         Args:
             course_id (int)
@@ -411,6 +490,7 @@ class CourseAttendeeAPI(MethodView):
         """
         course = Course.query.get(course_id)
         user = User.query.get(user_id)
+        webhook_url = Config.CALENDAR_HOOK_URL
 
         # Catch errors if the user or course cannot be found.
         if course is None:
@@ -421,6 +501,22 @@ class CourseAttendeeAPI(MethodView):
             course.registrations.append(
                 CourseUserAttended(course_id=course.id, user_id=user.id)
             )
+
+            # The service account can't add people directly without Domain-Wide Delegation, which is a major
+            # security concern. POSTing to a private webhook will allow the PD account to manupulate
+            # the Calendar directly to add/remove people.
+            import requests
+
+            raw = {
+                "method": "post",
+                "token": Config.CALENDAR_HOOK_TOKEN,
+                "userId": current_user.email,
+                "calendarId": Config.GOOGLE_CALENDAR_ID,
+                "eventId": course.ext_calendar,
+            }
+
+            response = requests.post(webhook_url, json=raw)
+            print(response.json())
 
         db.session.commit()
 
@@ -463,12 +559,26 @@ class CourseAttendeeAPI(MethodView):
         """
         course = Course.query.get(course_id)
         user = course.registrations.filter_by(user_id=user_id).first()
+        webhook_url = Config.CALENDAR_HOOK_URL
 
         if user is None:
             abort(
                 404,
                 f"No user with id <{user_id}> registered for course with id <{course_id}>",
             )
+
+        raw = {
+            "method": "delete",
+            "token": Config.CALENDAR_HOOK_TOKEN,
+            "userId": current_user.email,
+            "calendarId": Config.GOOGLE_CALENDAR_ID,
+            "eventId": course.ext_calendar,
+        }
+
+        import requests
+
+        response = requests.post(webhook_url, json=raw)
+        print(response.json())
 
         course.registrations.remove(user)
         db.session.commit()
