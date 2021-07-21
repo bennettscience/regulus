@@ -9,6 +9,9 @@ class Config(object):
     ) or "sqlite:///" + os.path.join(basedir, "app.db")
     SQLALCHEMY_RECORD_QUERIES = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    GOOGLE_CALENDAR_ID = os.environ.get("GOOGLE_CALENDAR_ID")
+    CALENDAR_HOOK_TOKEN = os.environ.get("CALENDAR_HOOK_TOKEN")
+    CALENDAR_HOOK_URL = os.environ.get("CALENDAR_HOOK_URL")
 
     OAUTH_CREDENTIALS = {
         'google': {
