@@ -166,6 +166,7 @@ class UserSchema(Schema):
     email = fields.Str()
     location = fields.Nested(LocationSchema)
     role = fields.Nested("UserRoleSchema")
+    usertype_id = fields.Int()
 
 
 class UserAttended(Schema):
