@@ -85,6 +85,7 @@ class CourseListAPI(MethodView):
         # instead of Python timestamps (seconds).
         starts = CalendarService().convertToISO(args["starts"])
         ends = CalendarService().convertToISO(args["ends"])
+        default_presenter = current_user.id
 
         body = {
             "summary": args["title"],
@@ -97,9 +98,10 @@ class CourseListAPI(MethodView):
                 "dateTime": ends,
                 "timeZone": "America/Indiana/Indianapolis",
             },
-            "creator": {
+            "attendees": [{
                 "email": current_user.email,
-            },
+                "responseStatus": "accepted"
+            }],
         }
 
         # post to a webhook to handle the event creation
@@ -126,6 +128,11 @@ class CourseListAPI(MethodView):
         # TODO: mutate the args into something without 'presenter' for creating the event.
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
+
+        # Add a default presenter for now
+        result.presenters.append(current_user)
+        db.session.add(result)
+        db.session.commit()
 
         # print(args['presenters'])
 
