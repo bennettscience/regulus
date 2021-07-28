@@ -78,7 +78,11 @@ class CourseListAPI(MethodView):
         # Add Google Calendar event to public page. Store the event ID with the event
         calendar_id = Config.GOOGLE_CALENDAR_ID
 
-        service = CalendarService().build()
+        print(args["starts"])
+        print(args["ends"])
+
+        # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
+        # instead of Python timestamps (seconds).
         starts = CalendarService().convertToISO(args["starts"])
         ends = CalendarService().convertToISO(args["ends"])
 
@@ -98,15 +102,35 @@ class CourseListAPI(MethodView):
             },
         }
 
-        event = service.events().insert(calendarId=calendar_id, body=body).execute()
+        # post to a webhook to handle the event creation
+        import requests
+        webhook_url = Config.CALENDAR_HOOK_URL
+
+        payload = {
+            "method": "post",
+            "token": Config.CALENDAR_HOOK_TOKEN,
+            "userId": current_user.email,
+            "calendarId": Config.GOOGLE_CALENDAR_ID,
+            "body": body,
+        }
+
+        print('calling the webhook')
+        response = requests.post(webhook_url, json=payload)
+        # print(response.json())
 
         # Upate the args object before posting to the database
-        args["ext_calendar"] = event["id"]
+        args["ext_calendar"] = response.json()["id"]
         args["starts"] = datetime.fromtimestamp(args["starts"])
         args["ends"] = datetime.fromtimestamp(args["ends"])
 
+        # TODO: mutate the args into something without 'presenter' for creating the event.
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
+
+        # print(args['presenters'])
+
+        # Now that the course exists, the default presenter can be added.
+        # result.presenters.append(args['presenter'])
 
         # dump the entire course record for the admin
         return jsonify(CourseSchema().dump(result))
@@ -141,8 +165,12 @@ class CourseAPI(MethodView):
         Returns:
             Course: JSON representation of the updated event
         """
+        import requests
         args = parser.parse(CourseSchema(), location="json")
         course = Course.query.get(course_id)
+        calendar_id = Config.GOOGLE_CALENDAR_ID
+        webhook_url = Config.CALENDAR_HOOK_URL
+        
         if course is None:
             abort(404)
         try:
@@ -157,30 +185,28 @@ class CourseAPI(MethodView):
                         datetime.timestamp(args["ends"])
                     )
 
-                calendar_id = Config.GOOGLE_CALENDAR_ID
                 service = CalendarService().build()
 
                 body = {
                     "start": {
-                        "dateTime": starts,
+                        "dateTime": (starts * 1000),
                         "timeZone": "America/Indiana/Indianapolis",
                     },
                     "end": {
-                        "dateTime": ends,
+                        "dateTime": (ends * 1000),
                         "timeZone": "America/Indiana/Indianapolis",
                     },
                 }
 
-                event = (
-                    service.events()
-                    .patch(
-                        calendarId=calendar_id,
-                        eventId=course.ext_calendar,
-                        sendUpdates="all",
-                        body=body,
-                    )
-                    .execute()
-                )
+                payload = {
+                    "method": "put",
+                    "token": Config.CALENDAR_HOOK_TOKEN,
+                    "eventId": course.ext_calendar,
+                    "calendarId": calendar_id,
+                    "body": body,
+                }
+
+                response = requests.post(webhook_url, json=body)
 
             return (
                 jsonify({"message": "success", "course": CourseSchema().dump(course)}),
@@ -198,16 +224,27 @@ class CourseAPI(MethodView):
         Returns:
             dict: Status of the removal as an error or success message.
         """
+        import requests
+        webhook_url = Config.CALENDAR_HOOK_URL
+        calendar_id = Config.GOOGLE_CALENDAR_ID
+
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
 
-        service = CalendarService().build()
-        calendar_id = Config.GOOGLE_CALENDAR_ID
+        payload = {
+            "method": "delete",
+            "token": Config.CALENDAR_HOOK_TOKEN,
+            "calendarId": calendar_id,
+            "eventId": course.ext_calendar,
+        }
 
-        service.events().delete(
-            calendarId=calendar_id, eventId=course.ext_calendar, sendUpdates="all"
-        ).execute()
+        response = requests.post(webhook_url, json=payload)
+        print(response.text)
+
+        # service.events().delete(
+        #     calendarId=calendar_id, eventId=course.ext_calendar, sendUpdates="all"
+        # ).execute()
 
         db.session.delete(course)
         db.session.commit()
@@ -422,6 +459,7 @@ class CourseAttendeesAPI(MethodView):
         if type(args["user_ids"]) is not list:
             return jsonify({"messages": "Expected an array of user_id"}), 422
 
+        # TODO: Send calendar invites to the list of users
         if args:
             users = [
                 user
@@ -508,7 +546,7 @@ class CourseAttendeeAPI(MethodView):
             import requests
 
             raw = {
-                "method": "post",
+                "method": "patch",
                 "token": Config.CALENDAR_HOOK_TOKEN,
                 "userId": current_user.email,
                 "calendarId": Config.GOOGLE_CALENDAR_ID,
@@ -516,7 +554,6 @@ class CourseAttendeeAPI(MethodView):
             }
 
             response = requests.post(webhook_url, json=raw)
-            print(response.json())
 
         db.session.commit()
 
@@ -568,7 +605,7 @@ class CourseAttendeeAPI(MethodView):
             )
 
         raw = {
-            "method": "delete",
+            "method": "pop",
             "token": Config.CALENDAR_HOOK_TOKEN,
             "userId": current_user.email,
             "calendarId": Config.GOOGLE_CALENDAR_ID,
@@ -578,7 +615,6 @@ class CourseAttendeeAPI(MethodView):
         import requests
 
         response = requests.post(webhook_url, json=raw)
-        print(response.json())
 
         course.registrations.remove(user)
         db.session.commit()
