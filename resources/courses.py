@@ -116,9 +116,7 @@ class CourseListAPI(MethodView):
             "body": body,
         }
 
-        print('calling the webhook')
         response = requests.post(webhook_url, json=payload)
-        # print(response.json())
 
         # Upate the args object before posting to the database
         args["ext_calendar"] = response.json()["id"]
@@ -466,7 +464,6 @@ class CourseAttendeesAPI(MethodView):
         if type(args["user_ids"]) is not list:
             return jsonify({"messages": "Expected an array of user_id"}), 422
 
-        # TODO: Send calendar invites to the list of users
         if args:
             users = [
                 user
@@ -505,6 +502,10 @@ class CourseAttendeesAPI(MethodView):
         if course is None:
             abort(404)
 
+        # If the list is longer than the number of seats left, throw an error
+        if len(args["user_ids"]) > course.available_size():
+            abort(409)
+
         for user_id in args["user_ids"]:
             user = User.query.get(user_id)
 
@@ -542,7 +543,8 @@ class CourseAttendeeAPI(MethodView):
             abort(404, f"No course with id <{course_id}>")
         elif user is None:
             abort(404, f"No user with id <{user_id}>")
-        else:
+
+        if course.available_size() > 0:
             course.registrations.append(
                 CourseUserAttended(course_id=course.id, user_id=user.id)
             )
@@ -562,7 +564,10 @@ class CourseAttendeeAPI(MethodView):
 
             response = requests.post(webhook_url, json=raw)
 
-        db.session.commit()
+            db.session.commit()
+
+        else:
+            abort(409)
 
         user = course.registrations.filter_by(user_id=user_id).first()
         return jsonify({"message": "success", "data": UserAttended().dump(user)})
