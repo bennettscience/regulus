@@ -17,13 +17,26 @@ def unauthorized(err):
     return response
 
 @app.errorhandler(404)
-def page_not_found(e):
-    response = e.get_response()
+def page_not_found(err):
+    response = err.get_response()
     response.data = json.dumps(
         {
-            "code": e.code,
-            "name": e.name,
-            "description": e.description,
+            "code": err.code,
+            "name": err.name,
+            "description": err.description,
+        }
+    )
+    response.content_type = "application/json"
+    return response
+
+@app.errorhandler(409)
+def request_conflict(err):
+    response = err.get_response()
+    response.data = json.dumps(
+        {
+            "code": err.code,
+            "name": err.name,
+            "description": "There aren't enough seats left to register for the event."
         }
     )
     response.content_type = "application/json"
