@@ -61,9 +61,11 @@ class CourseListAPI(MethodView):
             for course in courses:
                 course.available = course.available_size()
 
+            sorted_courses = sorted(courses)
+
             if current_user.role.name == "SuperAdmin":
-                return jsonify(CourseSchema(many=True).dump(courses))
-            return jsonify(PublicCourseSchema(many=True).dump(courses))
+                return jsonify(CourseSchema(many=True).dump(sorted_courses))
+            return jsonify(PublicCourseSchema(many=True).dump(sorted_courses))
         else:
             return jsonify({"message": "No courses"})
 
@@ -175,7 +177,7 @@ class CourseAPI(MethodView):
         course = Course.query.get(course_id)
         calendar_id = Config.GOOGLE_CALENDAR_ID
         webhook_url = Config.CALENDAR_HOOK_URL
-        
+
         if course is None:
             abort(404)
         try:
@@ -403,7 +405,9 @@ class CoursePresenterAPI(MethodView):
             user.update({"usertype_id": 2})
 
         course.presenters.append(user)
+
         db.session.commit()
+
         return jsonify(CoursePresenterSchema().dump(course.presenters))
 
     def delete(self: None, course_id: int, user_id: int) -> List[User]:

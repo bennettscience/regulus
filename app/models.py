@@ -131,6 +131,12 @@ class Course(Manager, db.Model):
     def available_size(self):
         return self.course_size - len(self.registrations.all())
 
+    def __eq__(self, other):
+        return self.starts == other.starts
+
+    def __lt__(self, other):
+        return self.starts < other.starts
+
 
 class CourseLink(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
