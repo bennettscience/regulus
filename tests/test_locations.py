@@ -46,7 +46,7 @@ class TestUsers(unittest.TestCase):
         resp = self.client.post("/locations", data=json.dumps(payload), headers=headers)
         self.assertTrue(resp.status_code == 422)
         self.assertEqual(
-            resp.json["errors"]["json"]["name"][0], "Missing data for required field."
+            resp.json["messages"]["name"][0], "Missing data for required field."
         )
 
     def test_get_single_location(self):

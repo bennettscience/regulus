@@ -6,6 +6,7 @@ from webargs import fields, validate
 from webargs.flaskparser import parser, use_args, use_kwargs
 
 from app import db
+from app.auth import admin_only
 from app.models import Course, CourseUserAttended, User
 from app.schemas import (
     CourseSchema,
@@ -19,39 +20,33 @@ from app.schemas import (
 
 class UserListAPI(MethodView):
     @parser.use_kwargs({'user_type': fields.Int()}, location="querystring")
+    @admin_only
     def get(self: None, user_type=None) -> List[User]:
         """ Get a list of all users.
 
         Returns:
             List[User]: List of users.
         """
-
-        print(user_type is None)
-        print(current_user.usertype_id == 1)
-        print(current_user.usertype_id == 1 and user_type is None)
         # TODO: Clean this up somehow?
+        print(f"user requesting: {current_user}")
         if current_user.usertype_id == 4:
-            print('Teacher')
             abort(401)
         elif current_user.usertype_id != 1 and user_type is None:
-            print('Not a teacher or admin')
             # abort a request from non-admins for all users
             abort(401)
         elif current_user.usertype_id < 4 and current_user.usertype_id != 1 and user_type != 1:
-            print('Not a teacher, not requesting an admin')
             # presenters, observers, and admins can request non-admins
             users = User.query.filter_by(usertype_id=user_type).all()
         elif current_user.usertype_id == 1 and user_type:
-            print('Admin looking for a specfic type')
             users = User.query.filter_by(usertype_id=user_type).all()
         elif current_user.usertype_id == 1 and user_type is None:
-            print('Admin looking for all users')
             users = User.query.all()
-            print(users)
         else:
             abort(422)
 
-        return jsonify(UserSchema(many=True).dump(users))
+        # TODO: Sort users by last name
+        sorted_users = sorted(users)
+        return jsonify(UserSchema(many=True).dump(sorted_users))
 
     def post(self: None) -> User:
         """ Create a new user
