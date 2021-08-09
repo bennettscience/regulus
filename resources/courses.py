@@ -42,7 +42,7 @@ class CourseListAPI(MethodView):
         Returns:
             List: List of Course objects.
         """
-        now = datetime.utcnow()
+        now = datetime.now()
         if current_user.is_anonymous:
             abort(401)
 
