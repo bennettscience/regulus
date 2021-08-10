@@ -1,17 +1,19 @@
-from flask import abort, current_app, session, url_for
-from flask.globals import g
+from functools import wraps
+from flask import abort, current_app, url_for
+from flask_login import current_user
 
 from app import app
 from authlib.integrations.flask_client import OAuth
 
 
-def is_admin(f):
+def admin_only(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        if g.user.role != "admin":
+        if current_user.is_anonymous:
+            abort(401)
+        if not current_user.usertype_id == 1:
             abort(403)
-        # invoke the wrapped function
-        return f(*args, **kwargs)
-
+        return func(*args, **kwargs)
     return wrapper
 
 
@@ -24,8 +26,6 @@ class OAuthSignIn(object):
         self.consumer_key = credentials["key"]
         self.consumer_secret = credentials["secret"]
         self.conf_url = credentials["conf_url"]
-
-        print(credentials)
 
     def authorize(self):
         pass
@@ -58,7 +58,6 @@ class GoogleSignIn(OAuthSignIn):
 
     def authorize(self):
         redirect_uri = url_for("callback", _external=True)
-        print(f"starting auth on {redirect_uri}")
         return self.oauth.google.authorize_redirect(redirect_uri)
 
     def authorize_access_token(self):
