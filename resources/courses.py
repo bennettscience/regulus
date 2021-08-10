@@ -48,12 +48,9 @@ class CourseListAPI(MethodView):
 
         # This filters events down to active, future events.
         # TODO: accept arguments to filter per request rather than all.
-        if current_user.role.name == "SuperAdmin":
-            courses = Course.query.all()
-        else:
-            courses = Course.query.filter(
-                Course.active == True, Course.starts >= now
-            ).all()
+        courses = Course.query.filter(
+            Course.active == True, Course.starts >= now
+        ).all()
 
         if len(courses) > 0:
 
