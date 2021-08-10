@@ -164,6 +164,12 @@ class User(Manager, UserMixin, db.Model):
         lazy="dynamic",
     )
 
+    def __eq__(self, other):
+        return self.name.split(" ")[::-1][0] == other.name.split(" ")[::-1][0]
+
+    def __lt__(self, other):
+        return self.name.split(" ")[::-1][0] < other.name.split(" ")[::-1][0]
+
 
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
