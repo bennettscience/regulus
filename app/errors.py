@@ -8,9 +8,21 @@ def unauthorized(err):
     response.data = json.dumps(
         {
             "code": err.code,
-            "name": err.name,
-            "description": err.description
+            "name": "Wrong Authorization",
+            "description": "Incorrect authorization credentials used in the request."
+        }
+    )
+    response.content_type = "application/json"
+    return response
 
+@app.errorhandler(403)
+def forbidden(err):
+    response = err.get_response()
+    response.data = json.dumps(
+        {
+            "code": err.code,
+            "name": "Forbidden",
+            "description": "You do not have permission to access this resource."
         }
     )
     response.content_type = "application/json"
@@ -52,10 +64,9 @@ def handle_error(err):
             "code": err.code,
             "name": err.name,
             "description": "Unprocessable request. See messages for details.",
-            "messages": messages
+            "messages": messages['json']
         }
     )
-
     response.content_type = "application/json"
     return response
 
