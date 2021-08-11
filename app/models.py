@@ -73,29 +73,29 @@ course_locations = db.Table(
 
 class CourseType(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    description = db.Column(db.String)
+    name = db.Column(db.String(64))
+    description = db.Column(db.String(64))
 
 
 class CourseLinkType(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    description = db.Column(db.String)
+    name = db.Column(db.String(64))
+    description = db.Column(db.String(64))
 
 
 class Location(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True)
-    description = db.Column(db.String)
-    address = db.Column(db.String)
+    name = db.Column(db.String(100), unique=True)
+    description = db.Column(db.String(255))
+    address = db.Column(db.String(255))
 
     courses = db.relationship("Course", backref="location")
 
 
 class UserType(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True)
-    description = db.Column(db.String)
+    name = db.Column(db.String(64), unique=True)
+    description = db.Column(db.String(255))
 
 
 # One to Many tables
@@ -108,12 +108,12 @@ class Course(Manager, db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey(Location.id))
     course_size = db.Column(db.Integer)
     title = db.Column(db.String(64))
-    description = db.Column(db.String)
+    description = db.Column(db.String(3000))
     starts = db.Column(db.DateTime, default=datetime.utcnow)
     ends = db.Column(db.DateTime, default=datetime.utcnow)
     active = db.Column(db.Boolean, default=True)
     occurred = db.Column(db.Boolean, default=False)
-    ext_calendar = db.Column(db.String, unique=True)
+    ext_calendar = db.Column(db.String(255), unique=True)
 
     type = db.relationship(CourseType, backref="course")
     links = db.relationship("CourseLink", uselist=True)
@@ -142,16 +142,16 @@ class CourseLink(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey("course.id"))
     courselinktype_id = db.Column(db.Integer, db.ForeignKey("course_link_type.id"))
-    name = db.Column(db.String)
-    uri = db.Column(db.String)
+    name = db.Column(db.String(255))
+    uri = db.Column(db.String(255))
 
     type = db.relationship(CourseLinkType)
 
 
 class User(Manager, UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    email = db.Column(db.String, unique=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
     location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
     usertype_id = db.Column(db.Integer, db.ForeignKey("user_type.id"))
 
@@ -176,13 +176,13 @@ class Log(db.Model):
     # Who made the change
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
     # Caller IP
-    source_uri = db.Column(db.String)
+    source_uri = db.Column(db.String(255))
     # What did they call
-    endpoint = db.Column(db.String)
+    endpoint = db.Column(db.String(255))
     # What did it do
-    method = db.Column(db.String)
+    method = db.Column(db.String(64))
     # Post data
-    json_data = db.Column(db.String)
+    json_data = db.Column(db.String(1000))
     # Timestamp
     occurred = db.Column(db.DateTime, default=datetime.utcnow)
 
