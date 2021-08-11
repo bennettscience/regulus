@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-import os
+import re
 
 from flask import (
     Flask,
@@ -10,6 +10,7 @@ from flask import (
     request,
     session,
     send_from_directory,
+    abort
 )
 from flask_login import (
     LoginManager,
@@ -42,7 +43,7 @@ lm = LoginManager(app)
 # TODO: Check all sensititve API routes for access control logic.
 from app import app, db, errors
 from app.logging import create_log
-from app.auth import OAuthSignIn
+from app.auth import OAuthSignIn, admin_only
 from app.calendar import CalendarService
 from app.models import CourseUserAttended, User, Course
 from resources.courselinks import CourseLinkAPI, CourseLinksAPI
@@ -127,8 +128,6 @@ def oauth_authorize(provider):
     # redirect_uri = url_for('auth', _external=True)
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
-    # return oauth.google.authorize_redirect(redirect_uri)
-
 
 @app.route("/callback")
 def callback():
@@ -139,9 +138,9 @@ def callback():
     name = received_user["name"]
     if email is None:
         return jsonify({"message": "Unable to login, email is null"})
+
     user = User.query.filter_by(email=email).first()
     if not user:
-        # name = f"{user['given_name']} {user['family_name']}"
         user = User(name=name, email=email, usertype_id=4)
         db.session.add(user)
         db.session.commit()
@@ -291,7 +290,9 @@ app.add_url_rule(
     view_func=location_course_view,
     methods=["GET"],
 )
+
 app.add_url_rule("/users", view_func=users_view, methods=["GET", "POST"])
+
 app.add_url_rule(
     "/users/<int:user_id>", view_func=user_view, methods=["GET", "PUT", "DELETE"]
 )
@@ -310,60 +311,3 @@ app.add_url_rule(
     "/users/<int:user_id>/presenting", view_func=user_presenting_view, methods=["GET"]
 )
 app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
-
-# @app.errorhandler(401)
-# def unauthorized(err):
-#     response = err.get_response()
-#     response.data = json.dumps(
-#         {
-#             "code": err.code,
-#             "name": err.name,
-#             "description": "You are not authorized to access this resource."
-
-#         }
-#     )
-#     response.content_type = "application/json"
-#     return response
-
-@app.errorhandler(422)
-@app.errorhandler(400)
-def handle_error(err):
-    response = err.get_response()
-    messages = err.data.get("messages", ["Invalid request."])
-    print(messages)
-    response.data = json.dumps(
-        {
-            "code": err.code,
-            "name": err.name,
-            "description": "Unprocessable request. See messages for details.",
-            "messages": messages
-        }
-    )
-
-    response.content_type = "application/json"
-    return response
-
-
-# @app.errorhandler(404)
-# def page_not_found(e):
-#     response = e.get_response()
-#     # replace the body with JSON
-#     response.data = json.dumps(
-#         {
-#             "code": e.code,
-#             "name": e.name,
-#             "description": e.description,
-#         }
-#     )
-#     response.content_type = "application/json"
-#     return response
-
-
-# @app.errorhandler(500)
-# def internal_error(e):
-#     response = e.get_response()
-#     response.data = json.dumps(
-#         {"code": e.code, "name": e.name, "description": e.description}
-#     )
-#     response.content_type = "applicaton/json"
-#     return response
