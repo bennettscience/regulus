@@ -171,6 +171,7 @@ class UserSchema(Schema):
 
 class UserAttended(Schema):
     user = fields.Nested(UserSchema)
+    course = fields.Nested(CourseAttendingSchema)
     attended = fields.Bool()
 
 
