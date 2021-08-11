@@ -20,7 +20,6 @@ from app.schemas import (
 
 class UserListAPI(MethodView):
     @parser.use_kwargs({'user_type': fields.Int()}, location="querystring")
-    @admin_only
     def get(self: None, user_type=None) -> List[User]:
         """ Get a list of all users.
 
@@ -74,12 +73,12 @@ class UserAPI(MethodView):
         Returns:
             User: JSON representation of the user.
         """
-
         # Limit this to SuperAdmin, Presenters, or the user making the request
-        if current_user.usertype_id != 1 or current_user.usertype_id != 2 or user_id is not current_user.id:
+        if current_user.usertype_id == 1 or current_user.usertype_id == 2 or user_id is current_user.id:
+            user = User.query.get(user_id)
+            return jsonify(UserSchema().dump(user))
+        else:
             abort(401)
-        user = User.query.get(user_id)
-        return jsonify(UserSchema().dump(user))
 
     def put(self: None, user_id: int) -> User:
         """ Update a user's details
@@ -201,14 +200,15 @@ class UserAttendingAPI(MethodView):
         Returns:
             List[Course]: list of courses
         """
-        if user_id is not current_user.id:
+        if current_user.usertype_id == 1 or current_user.usertype_id == 2 or user_id is current_user.id:
+            user = User.query.get(user_id)
+            if user is None:
+                abort(404)
+
+            return jsonify(UserAttendingSchema(many=True).dump(user.registrations))
+        else:
             abort(401)
 
-        user = User.query.get(user_id)
-        if user is None:
-            abort(404)
-
-        return jsonify(UserAttendingSchema(many=True).dump(user.registrations))
 
 class UserConfirmedAPI(MethodView):
     # Return only _confirmed_ courses for a user
