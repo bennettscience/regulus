@@ -1,8 +1,10 @@
 .venv/
 .flaskenv
 __pycache__/
+.DS_STORE
 app.db
 .python-version
 token.json
 app/client/*
+config.py
 
