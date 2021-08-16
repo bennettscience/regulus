@@ -12,7 +12,7 @@ from app import db
 from config import Config
 
 from app.calendar import CalendarService
-from app.models import Course, CourseType, CourseUserAttended, User
+from app.models import Course, CourseLink, CourseType, CourseUserAttended, User
 from app.schemas import (
     CourseAttendingSchema,
     CoursePresenterSchema,
@@ -76,12 +76,10 @@ class CourseListAPI(MethodView):
             Course: JSON representation of the event
         """
         args = parser.parse(NewCourseSchema(), location="json")
+        print(args)
 
         # Add Google Calendar event to public page. Store the event ID with the event
         calendar_id = Config.GOOGLE_CALENDAR_ID
-
-        print(args["starts"])
-        print(args["ends"])
 
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
@@ -106,6 +104,20 @@ class CourseListAPI(MethodView):
             }],
         }
 
+        if args['coursetype_id'] == 2:
+            import uuid
+            request_id = uuid.uuid1().hex
+
+            body["conferenceData"] = {
+                "createRequest": {
+                    "conferenceSolutionKey": {
+                        "type": "hangoutsMeet"
+                    },
+                    "requestId": request_id
+                }
+            }
+
+        # breakpoint()
         # post to a webhook to handle the event creation
         import requests
         webhook_url = Config.CALENDAR_HOOK_URL
@@ -131,6 +143,22 @@ class CourseListAPI(MethodView):
 
         # Add a default presenter for now
         result.presenters.append(current_user)
+        # breakpoint()
+        # If it's a Google Meet, add the link
+        if response.json()['conferenceData']['entryPoints'] is not None:
+            from app.models import CourseLinkType
+            linktype_id = CourseLinkType.query.filter(CourseLinkType.name == "Google Meet").first().id
+            
+            link = {
+                "course_id": response.json()['id'],
+                "courselinktype_id": linktype_id,
+                "name": "Join the Meet",
+                "uri": response.json()['conferenceData']['entryPoints'][0]['uri']
+            }
+            course_link = CourseLink().create(CourseLink, link)
+            
+            result.links.append(course_link)
+        
         db.session.add(result)
         db.session.commit()
 
