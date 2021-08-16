@@ -366,6 +366,9 @@ class CoursePresentersAPI(MethodView):
 
         if course is None:
             abort(404)
+        
+        import requests
+        webhook_url = Config.CALENDAR_HOOK_URL
 
         for user_id in args["user_ids"]:
             user = User.query.get(user_id)
@@ -375,6 +378,17 @@ class CoursePresentersAPI(MethodView):
                 if user.usertype_id != 1 and user.usertype_id != 2:
                     user.update({"usertype_id": 2})
                 course.presenters.append(user)
+
+                # Add the presenter to the calendar event automatically.
+                raw = {
+                    "method": "patch",
+                    "token": Config.CALENDAR_HOOK_TOKEN,
+                    "userId": user.email,
+                    "calendarId": Config.GOOGLE_CALENDAR_ID,
+                    "eventId": course.ext_calendar,
+                }
+
+                response = requests.post(webhook_url, json=raw)
 
         db.session.commit()
 
