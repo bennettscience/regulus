@@ -59,6 +59,7 @@ class NewCourseSchema(Schema):
     description = fields.Str(required=True)
     starts = fields.Float(required=True)
     ends = fields.Float(required=True)
+    type = fields.Nested("CourseTypeSchema")
 
     class Meta:
         unknown = INCLUDE
@@ -187,6 +188,7 @@ class UserPresentingSchema(Schema):
 class UserRoleSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str()
+    description = fields.Str()
 
 
 class NewUserLocation(Schema):
