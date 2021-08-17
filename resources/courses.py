@@ -145,7 +145,7 @@ class CourseListAPI(MethodView):
         result.presenters.append(current_user)
         # breakpoint()
         # If it's a Google Meet, add the link
-        if response.json()['conferenceData']['entryPoints'] is not None:
+        if 'conferenceData' in response.json():
             from app.models import CourseLinkType
             linktype_id = CourseLinkType.query.filter(CourseLinkType.name == "Google Meet").first().id
             
@@ -220,15 +220,13 @@ class CourseAPI(MethodView):
                         datetime.timestamp(args["ends"])
                     )
 
-                service = CalendarService().build()
-
                 body = {
                     "start": {
-                        "dateTime": (starts * 1000),
+                        "dateTime": starts,
                         "timeZone": "America/Indiana/Indianapolis",
                     },
                     "end": {
-                        "dateTime": (ends * 1000),
+                        "dateTime": ends,
                         "timeZone": "America/Indiana/Indianapolis",
                     },
                 }
@@ -240,8 +238,7 @@ class CourseAPI(MethodView):
                     "calendarId": calendar_id,
                     "body": body,
                 }
-
-                response = requests.post(webhook_url, json=body)
+                response = requests.post(webhook_url, json=payload)
 
             return (
                 jsonify({"message": "success", "course": CourseSchema().dump(course)}),
