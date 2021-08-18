@@ -27,7 +27,6 @@ class UserListAPI(MethodView):
             List[User]: List of users.
         """
         # TODO: Clean this up somehow?
-        print(f"user requesting: {current_user}")
         if current_user.usertype_id == 4:
             abort(401)
         elif current_user.usertype_id != 1 and user_type is None:
@@ -55,6 +54,9 @@ class UserListAPI(MethodView):
         """
         args = parser.parse(NewUserSchema(), location="json")
 
+        if current_user.usertype_id != 1:
+            abort(403)
+
         try:
             user = User().create(User, args)
             result = User.query.get(user.id)
@@ -78,7 +80,7 @@ class UserAPI(MethodView):
             user = User.query.get(user_id)
             return jsonify(UserSchema().dump(user))
         else:
-            abort(401)
+            abort(403)
 
     def put(self: None, user_id: int) -> User:
         """ Update a user's details
@@ -91,19 +93,19 @@ class UserAPI(MethodView):
         """
 
         # Limit this to SuperAdmins or the user making the request.
-        if current_user.usertype_id != 1:
-            abort(401)
+        if current_user.usertype_id == 1 or current_user.id == user_id:
+            args = parser.parse(UserSchema(), location="json")
+            user = User.query.get(user_id)
+            if user is None:
+                abort(404)
 
-        args = parser.parse(UserSchema(), location="json")
-        user = User.query.get(user_id)
-        if user is None:
-            abort(404)
-
-        try:
-            user.update(args)
-            return jsonify(UserSchema().dump(user))
-        except Exception as e:
-            return jsonify(e)
+            try:
+                user.update(args)
+                return jsonify(UserSchema().dump(user))
+            except Exception as e:
+                return jsonify(e)
+        else:
+            abort(403)
 
     def delete(self: None, user_id: int) -> dict:
         """ Delete a user.
@@ -119,6 +121,9 @@ class UserAPI(MethodView):
         """
         if current_user.usertype_id != 1:
             abort(401)
+        
+        if current_user.id == user_id:
+            abort(403)
 
         args = parser.parse(UserSchema(), location="query")
         user = User.query.get(user_id)
@@ -161,15 +166,19 @@ class UserLocationAPI(MethodView):
             User: Updated user location as JSON
         """
         args = parser.parse(NewUserLocation(), location="json")
-        user = User.query.get(user_id)
-        if user is None:
-            abort(404)
+        
+        if current_user.id == user_id or current_user.usertype_id == 1:   
+            user = User.query.get(user_id)
+            if user is None:
+                abort(404)
 
-        try:
-            user.update(args)
-            return jsonify(UserLocationSchema().dump(user.location))
-        except Exception as e:
-            return jsonify(e)
+            try:
+                user.update(args)
+                return jsonify(UserLocationSchema().dump(user.location))
+            except Exception as e:
+                return jsonify(e)
+        else:
+            abort(403)
 
     def delete(self: None, user_id: int) -> User:
         """ Delete a user's location
@@ -180,14 +189,17 @@ class UserLocationAPI(MethodView):
         Returns:
             User: User as JSON
         """
-        user = User.query.get(user_id)
-        if user is None:
-            abort(404)
+        if current_user.id == user_id or current_user.usertype_id == 1:    
+            user = User.query.get(user_id)
+            if user is None:
+                abort(404)
 
-        user.location = None
-        db.session.commit()
+            user.location = None
+            db.session.commit()
 
-        return jsonify(UserLocationSchema().dump(user.location))
+            return jsonify(UserLocationSchema().dump(user.location))
+        else:
+            abort(403)
 
 
 class UserAttendingAPI(MethodView):
@@ -221,17 +233,17 @@ class UserConfirmedAPI(MethodView):
         Returns:
             List[Course]: List of <Course> objects as JSON
         """
-        if user_id is not current_user.id:
-            abort(401)
+        if user_id is current_user.id or current_user.usertype_id == 1 or current_user.usertype_id == 2:
+            confirmed = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
+            if confirmed is None:
+                abort(404)
 
-        confirmed = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
-        if confirmed is None:
-            abort(404)
+            for event in confirmed:
+                event.course.total = divmod((event.course.ends - event.course.starts).total_seconds(), 3600)[0]
 
-        for event in confirmed:
-            event.course.total = divmod((event.course.ends - event.course.starts).total_seconds(), 3600)[0]
-
-        return jsonify(UserAttendingSchema(many=True).dump(confirmed))
+            return jsonify(UserAttendingSchema(many=True).dump(confirmed))
+        else:
+            abort(403)
 
 
 class UserPresentingAPI(MethodView):
@@ -245,7 +257,7 @@ class UserPresentingAPI(MethodView):
         Returns:
             List[Course]: List of <Course> objects as JSON
         """
-        if user_id is not current_user.id:
+        if user_id is not current_user.id and current_user.usertype_id != 1:
             abort(401)
 
         user = User.query.get(user_id)
