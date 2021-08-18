@@ -78,7 +78,7 @@ class TestCourseLinks(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 422)
         self.assertEqual(
-            resp.json["messages"]["json"]["courselinktype_id"][0],
+            resp.json["messages"]["courselinktype_id"][0],
             "Missing data for required field.",
         )
 
@@ -130,7 +130,7 @@ class TestSingleCourseLink(unittest.TestCase):
             "/courses/1/links/1", data=json.dumps(payload), headers=headers
         )
         self.assertEqual(resp.status_code, 422)
-        self.assertEqual(resp.json["messages"]["json"]["nam"][0], "Unknown field.")
+        self.assertEqual(resp.json["messages"]["nam"][0], "Unknown field.")
 
     def test_delete_single_link(self):
         resp = self.client.delete("/courses/1/links/1")
