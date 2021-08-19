@@ -173,17 +173,11 @@ class User(Manager, UserMixin, db.Model):
 
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # Who made the change
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    # Caller IP
     source_uri = db.Column(db.String(255))
-    # What did they call
     endpoint = db.Column(db.String(255))
-    # What did it do
     method = db.Column(db.String(64))
-    # Post data
     json_data = db.Column(db.String(1000))
-    # Timestamp
     occurred = db.Column(db.DateTime, default=datetime.utcnow)
 
 
