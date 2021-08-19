@@ -14,10 +14,7 @@ def create_log():
     if request.json is not None:
         data = request.json
     
-    if current_user.is_anonymous:
-        user_id = 0
-    else:
-        user_id = current_user.id
+    user_id = current_user.id
 
     log = Log(
         user_id=user_id,

@@ -222,7 +222,8 @@ def generate_single_pdf(user_id, course_id):
 # Logging
 @app.before_request
 def log_request():
-    create_log()
+    if not current_user.is_anonymous:
+        create_log()
 
 
 # CRUD endpoints
