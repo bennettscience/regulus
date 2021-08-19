@@ -23,6 +23,7 @@ from app.schemas import (
     UserAttended,
     UserSchema,
 )
+from app.utils import sanitize_html
 
 course_schema = CourseSchema()
 courses_schema = CourseSchema(many=True)
@@ -76,7 +77,6 @@ class CourseListAPI(MethodView):
             Course: JSON representation of the event
         """
         args = parser.parse(NewCourseSchema(), location="json")
-        print(args)
 
         # Add Google Calendar event to public page. Store the event ID with the event
         calendar_id = Config.GOOGLE_CALENDAR_ID
@@ -137,6 +137,8 @@ class CourseListAPI(MethodView):
         args["starts"] = datetime.fromtimestamp(args["starts"])
         args["ends"] = datetime.fromtimestamp(args["ends"])
 
+        args["description"] = sanitize_html(args["description"])
+
         # TODO: mutate the args into something without 'presenter' for creating the event.
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
@@ -161,8 +163,6 @@ class CourseListAPI(MethodView):
         
         db.session.add(result)
         db.session.commit()
-
-        # print(args['presenters'])
 
         # Now that the course exists, the default presenter can be added.
         # result.presenters.append(args['presenter'])
@@ -272,7 +272,6 @@ class CourseAPI(MethodView):
         }
 
         response = requests.post(webhook_url, json=payload)
-        print(response.text)
 
         # service.events().delete(
         #     calendarId=calendar_id, eventId=course.ext_calendar, sendUpdates="all"
@@ -292,7 +291,6 @@ class CourseTypesAPI(MethodView):
             List[CourseType]: List of <CourseType> as JSON
         """
         course_types = CourseType.query.all()
-        print(CourseTypeSchema(many=True).dump(course_types))
         return jsonify(CourseTypeSchema(many=True).dump(course_types))
 
     def post(self: None) -> CourseType:
