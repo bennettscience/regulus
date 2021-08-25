@@ -23,7 +23,7 @@ from app.schemas import (
     UserAttended,
     UserSchema,
 )
-from app.utils import sanitize_html
+from app.utils import clean_escaped_html
 
 course_schema = CourseSchema()
 courses_schema = CourseSchema(many=True)
@@ -64,7 +64,7 @@ class CourseListAPI(MethodView):
 
             sorted_courses = sorted(courses)
 
-            if current_user.role.name == "SuperAdmin":
+            if current_user.usertype_id == 1:
                 return jsonify(CourseSchema(many=True).dump(sorted_courses))
             return jsonify(PublicCourseSchema(many=True).dump(sorted_courses))
         else:
@@ -77,7 +77,7 @@ class CourseListAPI(MethodView):
             Course: JSON representation of the event
         """
         args = parser.parse(NewCourseSchema(), location="json")
-
+        
         # Add Google Calendar event to public page. Store the event ID with the event
         calendar_id = Config.GOOGLE_CALENDAR_ID
 
@@ -117,7 +117,6 @@ class CourseListAPI(MethodView):
                 }
             }
 
-        # breakpoint()
         # post to a webhook to handle the event creation
         import requests
         webhook_url = Config.CALENDAR_HOOK_URL
@@ -137,7 +136,7 @@ class CourseListAPI(MethodView):
         args["starts"] = datetime.fromtimestamp(args["starts"])
         args["ends"] = datetime.fromtimestamp(args["ends"])
 
-        args["description"] = sanitize_html(args["description"])
+        args["description"] = clean_escaped_html(args["description"])
 
         # TODO: mutate the args into something without 'presenter' for creating the event.
         course = Course().create(Course, args)
@@ -209,6 +208,7 @@ class CourseAPI(MethodView):
         if course is None:
             abort(404)
         try:
+            args['description'] = clean_escaped_html(args['description'])
             course.update(args)
             if "starts" in args or "ends" in args:
                 if "starts" in args:
