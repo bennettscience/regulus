@@ -23,5 +23,5 @@ def clean_escaped_html(value: str) -> str:
     Returns:
         str: Sanitized HTML
     """
-    clean = bleach_extras.clean_strip_content(unescape(value), tags=['p', 'strong', 'em', 'br', 'ul', 'ol', 'li'])
+    clean = bleach_extras.clean_strip_content(unescape(value), tags=['p', 'strong', 'em', 'u', 'br', 'ul', 'ol', 'li'])
     return clean
