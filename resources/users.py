@@ -212,6 +212,7 @@ class UserAttendingAPI(MethodView):
         Returns:
             List[Course]: list of courses
         """
+        # Note to future Brian: using `is` works for low integers, not for large.
         if current_user.usertype_id == 1 or current_user.usertype_id == 2 or user_id == current_user.id:
             user = User.query.get(user_id)
             if user is None:
