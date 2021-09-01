@@ -208,8 +208,11 @@ class CourseAPI(MethodView):
         if course is None:
             abort(404)
         try:
-            args['description'] = clean_escaped_html(args['description'])
+            if 'description' in args:
+                args['description'] = clean_escaped_html(args['description'])
+            
             course.update(args)
+            
             if "starts" in args or "ends" in args:
                 if "starts" in args:
                     starts = CalendarService().convertToISO(
