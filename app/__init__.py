@@ -204,17 +204,16 @@ def generate_single_pdf(user_id, course_id):
     events = []
     total = 0
     user = User.query.get(user_id)
-    query = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
-    for event in query:
-        eventTotal = (event.course.ends - event.course.starts).total_seconds() / 3600
-        total = total + eventTotal
-        events.append(
-            {
-                'title': event.course.title,
-                'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
-                'total': eventTotal,
-            }
-        )
+    event = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
+    eventTotal = (event.course.ends - event.course.starts).total_seconds() / 3600
+    total = total + eventTotal
+    events.append(
+        {
+            'title': event.course.title,
+            'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
+            'total': eventTotal,
+        }
+    )
 
     html = render_template('pdf.html', user=user, events=events, total=total)
     return render_pdf(HTML(string=html))
