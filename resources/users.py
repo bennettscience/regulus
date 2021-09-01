@@ -240,7 +240,8 @@ class UserConfirmedAPI(MethodView):
                 abort(404)
 
             for event in confirmed:
-                event.course.total = divmod((event.course.ends - event.course.starts).total_seconds(), 3600)[0]
+                event.course.total = (event.course.ends - event.course.starts).total_seconds() / 3600
+                # event.course.total = divmod((event.course.ends - event.course.starts).total_seconds(), 3600)[0]
 
             return jsonify(UserAttendingSchema(many=True).dump(confirmed))
         else:
