@@ -45,7 +45,7 @@ from app import app, db, errors
 from app.logging import create_log
 from app.auth import OAuthSignIn, admin_only
 from app.calendar import CalendarService
-from app.models import CourseUserAttended, User, Course
+from app.models import CourseUserAttended, User, Course, Log
 from resources.courselinks import CourseLinkAPI, CourseLinksAPI
 from resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
 from resources.courses import (
@@ -73,7 +73,7 @@ from resources.users import (
     UserConfirmedAPI
 )
 from resources.usertypes import UserTypesAPI
-from app.schemas import UserSchema, CourseSchema
+from app.schemas import UserSchema, CourseSchema, LogSchema
 
 
 # Register the endpoints in Flask
@@ -223,6 +223,12 @@ def generate_single_pdf(user_id, course_id):
 def log_request():
     if not current_user.is_anonymous:
         create_log()
+
+# Request all logs for an event
+@app.route("/logs/<int:course_id>", methods=['GET'])
+def get_logs(course_id):
+    query = Log.query.filter(Log.endpoint.like(f'/courses/{course_id}/%')).all()
+    return jsonify(LogSchema(many=True).dump(query))
 
 
 # CRUD endpoints

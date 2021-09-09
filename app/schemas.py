@@ -150,6 +150,17 @@ class LocationSchema(Schema):
     address = fields.Str(missing="")
 
 
+# Log Schema
+
+
+class LogSchema(Schema):
+    occurred = DateTime('timestamp')
+    user = fields.Nested("UserSchema", only=('id', 'name', 'role'))
+    endpoint = fields.Str()
+    method = fields.Str()
+    json_data = fields.Str()
+
+
 # User Schemas
 
 

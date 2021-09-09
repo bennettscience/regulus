@@ -180,6 +180,8 @@ class Log(db.Model):
     json_data = db.Column(db.String(1000))
     occurred = db.Column(db.DateTime, default=datetime.utcnow)
 
+    user = db.relationship("User", backref="actions")
+
 
 class CourseUserAttended(Manager, db.Model):
     __tablename__ = "course_user_attended"
