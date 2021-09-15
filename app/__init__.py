@@ -25,12 +25,20 @@ from flask_weasyprint import render_pdf, HTML
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.exceptions import HTTPException
 
 from sqlalchemy import func
 
 
 from config import Config
+
+sentry_sdk.init(
+    dsn=Config.SENTRY_DSN,
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=0.5
+)
 
 app = Flask(__name__)
 app.secret_key = "!secret"
