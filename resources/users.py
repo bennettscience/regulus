@@ -259,10 +259,11 @@ class UserPresentingAPI(MethodView):
         Returns:
             List[Course]: List of <Course> objects as JSON
         """
-        if user_id is not current_user.id and current_user.usertype_id != 1:
+        if user_id == current_user.id or current_user.usertype_id == 1:
+            user = User.query.get(user_id)
+            if user is None:
+                abort(404)
+        else:
             abort(401)
-
-        user = User.query.get(user_id)
-        if user is None:
-            abort(404)
+        
         return jsonify(CourseSchema(many=True).dump(user.presenting))
