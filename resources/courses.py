@@ -77,15 +77,11 @@ class CourseListAPI(MethodView):
             Course: JSON representation of the event
         """
         args = parser.parse(NewCourseSchema(), location="json")
-        
-        # Add Google Calendar event to public page. Store the event ID with the event
-        calendar_id = Config.GOOGLE_CALENDAR_ID
 
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
         starts = CalendarService().convertToISO(args["starts"])
         ends = CalendarService().convertToISO(args["ends"])
-        default_presenter = current_user.id
 
         body = {
             "summary": args["title"],
@@ -151,7 +147,7 @@ class CourseListAPI(MethodView):
             linktype_id = CourseLinkType.query.filter(CourseLinkType.name == "Google Meet").first().id
             
             link = {
-                "course_id": response.json()['id'],
+                "course_id": result.id,
                 "courselinktype_id": linktype_id,
                 "name": "Join the Meet",
                 "uri": response.json()['conferenceData']['entryPoints'][0]['uri']
