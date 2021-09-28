@@ -234,7 +234,7 @@ class UserConfirmedAPI(MethodView):
         Returns:
             List[Course]: List of <Course> objects as JSON
         """
-        if user_id is current_user.id or current_user.usertype_id == 1 or current_user.usertype_id == 2:
+        if user_id == current_user.id or current_user.usertype_id == 1 or current_user.usertype_id == 2:
             confirmed = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
             if confirmed is None:
                 abort(404)
