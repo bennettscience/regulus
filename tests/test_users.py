@@ -30,7 +30,7 @@ class TestUsers(unittest.TestCase):
         
         self.client = app.test_client()
 
-        c1 = Course(title="Course 1")
+        c1 = Course(title="Course 1", course_size=10)
         u2 = User(name="User 2", location_id=2, usertype_id=2)
         l1 = Location(name="Building 1", address="123 Main")
         l2 = Location(name="Building 2", address="999 Oak")
@@ -240,7 +240,9 @@ class TestUsers(unittest.TestCase):
 
     # Users can get their own registrations
     def test_user_attending(self):
-        db.session.add(CourseUserAttended(course_id=1, user_id=3))
+        # db.session.add(CourseUserAttended(course_id=1, user_id=3))
+        course = Course.query.get(1)
+        course.registrations.append(CourseUserAttended(course_id=1, user_id=3))
         db.session.commit()
 
         self.login("User")
@@ -253,7 +255,9 @@ class TestUsers(unittest.TestCase):
 
     # Admins can get lists of attendees for any session
     def test_user_attending_admin(self):
-        db.session.add(CourseUserAttended(course_id=1, user_id=3))
+        # db.session.add(CourseUserAttended(course_id=1, user_id=3))
+        course = Course.query.get(1)
+        course.registrations.append(CourseUserAttended(course_id=1, user_id=3))
         db.session.commit()
 
         self.login("SuperAdmin")
