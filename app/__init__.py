@@ -1,6 +1,5 @@
-import json
 from datetime import datetime
-import re
+from math import ceil
 
 from flask import (
     Flask,
@@ -194,7 +193,7 @@ def generate_pdf(user_id):
     user = User.query.get(user_id)
     query = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
     for event in query:
-        eventTotal = (event.course.ends - event.course.starts).total_seconds() / 3600
+        eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
         total = total + eventTotal
         events.append(
             {
@@ -213,7 +212,7 @@ def generate_single_pdf(user_id, course_id):
     total = 0
     user = User.query.get(user_id)
     event = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
-    eventTotal = (event.course.ends - event.course.starts).total_seconds() / 3600
+    eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
     total = total + eventTotal
     events.append(
         {

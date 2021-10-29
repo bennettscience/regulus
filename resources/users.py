@@ -1,3 +1,5 @@
+from math import ceil
+
 from flask import jsonify, request, abort
 from flask.views import MethodView
 from flask_login import current_user
@@ -217,8 +219,13 @@ class UserAttendingAPI(MethodView):
             user = User.query.get(user_id)
             if user is None:
                 abort(404)
+            
+            registrations = user.registrations.all()
 
-            return jsonify(UserAttendingSchema(many=True).dump(user.registrations))
+            for course in registrations:
+                course.course.available = course.course.available_size()
+
+            return jsonify(UserAttendingSchema(many=True).dump(registrations))
         else:
             abort(401)
 
@@ -240,7 +247,7 @@ class UserConfirmedAPI(MethodView):
                 abort(404)
 
             for event in confirmed:
-                event.course.total = (event.course.ends - event.course.starts).total_seconds() / 3600
+                event.course.total = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
                 # event.course.total = divmod((event.course.ends - event.course.starts).total_seconds(), 3600)[0]
 
             return jsonify(UserAttendingSchema(many=True).dump(confirmed))

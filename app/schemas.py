@@ -100,8 +100,8 @@ class CourseAttendingSchema(Schema):
     type = fields.Nested(CourseTypeSchema)
     presenters = fields.Nested("CoursePresenterSchema", many=True)
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
-    total = fields.Float()
     available = fields.Int()
+    total = fields.Float()
 
 
 class NewCourseLinkSchema(Schema):
