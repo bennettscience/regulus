@@ -123,6 +123,7 @@ class CourseLinkTypeSchema(Schema):
 
 
 class DisplayCourseLinkSchema(Schema):
+    id = fields.Int(dump_only=True)
     name = fields.Str()
     uri = fields.Str()
     type = fields.Nested(CourseLinkTypeSchema)

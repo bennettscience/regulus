@@ -48,7 +48,7 @@ class CourseLinksAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
-        return jsonify(DisplayCourseLinkSchema().dump(link))
+        return jsonify({"message": "Link successfuly created", "links": DisplayCourseLinkSchema().dump(link)})
 
 
 class CourseLinkAPI(MethodView):
@@ -103,7 +103,10 @@ class CourseLinkAPI(MethodView):
         link = CourseLink.query.filter_by(course_id=course_id, id=link_id).first()
         if link is None:
             abort(404)
+            
         db.session.delete(link)
         db.session.commit()
 
-        return jsonify({"message": "Deletion successful"})
+        links = Course.query.get(course_id).links
+
+        return jsonify({"message": "Deletion successful", "links": DisplayCourseLinkSchema(many=True).dump(links)})
