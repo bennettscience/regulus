@@ -7,3 +7,5 @@ app.db
 token.json
 app/client/*
 config.py
+
+update.md
