@@ -5,6 +5,7 @@ from typing import List
 from flask import abort, jsonify, request
 from flask.views import MethodView
 from flask_login import current_user
+from webargs import fields
 from webargs.flaskparser import parser
 
 from app import db
@@ -48,8 +49,9 @@ class CourseListAPI(MethodView):
             abort(401)
 
         # This filters events down to active, future events.
-        # TODO: accept arguments to filter per request rather than all.
-        if current_user.usertype_id == 1:
+        args = parser.parse({'all': fields.Bool()}, location='querystring')
+
+        if args['all']:
             courses = Course.query.all()
         else:
             courses = Course.query.filter(
@@ -57,7 +59,6 @@ class CourseListAPI(MethodView):
             ).all()
 
         if len(courses) > 0:
-
             # calculate the remaining number of seats at request time.
             for course in courses:
                 course.available = course.available_size()
@@ -68,7 +69,7 @@ class CourseListAPI(MethodView):
                 return jsonify(CourseSchema(many=True).dump(sorted_courses))
             return jsonify(PublicCourseSchema(many=True).dump(sorted_courses))
         else:
-            return jsonify({"message": "No courses"})
+            return jsonify({"message": "No upcoming events."})
 
     def post(self: None) -> Course:
         """Create a new event
