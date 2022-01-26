@@ -15,7 +15,15 @@ class LocationListAPI(MethodView):
         Returns:
             List[Location]: List of <Location> as JSON.
         """
-        locations = Location.query.all()
+        # Some routes only show buildings. Use a query param to filter out all
+        # locations other than physical places.
+        # TODO: This is brittle, relying on missing address fields. Add a field to check against?
+        args = parser.parse({'locationType': fields.Str(required=False)}, location='querystring')
+        if args and args['locationType'] == 'physical':
+            locations = Location.query.filter(Location.address != "").all()
+        else:
+            locations = Location.query.all()
+            
         return jsonify(LocationSchema(many=True).dump(locations))
 
     def post(self: None) -> Location:
