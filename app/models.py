@@ -90,6 +90,7 @@ class Location(Manager, db.Model):
     address = db.Column(db.String(255))
 
     courses = db.relationship("Course", backref="location")
+    users = db.relationship("User", backref="location")
 
 
 class UserType(Manager, db.Model):
@@ -155,7 +156,6 @@ class User(Manager, UserMixin, db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
     usertype_id = db.Column(db.Integer, db.ForeignKey("user_type.id"))
 
-    location = db.relationship("Location", backref="users")
     role = db.relationship("UserType", backref="users")
     registrations = db.relationship(
         "CourseUserAttended",
