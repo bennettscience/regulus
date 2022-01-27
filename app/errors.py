@@ -34,8 +34,8 @@ def page_not_found(err):
     response.data = json.dumps(
         {
             "code": err.code,
-            "name": err.name,
-            "description": err.description,
+            "name": "Address not found",
+            "description": "You tried to get something that we can't find. Check the URL and try again.",
         }
     )
     response.content_type = "application/json"

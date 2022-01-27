@@ -233,10 +233,10 @@ def log_request():
 
 # Attach Cahce-Control header to all responses
 # Cache results for 60 minutes. After that, refresh from the server.
-@app.after_request
-def add_header(response):
-    response.headers['Cache-Control'] = 'max-age=3600, must-revalidate'
-    return response
+# @app.after_request
+# def add_header(response):
+#     response.headers['Cache-Control'] = 'max-age=3600, must-revalidate'
+#     return response
 
 # Request all logs for an event
 @app.route("/logs/<int:course_id>", methods=['GET'])
