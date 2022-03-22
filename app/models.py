@@ -70,6 +70,22 @@ course_locations = db.Table(
     ),
 )
 
+course_accommodations = db.Table(
+    "course_accommodations",
+    db.Column(
+        "course_id",
+        db.Integer,
+        db.ForeignKey("course.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True
+    ),
+    db.Column(
+        "accommodation_id",
+        db.Integer,
+        db.ForeignKey("user_accommodation.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True
+    )
+)
+
 
 class CourseType(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -128,6 +144,8 @@ class Course(Manager, db.Model):
         lazy="dynamic",
     )
 
+    accommodations = db.relationship("UserAccommodation", secondary=course_accommodations, backref="course", uselist=True)
+
     # calculate the number of remaining seats
     def available_size(self):
         return self.course_size - len(self.registrations.all())
@@ -137,6 +155,12 @@ class Course(Manager, db.Model):
 
     def __lt__(self, other):
         return self.starts < other.starts
+
+
+class UserAccommodation(Manager, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    required = db.Column(db.Boolean, default=False)
+    note = db.Column(db.String(1500), nullable=True)
 
 
 class CourseLink(Manager, db.Model):

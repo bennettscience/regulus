@@ -50,7 +50,9 @@ class CourseListAPI(MethodView):
 
         # This filters events down to active, future events.
         args = parser.parse({'all': fields.Bool()}, location='querystring')
-
+        if args is None:
+            args['all'] = False
+            
         if args['all']:
             courses = Course.query.all()
         else:
@@ -575,6 +577,18 @@ class CourseAttendeeAPI(MethodView):
         Returns:
             User: User registration
         """
+        from app.models import UserAccommodation
+
+        required_args = {
+            "acc_required": fields.Bool(required=True),
+            "acc_note": fields.Str()
+        }
+
+        args = parser.parse(required_args, location='json')
+        
+        print('Registering user...')
+        breakpoint()
+
         course = Course.query.get(course_id)
         user = User.query.get(user_id)
         webhook_url = Config.CALENDAR_HOOK_URL
@@ -584,11 +598,20 @@ class CourseAttendeeAPI(MethodView):
             abort(404, f"No course with id <{course_id}>")
         elif user is None:
             abort(404, f"No user with id <{user_id}>")
-
+        
         if course.available_size() > 0:
             course.registrations.append(
                 CourseUserAttended(course_id=course.id, user_id=user.id)
             )
+
+        # If the accommodation param is not empty, create a new entry for this course
+        # and insert it.
+            if args['acc_required']:
+                ua = UserAccommodation(required=args['acc_required'], note=args['acc_note'])
+                db.session.add(ua)
+                db.session.commit()
+
+                course.accommodations.append(ua)
 
             # The service account can't add people directly without Domain-Wide Delegation, which is a major
             # security concern. POSTing to a private webhook will allow the PD account to manupulate
