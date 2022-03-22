@@ -586,9 +586,6 @@ class CourseAttendeeAPI(MethodView):
 
         args = parser.parse(required_args, location='json')
         
-        print('Registering user...')
-        breakpoint()
-
         course = Course.query.get(course_id)
         user = User.query.get(user_id)
         webhook_url = Config.CALENDAR_HOOK_URL

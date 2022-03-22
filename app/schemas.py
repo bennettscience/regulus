@@ -84,6 +84,11 @@ class CourseSchema(Schema):
     registrations = fields.Nested("UserAttended", many=True)
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
     available = fields.Int()
+    accommodations = fields.Nested("CourseAccommodationSchema", many=True)
+
+
+class CourseAccommodationSchema(Schema):
+    note = fields.String()
 
 
 class CourseRegistrationSchema(Schema):
