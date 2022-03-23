@@ -123,11 +123,11 @@ def import_users(filename):
             exists = User.query.filter(User.email == row[0]).first()
             if exists is None:
                 print('{} does not exist. Creating...'.format(row[3]))
-                
+                location_id = row[3] or None
                 user = User(
                     email=row[0],
                     name=row[1],
-                    location_id=row[3],
+                    location_id=location_id,
                     usertype_id=4
                 )
                 db.session.add(user)
