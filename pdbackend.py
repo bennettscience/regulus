@@ -52,6 +52,44 @@ def seed_location(filename):
     db.session.commit()
     sys.exit()
 
+@app.cli.command('seed-events')
+@click.argument('filename')
+def seed_events(filename):
+    import sys
+    import csv
+    from dateutil import parser
+    if filename is None:
+        print('Please provide a csv file for processing')
+        sys.exit(1)
+    
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            print('Checking for {}...'.format(row[3]))
+            exists = Course.query.filter(Course.ext_calendar == row[9]).first()
+            if exists is None:
+                print('{} does not exist. Creating...'.format(row[3]))
+                starts = parser.parse(row[5])
+                ends = parser.parse(row[6])
+                created_at = parser.parse(row[10])
+                event = Course(
+                    coursetype_id=row[0],
+                    location_id=row[1],
+                    course_size=row[2],
+                    title=row[3],
+                    description=row[4],
+                    starts=starts,
+                    ends=ends,
+                    active=bool(row[7]),
+                    occurred=bool(row[8]),
+                    ext_calendar=row[9],
+                    created_at=created_at
+                )
+                db.session.add(event)
+    db.session.commit()
+    print('Added events successfully.')
+    sys.exit()
+
 
 @app.cli.command('seed-role')
 def seed_role():
