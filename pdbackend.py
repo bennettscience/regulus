@@ -106,3 +106,31 @@ def seed_role():
     print('Successfully created all roles.')
     sys.exit()
 
+@app.cli.command('import-users')
+@click.argument('filename')
+def import_users(filename):
+    import sys
+    import csv
+
+    if filename is None:
+        print('Please provide a csv file for processing')
+        sys.exit(1)
+    
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            print('Checking for {}...'.format(row[3]))
+            exists = User.query.filter(User.email == row[0]).first()
+            if exists is None:
+                print('{} does not exist. Creating...'.format(row[3]))
+                
+                user = User(
+                    email=row[0],
+                    name=row[1],
+                    location_id=row[3],
+                    usertype_id=4
+                )
+                db.session.add(user)
+    db.session.commit()
+    print('Added users successfully.')
+    sys.exit()
