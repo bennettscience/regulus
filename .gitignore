@@ -9,3 +9,4 @@ app/client/*
 config.py
 
 update.md
+restore/
