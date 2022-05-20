@@ -152,7 +152,7 @@ def callback():
         db.session.add(user)
         db.session.commit()
 
-    login_user(user, True)
+    login_user(user, False)
     return redirect('/')
 
 
