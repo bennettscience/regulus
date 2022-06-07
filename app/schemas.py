@@ -49,6 +49,19 @@ class SmallCourseSchema(Schema):
     icon = fields.Str()
 
 
+class CourseDetailSchema(Schema):
+    id = fields.Int(dump_only=True)
+    title = fields.Str()
+    starts = DateTime(format='timestamp')
+    ends = DateTime(format='timestamp')
+    available = fields.Int()
+    state = fields.Str()
+    presenters = fields.Nested("CoursePresenterSchema", many=True)
+    type = fields.Nested("CourseTypeSchema")
+    links = fields.Nested("DisplayCourseLinkSchema", many=True)
+    location = fields.Nested("LocationSchema")
+
+
 class NewCourseSchema(Schema):
     title = fields.Str(required=True)
     description = fields.Str(required=True)

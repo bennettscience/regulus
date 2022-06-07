@@ -16,6 +16,7 @@ from app.calendar import CalendarService
 from app.models import Course, CourseLink, CourseType, CourseUserAttended, User
 from app.schemas import (
     CourseAttendingSchema,
+    CourseDetailSchema,
     CoursePresenterSchema,
     CourseSchema,
     CourseTypeSchema,
@@ -193,15 +194,42 @@ class CourseAPI(MethodView):
         Returns:
             Course: JSON representation of event
         """
+        from app.static.assets.icons import (
+            clock,
+            pin,
+            user
+        )
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
+        
+        course.available = course.available_size()
+        
+        if current_user.is_enrolled(course) and current_user.is_attended(course):
+            course.state = 'attended'
+            course.icon = attended
+        elif current_user.is_enrolled(course) and not current_user.is_attended(course):
+            course.state = 'registered'
+            course.icon = registered
+        else:
+            course.state = 'available'
 
-        if current_user.role.name == "SuperAdmin":
-            return jsonify(CourseSchema().dump(course))
+        # if current_user.role.name == "SuperAdmin":
+        #     return jsonify(CourseSchema().dump(course))
 
-        # TODO: Do we need a different version of the object?
-        return jsonify(SmallCourseSchema().dump(course))
+        icons = {
+            'clock': clock,
+            'pin': pin,
+            'user': user
+        }
+
+        return render_template(
+            'shared/partials/sidebar.html',
+            partial='events/partials/event-details.html',
+            event=CourseDetailSchema().dump(course),
+            icons=icons
+        )
+        # return jsonify(SmallCourseSchema().dump(course))
 
     def put(self: None, course_id: int) -> Course:
         """Update details for an event
