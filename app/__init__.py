@@ -19,7 +19,6 @@ from flask_login import (
     login_user,
     logout_user,
 )
-from flask_weasyprint import render_pdf, HTML
 
 # from authlib.integrations.flask_client import OAuth
 from flask_marshmallow import Marshmallow
@@ -89,6 +88,7 @@ from app.schemas import UserSchema, CourseSchema, LogSchema
 from app.blueprints.home_blueprint import home_bp
 from app.blueprints.events_blueprint import events_bp
 from app.blueprints.users_blueprint import users_bp
+from app.blueprints.documents_blueprint import documents_bp
 
 # Register the endpoints in Flask
 # https://flask.palletsprojects.com/en/2.0.x/views/#method-views-for-apis
@@ -114,7 +114,7 @@ user_types_view = UserTypesAPI.as_view("user_types_api")
 app.register_blueprint(home_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(users_bp)
-
+app.register_blueprint(documents_bp)
 
 @lm.user_loader
 def load_user(id):
@@ -177,12 +177,6 @@ def check_session():
         return jsonify({"login": True, "user": UserSchema().dump(user)})
     return jsonify({"login": False})
 
-
-@app.route("/data")
-def get_data():
-    user = User.query.get(current_user.id)
-    return jsonify({"username": user.name})
-
 @app.route("/presenters")
 def get_presenters():
     presenters = User.query.join(User.role, aliased=True).filter_by(name='Presenter').all()
@@ -193,45 +187,6 @@ def get_popular_course():
     # pass
     course = Course.query(func.max(Course.registrations)).one()
     return jsonify(CourseSchema().dump(course))
-
-@app.route("/users/<int:user_id>/documents/create/")
-def generate_pdf(user_id):
-    events = []
-    total = 0
-    user = User.query.get(user_id)
-    query = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
-    for event in query:
-        eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
-        total = total + eventTotal
-        events.append(
-            {
-                'title': event.course.title,
-                'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
-                'total': eventTotal,
-            }
-        )
-
-    html = render_template('pdf.html', user=user, events=events, total=total)
-    return render_pdf(HTML(string=html))
-
-@app.route("/users/<int:user_id>/documents/create/<int:course_id>")
-def generate_single_pdf(user_id, course_id):
-    events = []
-    total = 0
-    user = User.query.get(user_id)
-    event = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
-    eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
-    total = total + eventTotal
-    events.append(
-        {
-            'title': event.course.title,
-            'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
-            'total': eventTotal,
-        }
-    )
-
-    html = render_template('pdf.html', user=user, events=events, total=total)
-    return render_pdf(HTML(string=html))
 
 
 # Logging

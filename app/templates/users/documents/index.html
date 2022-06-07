@@ -1,0 +1,44 @@
+<h1>My PGPs</h1>
+<p>
+    This page holds documentation for all PD which has been confirmed by the
+    presenter. You are responsible for saving and/or printing documents created
+    by this page. You can vist this page at any time to create new PDFs for your
+    records.
+</p>
+<section class="document-meta">
+    <p>Total registrations: {{total_registrations}}</p>
+    <p>Total PGP: {{total}}</p>
+    <a href="/users/{{current_user.id}}/documents/create" target="_blank"
+        >Print Summary</a
+    >
+</section>
+<section class="document-table">
+    <h2>My Events</h2>
+    <table>
+        <thead>
+            <th>Event</th>
+            <th>Date</th>
+            <th>PGPs</th>
+            <th>Action</th>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{event.course.title}}</td>
+                <td
+                    _="init call formatDate('starts', '{{event.course.starts}}') then set my innerHTML to it"
+                ></td>
+                <td>{{event.course.total}}</td>
+                <td>
+                    <a
+                        href="/users/{{current_user.id}}/documents/create/{{event
+                                        .course.id}}"
+                        target="_blank"
+                        >Print</a
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
