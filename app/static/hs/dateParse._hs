@@ -1,0 +1,26 @@
+behavior DateParse(starts)
+
+    js
+        function formatDate(starts) {
+            let day = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(
+                    starts,
+                );
+            
+                let date = new Intl.DateTimeFormat('en', {
+                    month: 'short',
+                    day: '2-digit',
+                }).format(starts);
+
+            return {
+                day: day,
+                date: date
+            }
+        }
+    end
+
+    on load
+        set :date to formatDate(starts)
+        then put :date.day into .day
+        then put :date.date into .date
+
+    end

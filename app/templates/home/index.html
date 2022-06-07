@@ -1,6 +1,12 @@
 {% extends 'shared/_layout.html' %}
 <!-- prettier ignore -->
 <!-- This loads the active course list and inserts the left-hand sidebar -->
-{% block sidebar %}
-<div id="course-details"></div>
+{% block main_content %}
+<div
+    id="courses"
+    hx-trigger="load"
+    hx-get="/courses"
+    hx-target="this"
+    hx-swap="outerHTML"
+></div>
 {% endblock %}

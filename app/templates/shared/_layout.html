@@ -15,21 +15,20 @@
     <body _="on keyup[key is 'Escape'] remove .show from <div/>">
         {% include 'shared/nav.html' %}
         <main>
+            <section class="main-container">
+                {% block main_content %} {% endblock %}
+            </section>
             <section id="course-detail">
-                {% block sidebar %} {% endblock %} {% block main_content %} {%
-                endblock %}
+                {% block sidebar %} {% endblock %}
             </section>
             {% include 'shared/partials/toast.html' %}
         </main>
-        <!-- <script
-            type="module"
-            src="{{ url_for('static', filename='js/main.js') }}"
-        ></script> -->
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script src="https://unpkg.com/htmx.org@1.7.0"></script>
-        <!-- <script
+        <script
             type="text/hyperscript"
-            src="{{url_for('static', filename='hs/sortable._hs') }}"
-        ></script> -->
+            src="{{url_for('static', filename='hs/dateParse._hs') }}"
+        ></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
         <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
         {% block additional_js %} {% endblock %}
