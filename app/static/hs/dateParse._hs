@@ -20,7 +20,6 @@ behavior DateParse(starts)
 
     on load
         set :date to formatDate(starts)
-        then put :date.day into .day
-        then put :date.date into .date
-
+        then put :date.day into .day in me
+        then put :date.date into .date in me
     end

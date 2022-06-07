@@ -1,6 +1,6 @@
 from math import ceil
 
-from flask import jsonify, request, abort
+from flask import jsonify, request, abort, render_template
 from flask.views import MethodView
 from flask_login import current_user
 from typing import List
@@ -8,12 +8,15 @@ from webargs import fields, validate
 from webargs.flaskparser import parser, use_args, use_kwargs
 
 from app import db
+
+from app.static.assets.icons import attended, registered
 from app.auth import admin_only
 from app.models import Course, CourseUserAttended, User
 from app.schemas import (
     CourseSchema,
     NewUserLocation,
     NewUserSchema,
+    SmallCourseSchema,
     UserAttendingSchema,
     UserLocationSchema,
     UserSchema,
@@ -222,10 +225,24 @@ class UserAttendingAPI(MethodView):
             
             registrations = user.registrations.all()
 
-            for course in registrations:
-                course.course.available = course.course.available_size()
+            for reg in registrations:
+                reg.course.available = reg.course.available_size()
+                if reg.attended:
+                    reg.course.state = 'attended'
+                    reg.course.icon = attended
+                elif current_user.is_enrolled(reg.course) and not reg.attended:
+                    reg.course.state = 'registered'
+                    reg.course.icon = registered
+                else:
+                    reg.course.state = 'available'
+            
+            sorted_regs = sorted([reg.course for reg in registrations])
 
-            return jsonify(UserAttendingSchema(many=True).dump(registrations))
+            return render_template(
+                'registrations/index.html',
+                events=SmallCourseSchema(many=True).dump(sorted_regs)
+            )
+
         else:
             abort(401)
 

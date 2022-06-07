@@ -201,7 +201,7 @@ class CourseAPI(MethodView):
             return jsonify(CourseSchema().dump(course))
 
         # TODO: Do we need a different version of the object?
-        return jsonify(PublicCourseSchema().dump(course))
+        return jsonify(SmallCourseSchema().dump(course))
 
     def put(self: None, course_id: int) -> Course:
         """Update details for an event

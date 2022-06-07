@@ -1,0 +1,3 @@
+{% block main_content %} {% for event in events %}
+{{render_partial('events/partials/event-card.html', event=event)}} {%endfor%} {%
+endblock %}
