@@ -37,6 +37,20 @@ nav {
     left: 0;
 }
 
+.course-detail {
+    position: fixed;
+    overflow-y: scroll;
+    right: 0;
+    top: 0;
+    width: 350px;
+    padding: 12px;
+    border-radius: 5px 0 0 5px;
+    height: 100%;
+    box-shadow: var(--left-shadow);
+    background-color: var(--text-white);
+    box-sizing: border-box;
+}
+
 @media only screen and (max-width: 767px) {
     .mobile-icon {
         display: none;
