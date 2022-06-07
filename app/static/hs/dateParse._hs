@@ -1,7 +1,7 @@
 behavior DateParse(starts)
 
     js
-        function formatDate(starts) {
+        function formatCalendarDate(starts) {
             let day = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(
                     starts,
                 );
@@ -19,7 +19,7 @@ behavior DateParse(starts)
     end
 
     on load
-        set :date to formatDate(starts)
+        set :date to formatCalendarDate(starts)
         then put :date.day into .day in me
         then put :date.date into .date in me
     end
