@@ -134,3 +134,34 @@ def import_users(filename):
     db.session.commit()
     print('Added users successfully.')
     sys.exit()
+
+@app.cli.command('fix-registrations')
+@click.argument('filename')
+def fix_registrations(filename):
+    # Loop through the file and append each user to the course attendees object
+    # look up each user by their email
+    import sys
+    import csv
+
+    if filename is None:
+        print('Please provide a csv file for processing')
+        sys.exit(1)
+    
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            course = Course.query.filter(Course.ext_calendar == row[1]).first()
+            users = row[2].split(',')
+            for user in users:
+                print('Searching for {}'.format(user))
+                u = User.query.filter(User.email == user).first()
+                if u is not None:
+                    course.registrations.append(
+                        CourseUserAttended(
+                            course_id=course.id,
+                            user_id=u.id,
+                        )
+                    )
+                    db.session.commit()
+                else:
+                    print('Could not find {}'.format(user))

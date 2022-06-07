@@ -9,7 +9,8 @@ from flask import (
     request,
     session,
     send_from_directory,
-    abort
+    abort,
+    Blueprint
 )
 from flask_login import (
     LoginManager,
@@ -24,6 +25,7 @@ from flask_weasyprint import render_pdf, HTML
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import jinja_partials
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.exceptions import HTTPException
@@ -33,11 +35,11 @@ from sqlalchemy import func
 
 from config import Config
 
-sentry_sdk.init(
-    dsn=Config.SENTRY_DSN,
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=0.5
-)
+# sentry_sdk.init(
+#     dsn=Config.SENTRY_DSN,
+#     integrations=[FlaskIntegration()],
+#     traces_sample_rate=0.5
+# )
 
 app = Flask(__name__)
 app.secret_key = "!secret"
@@ -46,6 +48,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
+jinja_partials.register_extensions(app)
 
 # TODO: Check all sensititve API routes for access control logic.
 from app import app, db, errors
@@ -82,6 +85,8 @@ from resources.users import (
 from resources.usertypes import UserTypesAPI
 from app.schemas import UserSchema, CourseSchema, LogSchema
 
+# from app.blueprints import users_blueprint
+from app.blueprints.home_blueprint import home_bp
 
 # Register the endpoints in Flask
 # https://flask.palletsprojects.com/en/2.0.x/views/#method-views-for-apis
@@ -101,33 +106,33 @@ locations_view = LocationListAPI.as_view("locations_api")
 location_view = LocationAPI.as_view("location_api")
 location_user_view = LocationUsersAPI.as_view("location_user_api")
 location_course_view = LocationCoursesAPI.as_view("location_courses_api")
-users_view = UserListAPI.as_view("users_api")
-user_view = UserAPI.as_view("user_api")
-user_location_view = UserLocationAPI.as_view("user_location_api")
-user_attending_view = UserAttendingAPI.as_view("user_attending_api")
-user_confirmed_view = UserConfirmedAPI.as_view("user_confirmed_api")
-user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
 user_types_view = UserTypesAPI.as_view("user_types_api")
+
+# Register all the blueprints
+# app.register_blueprint(users_blueprint)
+app.register_blueprint(home_bp)
 
 
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
 
-@app.route('/')
-@app.route('/schedule')
-@app.route('/presenter')
-@app.route('/admin')
-@app.route('/create')
-@app.route('/documents')
-@app.route('/people')
-def base():
-    return send_from_directory('client/public', 'index.html')
 
 
-@app.route("/<path:path>")
-def home(path):
-    return send_from_directory('client/public', path)
+# @app.route('/')
+# @app.route('/schedule')
+# @app.route('/presenter')
+# @app.route('/admin')
+# @app.route('/create')
+# @app.route('/documents')
+# @app.route('/people')
+# def base():
+#     return send_from_directory('client/public', 'index.html')
+
+
+# @app.route("/<path:path>")
+# def home(path):
+#     return send_from_directory('client/public', path)
 
 
 @app.route("/authorize/<provider>")
@@ -225,6 +230,7 @@ def generate_single_pdf(user_id, course_id):
     html = render_template('pdf.html', user=user, events=events, total=total)
     return render_pdf(HTML(string=html))
 
+
 # Logging
 @app.before_request
 def log_request():
@@ -311,23 +317,5 @@ app.add_url_rule(
     methods=["GET"],
 )
 
-app.add_url_rule("/users", view_func=users_view, methods=["GET", "POST"])
 
-app.add_url_rule(
-    "/users/<int:user_id>", view_func=user_view, methods=["GET", "PUT", "DELETE"]
-)
-app.add_url_rule(
-    "/users/<int:user_id>/locations",
-    view_func=user_location_view,
-    methods=["GET", "POST", "DELETE"],
-)
-app.add_url_rule(
-    "/users/<int:user_id>/registrations", view_func=user_attending_view, methods=["GET"]
-)
-app.add_url_rule(
-    "/users/<int:user_id>/confirmed", view_func=user_confirmed_view, methods=["GET"]
-)
-app.add_url_rule(
-    "/users/<int:user_id>/presenting", view_func=user_presenting_view, methods=["GET"]
-)
 app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])

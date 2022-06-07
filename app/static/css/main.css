@@ -1,0 +1,135 @@
+:root {
+    /* Colors */
+    --site-gray: #c5c6c7;
+    --accent-blue: #0098fa;
+    --accent-red: #e9164f;
+    --accent-green: #32c192;
+    --site-dark: #1f2833;
+    --text-white: #f0ecec;
+
+    /* shadow */
+    --box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
+        rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    --active-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+        rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    --left-shadow: rgba(0, 0, 0, 0.1) -20px 0 25px -5px,
+        rgba(0, 0, 0, 0.04) -10px 0 10px -5px;
+    /* interaction */
+    --accent-active: #45a29e;
+    --accent-hover: #2d3d50;
+}
+
+main {
+     padding: 1em;
+     height: 100%;
+     margin: 0 auto;
+ }
+
+nav {
+    display: block;
+    height: 100%;
+    width: 256px;
+    background-color: var(--site-dark);
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+@media only screen and (max-width: 767px) {
+    .mobile-icon {
+        display: none;
+    }
+
+    .navbar-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav {
+        width: 60px;
+    }
+}
+
+span {
+    display: flex;
+    height: 56px;
+    align-items: center;
+    list-style-type: none;
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    padding-left: 20px;
+    color: var(--text-wite);
+    border-left: 3px solid;
+    border-color: transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+span:not(.logout):hover {
+    background-color: var(--accent-hover);
+    border-left: 3px solid;
+    border-color: var(--accent-active);
+}
+
+.logout {
+    background-color: var(--accent-red);
+    position: absolute;
+    bottom: 0;
+    width: 256px;
+    font-weight: 700;
+}
+
+.active {
+    background-color: var(--accent-hover);
+    border-left: 3px solid;
+    border-color: var(--accent-active);
+}
+
+.mobile-icon {
+    display: none;
+}
+
+a {
+    text-decoration: none;
+    color: var(--text-white);
+    flex: 1;
+    display: inline-flex;
+    height: 100%;
+    align-items: center;
+}
+
+svg {
+    vertical-align: middle;
+    margin-right: 12px;
+}
+
+@media only screen and (max-width: 767px) {
+    .mobile-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .active {
+        border: none;
+    }
+
+    .logout {
+        width: 56px;
+    }
+
+    .mobile-icon svg {
+        height: 32px;
+        width: 32px;
+        margin-right: 0;
+    }
+
+    .nav-item {
+        display: none;
+    }
+}

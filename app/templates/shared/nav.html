@@ -1,0 +1,9 @@
+<nav>
+    <div class="inner">
+        <div>
+            {% for item in menuitems %}
+            {{render_partial('shared/partials/menu-item.html', item=item)}} {%
+            endfor %}
+        </div>
+    </div>
+</nav>
