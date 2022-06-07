@@ -1,0 +1,78 @@
+<h1>{{event.title}}</h1>
+<hr />
+
+{% if event.available > 0 %} {%if event.state == 'registered' and event.state !=
+'attended' %} Cancel {% elif event.state == 'available' and event.state !=
+'attended' %}
+<!-- The register button makes the actual API call to the backend. This event updates the
+             ui depeding on the results of that call. Same case for cancelling course registrations. -->
+Register {% endif %} {% elif event.available == 0 and event.state ==
+'registered' %} Cancel {% else %} Disabled button {% endif %}
+<hr />
+<time
+    _="init 
+        set :starts to formatDate('starts', {{event.starts}})
+        set :ends to formatDate('ends', {{event.ends}})
+        then log :starts and :ends
+        
+        then append (`${:starts} - ${:ends}`) as a String to my innerHTML
+    "
+>
+    {% autoescape false %}
+    <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        {{icons.clock}}
+    </svg>
+    {% endautoescape %}
+</time>
+<span id="course-size">
+    {% autoescape false %}
+    <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        {{icons.user}}
+    </svg>
+    {% endautoescape %} {{event.available}}
+</span>
+<span>
+    {% autoescape false %}
+    <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        {{icons.pin}}
+    </svg>
+    {% endautoescape %} {{event.location.name}}
+</span>
+
+<div>
+    <h2>Presenters</h2>
+    <ul>
+        {% for presenter in event.presenters %}
+        <li><a href="mailto:{{presenter.email}}">{{presenter.name}}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if event.state != 'available' and event.links|length > 0 %}
+<div>
+    <h2>Links</h2>
+    <ul>
+        {% for link in event.links %}
+        <li><a href="{{link.uri}}">{{link.name}}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

@@ -1,5 +1,9 @@
 <article
     _="install DateParse(starts: {{event.starts}})"
+    hx-trigger="click"
+    hx-get="/courses/{{event.id}}"
+    hx-target="main"
+    hx-swap="beforeend"
     id="{{event.id}}"
     class="course"
     tabindex="0"

@@ -1,0 +1,17 @@
+<section
+    _="on closeModal
+        add .hide to me
+        then wait 1s
+        then remove me
+        end
+        "
+    id="right-sidebar"
+    class="sidebar sidebar--right {{'hide' if hide}}"
+>
+    <div id="right-sidebar-inner">
+        <button class="btn-close" _="on click trigger closeModal">
+            × close
+        </button>
+        {{ render_partial(partial, event=event, icons=icons)}}
+    </div>
+</section>

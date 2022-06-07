@@ -264,6 +264,101 @@ table tbody tr td {
     padding: 5px;
 }
 
+.sidebar {
+    display: block;
+    height: 100%;
+    width: 356px;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+
+    box-sizing: border-box;
+    background-color: #fff;
+    padding: 15px;
+    overflow: auto;
+    z-index: 10;
+}
+
+.sidebar-inner {
+    padding: 0 0.75rem;
+    box-sizing: border-box;
+}
+
+.sidebar--right {
+    right: 0;
+    transition: right 350ms ease-in;
+    box-shadow: var(--shadow-left-border);
+}
+
+#right-sidebar-inner input[type='text'] {
+    width: 100%;
+}
+
+.sidebar--right.htmx-added {
+    right: -356px;
+}
+
+.btn-close {
+    background-color: transparent;
+    border: 1px solid;
+    border-color: transparent;
+}
+
+.btn-close:hover {
+    cursor: pointer;
+    border-color: var(--black);
+}
+
+.hide {
+    right: -356px;
+}
+
+time,
+span {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+hr {
+    width: 70%;
+}
+
+/* svg {
+    margin-right: 12px;
+} */
+
+#result {
+    position: relative;
+}
+
+#links-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#links-list>li {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+}
+
+#links-list>li>button {
+    background-color: var(--accent-red);
+    border: none;
+    color: var(--text-white);
+    font-weight: bold;
+    /* font-size: 12px; */
+    margin-right: 25px;
+    margin-bottom: 0;
+}
+
+#links-list>li>button:hover {
+    cursor: pointer;
+}
+
 
 @media only screen and (max-width: 767px) {
     .course {

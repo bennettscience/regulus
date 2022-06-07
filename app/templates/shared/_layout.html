@@ -18,9 +18,6 @@
             <section class="main-container">
                 {% block main_content %} {% endblock %}
             </section>
-            <section id="course-detail">
-                {% block sidebar %} {% endblock %}
-            </section>
             {% include 'shared/partials/toast.html' %}
         </main>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
