@@ -1,3 +1,28 @@
+@font-face {
+    font-family: 'Oswald';
+    src: url('/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto Light';
+    src: url('/fonts/Roboto-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('/fonts/Roboto-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto Italic';
+    src: url('/fonts/Roboto-Italic.ttf') format('truetype');
+}
+
 :root {
     /* Colors */
     --site-gray: #c5c6c7;
@@ -19,6 +44,60 @@
     --accent-hover: #2d3d50;
 }
 
+/* Typography */
+h1 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-family: 'Roboto';
+    font-weight: 700;
+    font-size: 20px;
+}
+
+p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    font-family: 'Roboto';
+}
+
+b,
+strong {
+    font-family: 'Roboto Bold';
+}
+
+i,
+em {
+    font-family: 'Roboto Italic';
+}
+
+a[role='button'] {
+    border: 1px solid var(--accent-blue);
+    font-family: sans-serif;
+    border-radius: 5px;
+    padding: 10px;
+    transition: all 0.25s ease-in-out;
+    display: block;
+    width: 25%;
+    text-align: center;
+    margin: 15px auto;
+    font-weight: bold;
+    background-color: var(--accent-blue);
+    color: var(--text-white);
+    text-decoration: none;
+}
+
+a[role='button']:hover {
+    cursor: pointer;
+    background-color: var(--text-white);
+    color: var(--accent-blue);
+    /* border-color: var(--accent-active); */
+}
+
 main {
      padding: 1em;
      height: 100%;
@@ -35,6 +114,14 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
+}
+
+.main-container {
+    padding-left: 256px;
+    box-sizing: border-box;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: #fff;
 }
 
 .course-detail {
@@ -67,7 +154,7 @@ nav {
     }
 }
 
-span {
+.nav-item {
     display: flex;
     height: 56px;
     align-items: center;
@@ -81,11 +168,21 @@ span {
     cursor: pointer;
 }
 
-span:not(.logout):hover {
+.nav-item:not(.logout):hover {
     background-color: var(--accent-hover);
     border-left: 3px solid;
     border-color: var(--accent-active);
 }
+
+.nav-item a {
+    text-decoration: none;
+    color: var(--text-white);
+    flex: 1;
+    display: inline-flex;
+    height: 100%;
+    align-items: center;
+}
+
 
 .logout {
     background-color: var(--accent-red);
@@ -103,15 +200,6 @@ span:not(.logout):hover {
 
 .mobile-icon {
     display: none;
-}
-
-a {
-    text-decoration: none;
-    color: var(--text-white);
-    flex: 1;
-    display: inline-flex;
-    height: 100%;
-    align-items: center;
 }
 
 svg {
