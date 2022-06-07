@@ -144,7 +144,12 @@ class Course(Manager, db.Model):
         lazy="dynamic",
     )
 
-    accommodations = db.relationship("UserAccommodation", secondary=course_accommodations, backref="course", uselist=True)
+    accommodations = db.relationship(
+        "UserAccommodation", 
+        secondary=course_accommodations, 
+        backref="course", 
+        uselist=True
+    )
 
     # calculate the number of remaining seats
     def available_size(self):
@@ -187,6 +192,14 @@ class User(Manager, UserMixin, db.Model):
         cascade="all, delete-orphan",
         lazy="dynamic",
     )
+
+    def is_enrolled(self, course):
+        return self.registrations.filter(CourseUserAttended.course_id == course.id).count() > 0
+
+    def is_attended(self, course):
+        return self.registrations.filter(
+            CourseUserAttended.course_id == course.id
+        ).first().attended
 
     def __eq__(self, other):
         return self.name.split(" ")[::-1][0] == other.name.split(" ")[::-1][0]

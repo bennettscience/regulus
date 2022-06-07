@@ -39,19 +39,14 @@ class CoursePresenterSchema(Schema):
     email = fields.Str()
 
 
-class PublicCourseSchema(Schema):
+class SmallCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
-    location = fields.Nested("LocationSchema")
-    type = fields.Nested(CourseTypeSchema)
     description = fields.Str()
     starts = DateTime(format='timestamp')
-    ends = DateTime(format='timestamp')
-    presenters = fields.Nested(CoursePresenterSchema, many=True)
-    links = fields.Nested("DisplayCourseLinkSchema", many=True)
-    course_size = fields.Int()
-    active = fields.Bool()
     available = fields.Int()
+    state = fields.Str()
+    icon = fields.Str()
 
 
 class NewCourseSchema(Schema):
