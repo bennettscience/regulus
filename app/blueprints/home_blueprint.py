@@ -1,11 +1,10 @@
 from typing import List
-from flask import Blueprint, redirect, render_template, session, url_for
+from flask import Blueprint, redirect, render_template, request, session, url_for
 from flask_login import current_user
 
 
 home_bp = Blueprint('home_bp', __name__)
 
-from app.models import User
 from app.static.assets.icons import (
     home,
     calendar,
@@ -49,14 +48,8 @@ navigation_items = [
         "icon": home
     },
     {
-        "element": 'schedule',
-        "label": 'My Schedule',
-        "href": '/schedule',
-        "icon": calendar,
-    },
-    {
         "element": 'documents',
-        "label": 'Documents',
+        "label": 'My PGPs',
         "href": '/documents',
         "icon": documents,
     },
@@ -113,6 +106,15 @@ def index():
         if current_user.role.name == "SuperAdmin":
             is_admin = True
 
-        return render_template('home/index.html', menuitems=nav_items)
+        nav_items.insert(1, {
+            "element": 'schedule',
+            "label": "My Schedule",
+            "href": "/users/{}/registrations".format(current_user.id),
+            "icon": calendar
+        })
+        if request.headers.get('HX-Request'):
+            return render_template('home/clean-index.html', menuitems=nav_items)
+        else:
+            return render_template('home/index.html', menuitems=nav_items)
     else:
         return render_template('auth/login.html')

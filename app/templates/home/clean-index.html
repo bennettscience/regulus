@@ -1,0 +1,9 @@
+{% block main_content %}
+<div
+    id="courses"
+    hx-trigger="load"
+    hx-get="/courses"
+    hx-target="this"
+    hx-swap="outerHTML"
+></div>
+{% endblock %}
