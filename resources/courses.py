@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import List
 
-from flask import abort, jsonify, request
+from flask import abort, jsonify, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
 from webargs import fields
@@ -20,9 +20,13 @@ from app.schemas import (
     CourseSchema,
     CourseTypeSchema,
     NewCourseSchema,
-    PublicCourseSchema,
+    SmallCourseSchema,
     UserAttended,
     UserSchema,
+)
+from app.static.assets.icons import (
+    registered,
+    attended
 )
 from app.utils import clean_escaped_html
 
@@ -44,16 +48,15 @@ class CourseListAPI(MethodView):
         Returns:
             List: List of Course objects.
         """
+
         now = datetime.now()
         if current_user.is_anonymous:
             abort(401)
 
         # This filters events down to active, future events.
-        args = parser.parse({'all': fields.Bool()}, location='querystring')
-        if args is None:
-            args['all'] = False
+        args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
             
-        if args['all']:
+        if args:
             courses = Course.query.all()
         else:
             courses = Course.query.filter(
@@ -65,11 +68,22 @@ class CourseListAPI(MethodView):
             for course in courses:
                 course.available = course.available_size()
 
+                # Determine the current state for the user
+                if current_user.is_enrolled(course) and current_user.is_attended(course):
+                    course.state = 'attended'
+                    course.icon = attended
+                elif current_user.is_enrolled(course) and not current_user.is_attended(course):
+                    course.state = 'registered'
+                    course.icon = registered
+                else:
+                    course.state = 'available'
+
             sorted_courses = sorted(courses)
 
-            if current_user.usertype_id == 1:
-                return jsonify(CourseSchema(many=True).dump(sorted_courses))
-            return jsonify(PublicCourseSchema(many=True).dump(sorted_courses))
+            return render_template(
+                'events/index.html',
+                events=SmallCourseSchema(many=True).dump(sorted_courses)
+            )
         else:
             return jsonify({"message": "No upcoming events."})
 

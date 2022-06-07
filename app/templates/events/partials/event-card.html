@@ -1,0 +1,34 @@
+<article
+    _="install DateParse(starts: {{event.starts}})"
+    id="{{event.id}}"
+    class="course"
+    tabindex="0"
+>
+    <div class="course-calendar">
+        <div class="calendar">
+            <p class="day"></p>
+            <p class="date"></p>
+        </div>
+    </div>
+    <div class="course-details">
+        <h1>{{event.title}}</h1>
+        {%if event.state != 'available' %}
+        <div class="state {{event.state}}">
+            {% autoescape false %}
+            <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                height="16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                {{event.icon}}
+            </svg>
+            {% endautoescape %}
+            <p>{{event.state|capitalize}}</p>
+        </div>
+
+        {% endif %} {% autoescape false %} {{event.description}} {%
+        endautoescape %}
+    </div>
+</article>
