@@ -31,14 +31,14 @@
     --accent-green: #32c192;
     --site-dark: #1f2833;
     --text-white: #f0ecec;
-
+    
     /* shadow */
     --box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
-        rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
     --active-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-        rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
     --left-shadow: rgba(0, 0, 0, 0.1) -20px 0 25px -5px,
-        rgba(0, 0, 0, 0.04) -10px 0 10px -5px;
+    rgba(0, 0, 0, 0.04) -10px 0 10px -5px;
     /* interaction */
     --accent-active: #45a29e;
     --accent-hover: #2d3d50;
@@ -99,10 +99,10 @@ a[role='button']:hover {
 }
 
 main {
-     padding: 1em;
-     height: 100%;
-     margin: 0 auto;
- }
+    padding: 1em;
+    height: 100%;
+    margin: 0 auto;
+}
 
 nav {
     display: block;
@@ -138,17 +138,145 @@ nav {
     box-sizing: border-box;
 }
 
+.course {
+    display: grid;
+    gap: 12px;
+    grid-template-areas: 'calendar details';
+    grid-template-columns: 175px 1fr;
+    box-sizing: border-box;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: var(--box-shadow);
+    transition: all 0.125s ease-in-out;
+}
+
+.course-calendar {
+    grid-area: calendar;
+}
+
+.course:hover {
+    box-shadow: var(--active-shadow);
+    cursor: pointer;
+}
+
+.calendar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 10px;
+    background-color: var(--accent-blue);
+    color: var(--text-white);
+    border-radius: 5px 0 0 5px;
+    width: 100%;
+    border: 3px solid var(--accent-blue);
+}
+
+.day {
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 0;
+    transform: scale(0.85, 1.2);
+}
+
+.date {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    padding: 0;
+}
+
+.course-details {
+    display: flex;
+    flex-direction: row;
+    grid-area: details;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    padding: 20px 15px 20px 0;
+}
+
+.state {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.registered {
+    color: var(--site-gray);
+}
+
+.attended {
+    color: var(--accent-active);
+}
+
+
 @media only screen and (max-width: 767px) {
+    .course {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .course-calendar {
+        width: 100%;
+    }
+    
+    .course-details {
+        padding: 5px;
+        display: grid;
+        grid-template-areas: 'title''description''status';
+    }
+    
+    .course-details h1 {
+        grid-area: title;
+        font-size: 24px;
+    }
+    
+    .course-details span {
+        grid-area: status;
+    }
+    
+    .course-details p {
+        grid-area: description;
+    }
+    
+    .calendar {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    
+    .day {
+        width: auto;
+        font-size: 24px;
+    }
+    
+    .date {
+        font-size: 32px;
+    }
+    
     .mobile-icon {
         display: none;
     }
-
+    
     .navbar-list {
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-
+    
     nav {
         width: 60px;
     }
@@ -216,21 +344,21 @@ svg {
         padding: 0;
         width: 100%;
     }
-
+    
     .active {
         border: none;
     }
-
+    
     .logout {
         width: 56px;
     }
-
+    
     .mobile-icon svg {
         height: 32px;
         width: 32px;
         margin-right: 0;
     }
-
+    
     .nav-item {
         display: none;
     }
