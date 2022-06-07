@@ -88,6 +88,7 @@ from app.schemas import UserSchema, CourseSchema, LogSchema
 # from app.blueprints import users_blueprint
 from app.blueprints.home_blueprint import home_bp
 from app.blueprints.events_blueprint import events_bp
+from app.blueprints.users_blueprint import users_bp
 
 # Register the endpoints in Flask
 # https://flask.palletsprojects.com/en/2.0.x/views/#method-views-for-apis
@@ -110,9 +111,9 @@ location_course_view = LocationCoursesAPI.as_view("location_courses_api")
 user_types_view = UserTypesAPI.as_view("user_types_api")
 
 # Register all the blueprints
-# app.register_blueprint(users_blueprint)
 app.register_blueprint(home_bp)
 app.register_blueprint(events_bp)
+app.register_blueprint(users_bp)
 
 
 @lm.user_loader
