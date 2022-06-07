@@ -48,12 +48,6 @@ navigation_items = [
         "icon": home
     },
     {
-        "element": 'documents',
-        "label": 'My PGPs',
-        "href": '/documents',
-        "icon": documents,
-    },
-    {
         "element": 'presenter',
         "label": 'Presenter Dashboard',
         "href": '/presenter',
@@ -111,6 +105,12 @@ def index():
             "label": "My Schedule",
             "href": "/users/{}/registrations".format(current_user.id),
             "icon": calendar
+        })
+        nav_items.insert(2, {
+            "element": 'documents',
+            "label": 'My PGPs',
+            "href": '/users/{}/documents'.format(current_user.id),
+            "icon": documents,
         })
         if request.headers.get('HX-Request'):
             return render_template('home/clean-index.html', menuitems=nav_items)
