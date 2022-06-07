@@ -1,6 +1,15 @@
 <span class="nav-item {{ 'logout' if item.element == 'logout' }}">
-    <a href="{{item.href}}"
-        ><svg
+    {% if item.element == 'logout' %}
+    <a href="{{item.href}}">
+    {% else %}
+    <a 
+        hx-get="{{item.href}}"
+        hx-target=".main-container"
+        hx-replace="outerHTML"
+        hx-push-url="true"
+        >
+        {% endif %}
+        <svg
             fill="none"
             viewBox="0 0 24 24"
             height="16"
@@ -9,6 +18,7 @@
         >
             {% autoescape false %} {{item.icon}} {% endautoescape %}
         </svg>
-        {{item.label}}</a
+        {{item.label}}
+        </a
     >
 </span>
