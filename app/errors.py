@@ -1,5 +1,5 @@
 import json
-
+from flask import jsonify
 from app import app
 
 @app.errorhandler(401)
@@ -57,18 +57,13 @@ def request_conflict(err):
 @app.errorhandler(422)
 @app.errorhandler(400)
 def handle_error(err):
-    response = err.get_response()
+    # Catch errors from webargs and Marshmallow
+    headers = err.data.get("headers", None)
     messages = err.data.get("messages", ["Invalid request."])
-    response.data = json.dumps(
-        {
-            "code": err.code,
-            "name": err.name,
-            "description": "Unprocessable request. See messages for details.",
-            "messages": messages['json']
-        }
-    )
-    response.content_type = "application/json"
-    return response
+    if headers:
+        return jsonify({"errors": messages}), err.code, headers
+    else:    
+        return jsonify({"errors": messages}), err.code
 
 @app.errorhandler(500)
 def internal_error(e):
