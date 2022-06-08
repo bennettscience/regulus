@@ -54,7 +54,7 @@ body {
 
 /* Typography */
 h1 {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Oswald', Arial, Helvetica, sans-serif;
     font-weight: 700;
     font-size: 32px;
     margin-top: 0;
@@ -62,25 +62,85 @@ h1 {
 }
 
 h2 {
-    font-family: 'Roboto';
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
     font-weight: 700;
     font-size: 20px;
 }
 
 p {
-    margin-block-start: 0;
-    margin-block-end: 0;
-    font-family: 'Roboto';
+    margin-block-start: 0.75rem;
+    margin-block-end: 0.5rem;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
 }
 
 b,
 strong {
-    font-family: 'Roboto Bold';
+    font-family: 'Roboto Bold', Arial, Helvetica, sans-serif;
 }
 
 i,
 em {
     font-family: 'Roboto Italic';
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: var(--text-white);
+    color: var(--site-dark);
+}
+
+button[type='submit']:focus {
+    border-color: var(--site-dark);
+}
+
+button:disabled {
+    background-color: var(--site-gray);
+    border-color: var(--site-gray);
+    pointer-events: none;
+}
+
+.btn {
+    display: flex;
+    font-weight: 700;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    border-radius: 5px;
+    width: 50%;
+    height: 36px;
+    margin: 0 auto;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: 0.125s all ease-in-out;
+    border-style: none;
+    color: var(--site-dark);
+}
+
+.btn:hover {
+    box-shadow: var(--active-shadow);
+}
+
+.btn--primary {
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: var(--text-white)
+}
+
+.btn--cancel {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    color: var(--text-white)
+}
+
+.btn--close {
+    background-color: transparent;
+    border: 1px solid;
+    border-color: transparent;
+}
+
+.btn--close:hover {
+    cursor: pointer;
+    border-color: var(--black);
 }
 
 a[role='button'] {
@@ -90,9 +150,7 @@ a[role='button'] {
     padding: 10px;
     transition: all 0.25s ease-in-out;
     display: block;
-    width: 25%;
     text-align: center;
-    margin: 15px auto;
     font-weight: bold;
     background-color: var(--accent-blue);
     color: var(--text-white);
@@ -102,8 +160,7 @@ a[role='button'] {
 a[role='button']:hover {
     cursor: pointer;
     background-color: var(--text-white);
-    color: var(--accent-blue);
-    /* border-color: var(--accent-active); */
+    color: var(--site-dark);
 }
 
 main {
@@ -233,7 +290,7 @@ nav {
     border-bottom: 2px solid var(--site-gray);
 }
 
-.document-meta a {
+/* .document-meta a {
     padding: 1em;
     display: block;
     border: 2px solid var(--accent-blue);
@@ -244,7 +301,7 @@ nav {
 .document-meta a:hover {
     background-color: var(--accent-blue);
     color: var(--text-white);
-}
+} */
 
 table {
     width: 100%;
@@ -292,23 +349,22 @@ table tbody tr td {
 }
 
 #right-sidebar-inner input[type='text'] {
+    box-sizing: border-box;
     width: 100%;
+    line-height: 1.2;
+    padding: 0.25rem;
 }
 
 .sidebar--right.htmx-added {
     right: -356px;
 }
 
-.btn-close {
-    background-color: transparent;
-    border: 1px solid;
-    border-color: transparent;
+.sidebar--right form label {
+    display: inline-block;
+    margin: 0.5em 0;
 }
 
-.btn-close:hover {
-    cursor: pointer;
-    border-color: var(--black);
-}
+
 
 .hide {
     right: -356px;
@@ -362,34 +418,6 @@ hr {
 form {
     display: block;
     position: relative;
-}
-
-button[type='submit'] {
-    display: block;
-    margin: 0 auto;
-    padding: 10px 30px;
-    border: 3px solid var(--accent-blue);
-    background-color: var(--accent-blue);
-    border-radius: 5px;
-    transition: all 0.25s ease-in-out;
-    font-weight: bold;
-    color: var(--text-white);
-}
-
-button:hover {
-    cursor: pointer;
-    background-color: var(--text-white);
-    color: var(--accent-blue);
-}
-
-button[type='submit']:focus {
-    border-color: var(--site-dark);
-}
-
-button:disabled {
-    background-color: var(--site-gray);
-    border-color: var(--site-gray);
-    pointer-events: none;
 }
 
 #toast {
