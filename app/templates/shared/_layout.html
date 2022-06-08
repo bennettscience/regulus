@@ -12,7 +12,7 @@
         />
         {% block additional_css %} {%endblock%}
     </head>
-    <body _="on keyup[key is 'Escape'] remove .show from <div/>">
+    <body _="on keyup[key is 'Escape'] trigger closeSidebar end">
         {% include 'shared/nav.html' %}
         <main>
             <section class="main-container">

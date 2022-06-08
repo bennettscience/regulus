@@ -3,10 +3,12 @@
 
 <!-- prettier ignore -->
 {% if event.available > 0 %} {%if event.state == 'registered' and event.state !=
-'attended' %} Cancel Form {% elif event.state == 'available' and event.state !=
+'attended' %} {{render_partial('events/partials/cancel-form.html',
+event_id=event.id)}} {% elif event.state == 'available' and event.state !=
 'attended' %} {{ render_partial('events/partials/registration-form.html',
 event_id=event.id) }} {% endif %} {% elif event.available == 0 and event.state
-== 'registered' %} Cancel {% else %} Disabled button {% endif %}
+== 'registered' %} {{render_partial('events/partials/cancel-form.html',
+event_id=event.id)}} {% else %} Disabled button {% endif %}
 <hr />
 <time
     _="init 

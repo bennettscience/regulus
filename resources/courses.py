@@ -716,7 +716,7 @@ class CourseAttendeeAPI(MethodView):
 
         return jsonify(UserAttended().dump(user))
 
-    def delete(self: None, course_id: int, user_id: int) -> dict:
+    def delete(self: None, course_id: int) -> dict:
         """Remove a user from a course
 
         Args:
@@ -727,13 +727,13 @@ class CourseAttendeeAPI(MethodView):
             dict: removal status.
         """
         course = Course.query.get(course_id)
-        user = course.registrations.filter_by(user_id=user_id).first()
+        user = course.registrations.filter_by(user_id=current_user.id).first()
         webhook_url = Config.CALENDAR_HOOK_URL
 
         if user is None:
             abort(
                 404,
-                f"No user with id <{user_id}> registered for course with id <{course_id}>",
+                f"No user with id <{current_user.id}> registered for course with id <{course_id}>",
             )
 
         raw = {
@@ -751,4 +751,22 @@ class CourseAttendeeAPI(MethodView):
         course.registrations.remove(user)
         db.session.commit()
 
-        return jsonify({"message": "Success"})
+        # Determine the current state for the user
+        if current_user.is_enrolled(course) and current_user.is_attended(course):
+            course.state = 'attended'
+            course.icon = attended
+        elif current_user.is_enrolled(course) and not current_user.is_attended(course):
+            course.state = 'registered'
+            course.icon = registered
+        else:
+            course.state = 'available'
+        
+        response = make_response(render_template(
+            'events/partials/event-card.html',
+            event=SmallCourseSchema().dump(course)
+        ))
+        response.headers.set('HX-Trigger', json.dumps(
+            {'showToast': "Successfully cancelled registration for {}".format(course.title)
+        }))
+
+        return response

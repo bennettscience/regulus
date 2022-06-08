@@ -50,12 +50,12 @@ events_bp.add_url_rule(
 events_bp.add_url_rule(
     "/courses/<int:course_id>/register",
     view_func=course_attendee_view,
-    methods=["POST"]
+    methods=["POST", "DELETE"]
 )
 events_bp.add_url_rule(
     "/courses/<int:course_id>/registrations/<int:user_id>",
     view_func=course_attendee_view,
-    methods=["PUT", "DELETE"],
+    methods=["PUT"],
 )
 # events_bp.add_url_rule(
 #     "/courses/types", view_func=course_types_view, methods=["GET", "POST"]

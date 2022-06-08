@@ -1,0 +1,13 @@
+<button
+    hx-trigger="click"
+    hx-delete="/courses/{{event_id}}/register"
+    hx-indicator="#toast"
+    hx-target="#event_{{event_id}}"
+    hx-swap="outerHTML"
+    _="
+            on click add @disabled end
+            on htmx:afterSwap from window trigger closeSidebar end
+        "
+>
+    Cancel registration
+</button>
