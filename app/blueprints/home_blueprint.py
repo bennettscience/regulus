@@ -94,9 +94,9 @@ def get_user_navigation_menu() -> List[dict]:
 @home_bp.get('/')
 def index():
     is_admin = False
-    nav_items = get_user_navigation_menu()
     # If the user session isn't fresh, they need to log in again.
     if not current_user.is_anonymous and session['_fresh']:
+        nav_items = get_user_navigation_menu()
         if current_user.role.name == "SuperAdmin":
             is_admin = True
 
