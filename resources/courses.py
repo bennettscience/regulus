@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import List
 
-from flask import abort, jsonify, render_template, request
+from flask import abort, jsonify, make_response, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
 from webargs import fields
@@ -609,7 +609,7 @@ class CourseAttendeesAPI(MethodView):
 
 
 class CourseAttendeeAPI(MethodView):
-    def post(self: None, course_id: int, user_id: int) -> User:
+    def post(self: None, course_id: int) -> User:
         """Register a single user for a course
 
         Args:
@@ -620,23 +620,23 @@ class CourseAttendeeAPI(MethodView):
             User: User registration
         """
         from app.models import UserAccommodation
-
+        
         required_args = {
             "acc_required": fields.Bool(required=True),
-            "acc_note": fields.Str()
+            "acc_details": fields.Str()
         }
 
-        args = parser.parse(required_args, location='json')
-        
+        args = parser.parse(required_args, location="form")
+
         course = Course.query.get(course_id)
-        user = User.query.get(user_id)
+        user = User.query.get(current_user.id)
         webhook_url = Config.CALENDAR_HOOK_URL
 
         # Catch errors if the user or course cannot be found.
         if course is None:
             abort(404, f"No course with id <{course_id}>")
         elif user is None:
-            abort(404, f"No user with id <{user_id}>")
+            abort(404, f"No user with id <{current_user.id}>")
         
         if course.available_size() > 0:
             course.registrations.append(
@@ -646,7 +646,7 @@ class CourseAttendeeAPI(MethodView):
         # If the accommodation param is not empty, create a new entry for this course
         # and insert it.
             if args['acc_required']:
-                ua = UserAccommodation(required=args['acc_required'], note=args['acc_note'])
+                ua = UserAccommodation(required=args['acc_required'], note=args['acc_details'])
                 db.session.add(ua)
                 db.session.commit()
 
@@ -672,8 +672,25 @@ class CourseAttendeeAPI(MethodView):
         else:
             abort(409)
 
-        user = course.registrations.filter_by(user_id=user_id).first()
-        return jsonify({"message": "success", "data": UserAttended().dump(user)})
+        course.available = course.available_size()
+
+        # Determine the current state for the user
+        if current_user.is_enrolled(course) and current_user.is_attended(course):
+            course.state = 'attended'
+            course.icon = attended
+        elif current_user.is_enrolled(course) and not current_user.is_attended(course):
+            course.state = 'registered'
+            course.icon = registered
+        else:
+            course.state = 'available'
+        
+        response = make_response(render_template(
+            'events/partials/event-card.html',
+            event=SmallCourseSchema().dump(course)
+        ))
+        response.headers.set('HX-Trigger', json.dumps({'showToast': "Successfully registered for {}".format(course.title)}))
+
+        return response
 
     def put(self: None, course_id: int, user_id: int) -> dict:
         """Update a single course registration for an attendee

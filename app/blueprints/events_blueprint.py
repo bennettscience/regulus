@@ -1,11 +1,18 @@
 from flask import Blueprint
 
-from resources.courses import CourseListAPI, CourseAPI
+from resources.courses import (
+    CourseListAPI, 
+    CourseAPI,
+    CourseAttendeesAPI,
+    CourseAttendeeAPI
+)
 
 events_bp = Blueprint('events_bp', __name__)
 
 courses_view = CourseListAPI.as_view("courses_api")
 course_view = CourseAPI.as_view("course_api")
+course_attendees_view = CourseAttendeesAPI.as_view("course_attendees_api")
+course_attendee_view = CourseAttendeeAPI.as_view("course_attendee_api")
 
 events_bp.add_url_rule("/courses", view_func=courses_view, methods=["GET", "POST"])
 events_bp.add_url_rule(
@@ -40,11 +47,16 @@ events_bp.add_url_rule(
 #         "POST",
 #     ],
 # )
-# events_bp.add_url_rule(
-#     "/courses/<int:course_id>/registrations/<int:user_id>",
-#     view_func=course_attendee_view,
-#     methods=["PUT", "POST", "DELETE"],
-# )
+events_bp.add_url_rule(
+    "/courses/<int:course_id>/register",
+    view_func=course_attendee_view,
+    methods=["POST"]
+)
+events_bp.add_url_rule(
+    "/courses/<int:course_id>/registrations/<int:user_id>",
+    view_func=course_attendee_view,
+    methods=["PUT", "DELETE"],
+)
 # events_bp.add_url_rule(
 #     "/courses/types", view_func=course_types_view, methods=["GET", "POST"]
 # )

@@ -90,10 +90,6 @@ from app.blueprints.events_blueprint import events_bp
 from app.blueprints.users_blueprint import users_bp
 from app.blueprints.documents_blueprint import documents_bp
 
-# Register the endpoints in Flask
-# https://flask.palletsprojects.com/en/2.0.x/views/#method-views-for-apis
-# courses_view = CourseListAPI.as_view("courses_api")
-# course_view = CourseAPI.as_view("course_api")
 course_types_view = CourseTypesAPI.as_view("course_types_api")
 course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_links_view = CourseLinksAPI.as_view("course_links_api")
@@ -102,8 +98,6 @@ course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
 course_linktype_view = CourseLinkTypeAPI.as_view("course_linktype_api")
 course_presenters_view = CoursePresentersAPI.as_view("course_presenters_api")
 course_presenter_view = CoursePresenterAPI.as_view("course_presenter_api")
-course_attendees_view = CourseAttendeesAPI.as_view("course_attendees_api")
-course_attendee_view = CourseAttendeeAPI.as_view("course_attendee_api")
 locations_view = LocationListAPI.as_view("locations_api")
 location_view = LocationAPI.as_view("location_api")
 location_user_view = LocationUsersAPI.as_view("location_user_api")
