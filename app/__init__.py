@@ -85,10 +85,11 @@ from resources.usertypes import UserTypesAPI
 from app.schemas import UserSchema, CourseSchema, LogSchema
 
 # from app.blueprints import users_blueprint
-from app.blueprints.home_blueprint import home_bp
-from app.blueprints.events_blueprint import events_bp
-from app.blueprints.users_blueprint import users_bp
+from app.blueprints.admin_blueprint import admin_bp
 from app.blueprints.documents_blueprint import documents_bp
+from app.blueprints.events_blueprint import events_bp
+from app.blueprints.home_blueprint import home_bp
+from app.blueprints.users_blueprint import users_bp
 
 course_types_view = CourseTypesAPI.as_view("course_types_api")
 course_type_view = CourseTypeAPI.as_view("course_type_api")
@@ -105,10 +106,11 @@ location_course_view = LocationCoursesAPI.as_view("location_courses_api")
 user_types_view = UserTypesAPI.as_view("user_types_api")
 
 # Register all the blueprints
-app.register_blueprint(home_bp)
-app.register_blueprint(events_bp)
-app.register_blueprint(users_bp)
+app.register_blueprint(admin_bp)
 app.register_blueprint(documents_bp)
+app.register_blueprint(events_bp)
+app.register_blueprint(home_bp)
+app.register_blueprint(users_bp)
 
 @lm.user_loader
 def load_user(id):

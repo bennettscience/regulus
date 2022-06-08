@@ -57,6 +57,7 @@ class CourseDetailSchema(Schema):
     available = fields.Int()
     state = fields.Str()
     presenters = fields.Nested("CoursePresenterSchema", many=True)
+    registrations = fields.Nested("UserAttended", many=True)
     type = fields.Nested("CourseTypeSchema")
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
     location = fields.Nested("LocationSchema")
@@ -197,7 +198,7 @@ class UserSchema(Schema):
 
 class UserAttended(Schema):
     user = fields.Nested(UserSchema)
-    course = fields.Nested(SmallCourseSchema)
+    # course = fields.Nested(SmallCourseSchema)
     attended = fields.Bool()
 
 

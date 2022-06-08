@@ -1,0 +1,21 @@
+<section class="course-data">
+    <div class="course-select">
+        <select
+            tabindex="0"
+            hx-get="/admin/events"
+            name="event_id"
+            hx-trigger="change"
+            hx-target="#result"
+        >
+            <option value="" readonly="true" hidden="true" selected>
+                Select an event
+            </option>
+            {% for event in events %}
+            <option value="{{event.id}}">
+                {{event.starts}} - {{event.title}}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div id="result"></div>
+</section>

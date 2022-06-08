@@ -1,0 +1,32 @@
+{{ registrations[0] }} {{registrations|length}}
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Email</th>
+        <th>Attended</th>
+    </thead>
+    <tbody>
+        {% for reg in registrations %}
+        <tr data-id="{{reg.user.id}}" hx-trigger="click">
+            <td>{{reg.user.name}}</td>
+            <td></td>
+            <td>{{reg.user.email}}</td>
+            {% autoescape false %}
+            <td>
+                <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    height="16"
+                    width="16"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    {% if reg.attended %} {{icons.attended}} {% else %}
+                    {{icons.not_attended}} {% endif %}
+                </svg>
+            </td>
+            {% endautoescape %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

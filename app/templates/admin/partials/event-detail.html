@@ -1,0 +1,21 @@
+<section class="snapshot">
+    <button tabindex="0" class="btn form-toggle">Edit Details</button>
+    <button tabindex="0" class="btn form-toggle">Edit Presenters</button>
+    <button tabindex="0" class="btn form-toggle">Edit Links</button>
+    <button tabindex="0" class="btn form-toggle">View Event Logs</button>
+    <button tabindex="0" class="btn form-toggle">
+        {% if event.active %}Cancel Event{% else %}Activate Event{% endif %}
+    </button>
+    <button class="btn form-toggle" tabindex="0" id="delete">
+        Delete Event
+    </button>
+    {% if event.accommodations|length > 0 %}
+    <div id="notes">
+        <h2>Accommodations requested:</h2>
+        {% for item in event.accommodations %}
+        <p>{{item.note}}</p>
+        {% endfor %}
+    </div>
+    {% endif %} {{ render_partial('admin/partials/registration-table.html',
+    registrations=event.registrations, icons=icons)}}
+</section>
