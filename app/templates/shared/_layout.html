@@ -20,7 +20,10 @@
             </section>
             {% include 'shared/partials/toast.html' %}
         </main>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script
+            type="module"
+            src="{{ url_for('static', filename='js/main.js') }}"
+        ></script>
         <script src="https://unpkg.com/htmx.org@1.7.0"></script>
         <script
             type="text/hyperscript"

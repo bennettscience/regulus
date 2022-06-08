@@ -1,13 +1,12 @@
 <h1>{{event.title}}</h1>
 <hr />
 
+<!-- prettier ignore -->
 {% if event.available > 0 %} {%if event.state == 'registered' and event.state !=
-'attended' %} Cancel {% elif event.state == 'available' and event.state !=
-'attended' %}
-<!-- The register button makes the actual API call to the backend. This event updates the
-             ui depeding on the results of that call. Same case for cancelling course registrations. -->
-Register {% endif %} {% elif event.available == 0 and event.state ==
-'registered' %} Cancel {% else %} Disabled button {% endif %}
+'attended' %} Cancel Form {% elif event.state == 'available' and event.state !=
+'attended' %} {{ render_partial('events/partials/registration-form.html',
+event_id=event.id) }} {% endif %} {% elif event.available == 0 and event.state
+== 'registered' %} Cancel {% else %} Disabled button {% endif %}
 <hr />
 <time
     _="init 

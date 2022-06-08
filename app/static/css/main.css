@@ -359,6 +359,92 @@ hr {
     cursor: pointer;
 }
 
+form {
+    display: block;
+    position: relative;
+}
+
+button[type='submit'] {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 30px;
+    border: 3px solid var(--accent-blue);
+    background-color: var(--accent-blue);
+    border-radius: 5px;
+    transition: all 0.25s ease-in-out;
+    font-weight: bold;
+    color: var(--text-white);
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: var(--text-white);
+    color: var(--accent-blue);
+}
+
+button[type='submit']:focus {
+    border-color: var(--site-dark);
+}
+
+button:disabled {
+    background-color: var(--site-gray);
+    border-color: var(--site-gray);
+    pointer-events: none;
+}
+
+#toast {
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    top: 90%;
+    right: 1.5rem;
+    min-width: 250px;
+    margin: 0;
+    padding: 0;
+    transition: all 350ms;
+    z-index: 1000;
+    border-radius: 3px;
+    box-sizing: border-box;
+    background-color: var(--site-dark);
+    color: var(--text-white);
+}
+
+#toast.show {
+    opacity: 1;
+}
+
+#toast-message {
+    padding: 0.75rem 1.25rem;
+}
+
+#toast-action {
+    background-color: rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    display: block;
+    padding: 1.25rem;
+}
+
+#toast-action:hover {
+    cursor: pointer;
+}
+
+.htmx-indicator {
+    transition: none;
+}
+
+#toast.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+#toast.htmx-request.htmx-indicator.error {
+    background-color: var(--warn-color);
+    border-color: transparent;
+    width: auto;
+}
+
 
 @media only screen and (max-width: 767px) {
     .course {

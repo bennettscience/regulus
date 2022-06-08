@@ -1,0 +1,39 @@
+<form
+    hx-post="/courses/{{event_id}}/register"
+    hx-trigger="click"
+    hx-indicator="#toast"
+    hx-target="#event_{{event_id}}"
+    hx-swap="outerHTML"
+    _="on htmx:afterSwap from window trigger closeSidebar"
+>
+    <b>Do you need an accommodation?</b>
+    <div id="option-container">
+        <label _="on click set the *display of #acc-details to 'block'"
+            ><b>Yes</b>
+            <input name="acc_required" type="radio" value="true" tabindex="0" />
+        </label>
+        <label _="on click set the *display of #acc-details to 'none'"
+            ><b>No</b>
+            <input
+                name="acc_required"
+                type="radio"
+                value="false"
+                tabindex="0"
+                checked
+            />
+        </label>
+    </div>
+    <label id="acc-details" style="display: none"
+        ><b>Details</b>
+        <input
+            name="acc_details"
+            value=""
+            placeholder="Accommodation details..."
+            type="text"
+            tabindex="0"
+        />
+    </label>
+    <button _="on click add @disabled" tabindex="0" type="submit">
+        Register
+    </button>
+</form>
