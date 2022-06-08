@@ -1,9 +1,9 @@
 <form
     hx-post="/courses/{{event_id}}/register"
-    hx-trigger="click"
     hx-indicator="#toast"
     hx-target="#event_{{event_id}}"
     hx-swap="outerHTML"
+    hx-trigger="request"
     _="on htmx:afterSwap from window trigger closeSidebar"
 >
     <b>Do you need an accommodation?</b>
@@ -33,7 +33,11 @@
             tabindex="0"
         />
     </label>
-    <button _="on click add @disabled" tabindex="0" type="submit">
+    <button
+        type="submit"
+        _="on click trigger request add @disabled"
+        tabindex="0"
+    >
         Register
     </button>
 </form>
