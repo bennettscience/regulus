@@ -3,12 +3,18 @@ from webargs import fields
 from webargs.flaskparser import parser
 
 from app import cache
-from app.models import Course
-from app.schemas import CourseSchema, CourseDetailSchema
+from app.models import Course, CourseLink, User, CourseLinkType
+from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, UserSchema
 from app.static.assets.icons import attended, close
-from app.utils import get_all_events
 
 admin_bp = Blueprint('admin_bp', __name__, url_prefix="/admin")
+
+@cache.memoize(60)
+def get_event(event_id):
+    event = Course.query.get(event_id)
+    event.available = event.available_size()
+
+    return CourseSchema().dump(event)
 
 # TODO: implement caching on first load
 # TODO: Split DB query into it's own function?
@@ -47,13 +53,8 @@ def index():
     return render_template(template, **content)
 
 @admin_bp.get("/events/<int:event_id>/edit")
-@cache.cached()
 def edit_event(event_id):
-    event = Course.query.get(event_id)
-
-    event.available = event.available_size()
-
-    # breakpoint()
+    event = get_event(event_id)
 
     if event is None:
         abort(404)
@@ -61,5 +62,45 @@ def edit_event(event_id):
     return render_template(
         'shared/partials/sidebar.html',
         partial='admin/forms/edit-event.html',
-        event=CourseSchema().dump(event)
+        event=event
+    )
+
+@admin_bp.get("/events/<int:event_id>/presenters/edit")
+def edit_event_presenters(event_id):
+    from app.schemas import CoursePresenterSchema
+    event = get_event(event_id)
+
+    # Get a list of all available presenters
+    presenters = User.query.filter(User.usertype_id == 2).all()
+
+    # Map to a dict structure to pass to the select partial
+    prepared = [{"value": user.id, "text": user.name} for user in presenters]
+
+    content = {
+        "event": event,
+        "data": prepared
+    }
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/edit-presenters.html',
+        **content
+    )
+
+@admin_bp.get("/events/<int:event_id>/links/edit")
+def edit_event_links(event_id):
+    event = get_event(event_id)
+
+    linktypes = CourseLinkType.query.all()
+    prepared = [{"value": linktype.id, "text": linktype.name} for linktype in linktypes]
+
+    content = {
+        "event": event,
+        "data": prepared
+    }
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/edit-links.html',
+        **content
     )

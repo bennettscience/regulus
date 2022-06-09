@@ -8,8 +8,24 @@
     >
         Edit Details
     </button>
-    <button tabindex="0" class="btn form-toggle">Edit Presenters</button>
-    <button tabindex="0" class="btn form-toggle">Edit Links</button>
+    <button
+        tabindex="0"
+        class="btn form-toggle"
+        hx-get="/admin/events/{{event.id}}/presenters/edit"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Edit Presenters
+    </button>
+    <button
+        tabindex="0"
+        class="btn form-toggle"
+        hx-get="/admin/events/{{event.id}}/links/edit"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Edit Links
+    </button>
     <button tabindex="0" class="btn form-toggle">View Event Logs</button>
     <button tabindex="0" class="btn form-toggle">
         {% if event.active %}Cancel Event{% else %}Activate Event{% endif %}

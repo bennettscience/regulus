@@ -1,0 +1,26 @@
+<p>Editing links for <b>{{event.title}}</b></p>
+<h2>Current links</h2>
+
+<ul>
+    {% for link in event.links %}
+    <li><a href="{{link.uri}}">{{link.name}}</a></li>
+    {% endfor %}
+</ul>
+
+<form>
+    {{render_partial('shared/form-fields/select.html', options=data,
+    name='courselinktype_id' )}}
+    <label>
+        Link text
+        <input type="text" name="name" value="" placeholder="Enter link text" />
+    </label>
+    <label>
+        Link URL
+        <input
+            type="url"
+            name="uri"
+            value=""
+            placeholder="https://example.com"
+        />
+    </label>
+</form>

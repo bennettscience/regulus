@@ -1,3 +1,11 @@
+<!-- 
+    The sidebar wrapper expects:
+     - A partial element to render in the container
+     - An event object
+     - Additional data
+     - Any necessary icons for the display
+    If the keys are missing, they will be ignored in the final render.
+-->
 <section
     _="on closeSidebar
         log 'Closing'
@@ -13,6 +21,6 @@
         <button class="btn--close" _="on click trigger closeSidebar">
             × close
         </button>
-        {{ render_partial(partial, event=event, icons=icons)}}
+        {{ render_partial(partial, event=event, data=data, icons=icons)}}
     </div>
 </section>

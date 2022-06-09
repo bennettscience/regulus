@@ -97,7 +97,7 @@ testing = ["bleach (>=3.2.1)", "pytest (>=3.0.0)", "pytest-wholenodeid", "flake8
 name = "blinker"
 version = "1.4"
 description = "Fast, simple object-to-object and broadcast signaling"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -272,6 +272,20 @@ python-versions = ">=3.7"
 [package.dependencies]
 cachelib = "*"
 Flask = "*"
+
+[[package]]
+name = "flask-debugtoolbar"
+version = "0.13.1"
+description = "A toolbar overlay for debugging Flask applications."
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[package.dependencies]
+Blinker = "*"
+Flask = ">=0.8"
+itsdangerous = "*"
+werkzeug = "*"
 
 [[package]]
 name = "flask-login"
@@ -958,7 +972,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1413d52da9035900e41af79b668950618dbe696871ec986b6067c3800f7d7de4"
+content-hash = "2e63e420fb54e5b19c6a63e37e681b039b248f39f2b5da060d7b455c4a7d9731"
 
 [metadata.files]
 alembic = [
@@ -1100,6 +1114,10 @@ flask = [
 flask-caching = [
     {file = "Flask-Caching-1.11.1.tar.gz", hash = "sha256:28af189e97defb9e39b43ebe197b54a58aaee81bdeb759f46d969c26d7aa7810"},
     {file = "Flask_Caching-1.11.1-py3-none-any.whl", hash = "sha256:36592812eec6cba86eca48bcda74eff24bfd6c8eaf6056ca0184474bb78c0dc4"},
+]
+flask-debugtoolbar = [
+    {file = "Flask-DebugToolbar-0.13.1.tar.gz", hash = "sha256:0c26aa013a9813b8886857bf0ec24d28ab494114a264baf06c951cadc4dd0dae"},
+    {file = "Flask_DebugToolbar-0.13.1-py3-none-any.whl", hash = "sha256:491c737f321830c06a2835784acf1fc8488fd257a0ef318810b3b6bed5f600d5"},
 ]
 flask-login = [
     {file = "Flask-Login-0.5.0.tar.gz", hash = "sha256:6d33aef15b5bcead780acc339464aae8a6e28f13c90d8b1cf9de8b549d1c0b4b"},

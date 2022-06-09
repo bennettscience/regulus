@@ -12,7 +12,7 @@ from flask import (
     abort,
     Blueprint
 )
-from flask_caching import Cache
+
 from flask_login import (
     LoginManager,
     current_user,
@@ -21,6 +21,7 @@ from flask_login import (
     logout_user,
 )
 
+from flask_caching import Cache
 # from authlib.integrations.flask_client import OAuth
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
@@ -31,7 +32,6 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.exceptions import HTTPException
 
 from sqlalchemy import func
-
 
 from config import Config
 
@@ -49,6 +49,7 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 cache = Cache(app)
+# toolbar = DebugToolbarExtension(app)
 jinja_partials.register_extensions(app)
 
 # TODO: Check all sensititve API routes for access control logic.
