@@ -1,0 +1,59 @@
+<form>
+    <p>Editing <b>{{event.title}}</b></p>
+    <label>
+        <p>Edit title</p>
+        <input type="text" name="title" id="" value="{{event.title}}" />
+    </label>
+    <label>
+        <p>Edit description</p>
+        <textarea name="description" id="" cols="30" rows="10">
+            {{event.description}}
+        </textarea>
+    </label>
+    <label>
+        <p>Edit start date</p>
+        <input
+            _="
+                on load 
+                    call shiftISOTime({{event.starts}})
+                then set @value to the result
+            "
+            type="datetime-local"
+            name="starts"
+            id=""
+            value=""
+        />
+    </label>
+    <label for="">
+        <p>Edit end date</p>
+        <input
+            _="
+                on load 
+                    call shiftISOTime({{event.ends}})
+                then set @value to the result
+            "
+            type="datetime-local"
+            name="ends"
+            id=""
+            value=""
+        />
+    </label>
+    <label for="">
+        <p>Edit max size</p>
+        <input
+            type="number"
+            name="course_size"
+            id=""
+            value="{{event.course_size}}"
+        />
+    </label>
+    <label for="">
+        <p>Edit event type</p>
+        <p>Event type select goes here</p>
+    </label>
+    <label for="">
+        <p>Edit location</p>
+        <p>Location select goes here</p>
+    </label>
+    <button type="submit" class="btn btn--primary">Submit</button>
+</form>

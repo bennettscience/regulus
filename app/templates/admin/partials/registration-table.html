@@ -1,5 +1,4 @@
-{{ registrations[0] }} {{registrations|length}}
-<table>
+<table class="tbl tbl--registrations">
     <thead>
         <th>Name</th>
         <th>Location</th>
@@ -10,7 +9,7 @@
         {% for reg in registrations %}
         <tr data-id="{{reg.user.id}}" hx-trigger="click">
             <td>{{reg.user.name}}</td>
-            <td></td>
+            <td>{{reg.user.location.name}}</td>
             <td>{{reg.user.email}}</td>
             {% autoescape false %}
             <td>

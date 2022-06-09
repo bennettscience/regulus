@@ -24,6 +24,14 @@ function formatDate(target, dateStr) {
     return new Intl.DateTimeFormat('en', formats[target]).format(formatted_date)
 }
 
+function shiftISOTime(datetime) {
+    let today = new Date(datetime);
+    let timeZone = today.getTimezoneOffset() * 60 * 1000;
+    let local = today - timeZone;
+    let localDate = new Date(local).toISOString();
+    return localDate.slice(0, -8);
+}
+
 function showToast(msg = 'Loading...', timeout = 5000, err = false) {
     const toast = document.querySelector(`#toast`)
     // Handle message objects from hyperscript
@@ -71,6 +79,7 @@ htmx.on('showToast', evt => {
 //     console.info(evt.detail)
 // })
 
-window.formatDate = formatDate
-window.showToast = showToast
 window.cancelToast = cancelToast
+window.formatDate = formatDate
+window.shiftISOTime = shiftISOTime
+window.showToast = showToast

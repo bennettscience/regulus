@@ -145,9 +145,9 @@ class Course(Manager, db.Model):
     )
 
     accommodations = db.relationship(
-        "UserAccommodation", 
-        secondary=course_accommodations, 
-        backref="course", 
+        "UserAccommodation",
+        secondary=course_accommodations,
+        backref="course",
         uselist=True
     )
 

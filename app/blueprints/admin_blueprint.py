@@ -1,13 +1,17 @@
-from flask import Blueprint, render_template
+from flask import abort, Blueprint, render_template
 from webargs import fields
 from webargs.flaskparser import parser
 
-from app.static.assets.icons import attended, close
+from app import cache
 from app.models import Course
 from app.schemas import CourseSchema, CourseDetailSchema
+from app.static.assets.icons import attended, close
+from app.utils import get_all_events
 
 admin_bp = Blueprint('admin_bp', __name__, url_prefix="/admin")
 
+# TODO: implement caching on first load
+# TODO: Split DB query into it's own function?
 @admin_bp.get("/events")
 def index():
     args = parser.parse({
@@ -33,7 +37,7 @@ def index():
 
     else:
         schema = CourseDetailSchema(many=True)
-        result = sorted(Course.query.all())
+        result = Course.query.order_by(Course.starts).all()
         template = 'admin/index.html'
 
         content = {
@@ -41,3 +45,21 @@ def index():
         }
 
     return render_template(template, **content)
+
+@admin_bp.get("/events/<int:event_id>/edit")
+@cache.cached()
+def edit_event(event_id):
+    event = Course.query.get(event_id)
+
+    event.available = event.available_size()
+
+    # breakpoint()
+
+    if event is None:
+        abort(404)
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/edit-event.html',
+        event=CourseSchema().dump(event)
+    )

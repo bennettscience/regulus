@@ -62,7 +62,7 @@ navigation_items = [
     {
         "element": 'admin',
         "label": 'Event Management',
-        "href": '/admin',
+        "href": '/admin/events',
         "icon": admin,
     },
     {

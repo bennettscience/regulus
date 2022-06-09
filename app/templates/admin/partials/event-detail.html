@@ -1,5 +1,13 @@
-<section class="snapshot">
-    <button tabindex="0" class="btn form-toggle">Edit Details</button>
+<section class="actions">
+    <button
+        tabindex="0"
+        class="btn form-toggle"
+        hx-get="/admin/events/{{event.id}}/edit"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Edit Details
+    </button>
     <button tabindex="0" class="btn form-toggle">Edit Presenters</button>
     <button tabindex="0" class="btn form-toggle">Edit Links</button>
     <button tabindex="0" class="btn form-toggle">View Event Logs</button>
@@ -16,6 +24,7 @@
         <p>{{item.note}}</p>
         {% endfor %}
     </div>
-    {% endif %} {{ render_partial('admin/partials/registration-table.html',
-    registrations=event.registrations, icons=icons)}}
+    {% endif %}
 </section>
+{{ render_partial('admin/partials/registration-table.html',
+registrations=event.registrations, icons=icons)}}

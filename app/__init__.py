@@ -12,6 +12,7 @@ from flask import (
     abort,
     Blueprint
 )
+from flask_caching import Cache
 from flask_login import (
     LoginManager,
     current_user,
@@ -47,6 +48,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
+cache = Cache(app)
 jinja_partials.register_extensions(app)
 
 # TODO: Check all sensititve API routes for access control logic.

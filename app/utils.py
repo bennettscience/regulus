@@ -1,6 +1,8 @@
 import bleach_extras
 from html import unescape
 
+from app import cache
+from app.models import Course
 
 def clean_escaped_html(value: str) -> str:
     """ Remove non-whitelist HTML tags from user input.
@@ -25,3 +27,7 @@ def clean_escaped_html(value: str) -> str:
     """
     clean = bleach_extras.clean_strip_content(unescape(value), tags=['p', 'strong', 'em', 'u', 'br', 'ul', 'ol', 'li'])
     return clean
+
+@cache.cached(timeout=60, key_prefix='all_events')
+def get_all_events():
+    return Course.query.all()

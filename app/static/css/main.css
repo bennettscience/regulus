@@ -473,6 +473,49 @@ form {
     width: auto;
 }
 
+.course-data {
+    display: block;
+}
+
+.course-select {
+    margin: 1.2rem 0;
+}
+
+#course-data--result {
+    display: grid;
+    grid-template-areas: 'select''actions''registrations';
+    grid-gap: 1.5rem;
+}
+
+.tbl--registrations {
+    grid-area: registrations;
+}
+
+.actions {
+    grid-area: actions;
+    display: flex;
+    flex-direction: row;
+    gap: 1.2rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--site-gray);
+}
+
+/* .snapshot :global(.snapshot-counter) {
+    flex-grow: 0;
+} */
+
+#delete {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    color: var(--text-white);
+    transition: all 0.25s ease-in-out;
+}
+
+#delete:hover {
+    background-color: var(--text-white);
+    color: var(--accent-red);
+}
+
 
 @media only screen and (max-width: 767px) {
     .course {

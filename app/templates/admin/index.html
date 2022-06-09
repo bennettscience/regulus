@@ -5,7 +5,8 @@
             hx-get="/admin/events"
             name="event_id"
             hx-trigger="change"
-            hx-target="#result"
+            hx-target="#course-data--result"
+            hx-swap="innerHTML"
         >
             <option value="" readonly="true" hidden="true" selected>
                 Select an event
@@ -17,5 +18,5 @@
             {% endfor %}
         </select>
     </div>
-    <div id="result"></div>
+    <div id="course-data--result"></div>
 </section>
