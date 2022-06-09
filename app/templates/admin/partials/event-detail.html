@@ -27,10 +27,26 @@
         Edit Links
     </button>
     <button tabindex="0" class="btn form-toggle">View Event Logs</button>
-    <button tabindex="0" class="btn form-toggle">
+    <button
+        tabindex="0"
+        class="btn form-toggle"
+        hx-put="/admin/events/{{event.id}}"
+        hx-vals='{"active": "{{not event.active}}"}'
+        hx-ext="json-enc"
+        hx-indicator="#toast"
+        hx-target="#course-data--result"
+        hx-swap="innerHTML"
+    >
         {% if event.active %}Cancel Event{% else %}Activate Event{% endif %}
     </button>
-    <button class="btn form-toggle" tabindex="0" id="delete">
+    <button
+        class="btn form-toggle"
+        tabindex="0"
+        id="delete"
+        hx-get="/admin/events/{{event.id}}/delete"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
         Delete Event
     </button>
     {% if event.accommodations|length > 0 %}

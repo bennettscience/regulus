@@ -241,55 +241,74 @@ class CourseAPI(MethodView):
             Course: JSON representation of the updated event
         """
         import requests
-        args = parser.parse(CourseSchema(), location="json")
+
+        args = parser.parse(CourseSchema(), location='form')
         course = Course.query.get(course_id)
         calendar_id = Config.GOOGLE_CALENDAR_ID
         webhook_url = Config.CALENDAR_HOOK_URL
 
         if course is None:
             abort(404)
-        try:
-            if 'description' in args:
-                args['description'] = clean_escaped_html(args['description'])
-            
-            course.update(args)
-            
-            if "starts" in args or "ends" in args:
-                if "starts" in args:
-                    starts = CalendarService().convertToISO(
-                        datetime.timestamp(args["starts"])
-                    )
-                if "ends" in args:
-                    ends = CalendarService().convertToISO(
-                        datetime.timestamp(args["ends"])
-                    )
-
-                body = {
-                    "start": {
-                        "dateTime": starts,
-                        "timeZone": "America/Indiana/Indianapolis",
-                    },
-                    "end": {
-                        "dateTime": ends,
-                        "timeZone": "America/Indiana/Indianapolis",
-                    },
-                }
-
-                payload = {
-                    "method": "put",
-                    "token": Config.CALENDAR_HOOK_TOKEN,
-                    "eventId": course.ext_calendar,
-                    "calendarId": calendar_id,
-                    "body": body,
-                }
-                response = requests.post(webhook_url, json=payload)
-
-            return (
-                jsonify({"message": "success", "course": CourseSchema().dump(course)}),
-                200,
+        elif not args:
+            response = make_response(
+                render_template(
+                    'admin/partials/event-detail.html',
+                    event=CourseDetailSchema().dump(course)
+                )
             )
-        except Exception as e:
-            return jsonify(e)
+            response.headers.set('HX-Trigger', json.dumps({'showToast': 'Nothing to update'}))
+            return response
+        else:
+            try:
+                if 'description' in args:
+                    args['description'] = clean_escaped_html(args['description'])
+                
+                breakpoint()
+                course.update(args)
+                
+                if "starts" in args or "ends" in args:
+                    if "starts" in args:
+                        starts = CalendarService().convertToISO(
+                            datetime.timestamp(args["starts"])
+                        )
+                    if "ends" in args:
+                        ends = CalendarService().convertToISO(
+                            datetime.timestamp(args["ends"])
+                        )
+
+                    body = {
+                        "start": {
+                            "dateTime": starts,
+                            "timeZone": "America/Indiana/Indianapolis",
+                        },
+                        "end": {
+                            "dateTime": ends,
+                            "timeZone": "America/Indiana/Indianapolis",
+                        },
+                    }
+
+                    payload = {
+                        "method": "put",
+                        "token": Config.CALENDAR_HOOK_TOKEN,
+                        "eventId": course.ext_calendar,
+                        "calendarId": calendar_id,
+                        "body": body,
+                    }
+                    request = requests.post(webhook_url, json=payload)
+                
+                response = make_response(
+                    render_template(
+                        'admin/partials/event-detail.html',
+                        event=CourseDetailSchema().dump(course)
+                    )
+                )
+                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully udpated {}'.format(course.title)}))
+                return response
+            
+            except Exception as e:
+                return jsonify(e)
+            
+            
 
     def delete(self: None, course_id: int) -> dict:
         """Remove an event
@@ -324,7 +343,11 @@ class CourseAPI(MethodView):
         db.session.delete(course)
         db.session.commit()
 
-        return {"message": "Course successfully deleted"}
+        response = make_response('Success')
+        response.headers.set('HX-Trigger', json.dumps({'showToast': "Successfully deleted {}".format(course.title)}))
+        response.headers.set('HX-Redirect', '/admin/events')
+
+        return response
 
 
 class CourseTypesAPI(MethodView):

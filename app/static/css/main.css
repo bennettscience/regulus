@@ -99,6 +99,12 @@ button:disabled {
     pointer-events: none;
 }
 
+.btn-container--flex {
+    display: flex;
+    flex-direction: row;
+    gap: 0.6rem;
+}
+
 .btn {
     display: flex;
     font-weight: 700;

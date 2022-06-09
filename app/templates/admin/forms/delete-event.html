@@ -1,0 +1,35 @@
+<div>
+    <h2>WARNING</h2>
+    <p>
+        You are about to permanently delete <b>{{event.title}}</b>. If you
+        proceed, you will lose:
+    </p>
+    <ul>
+        <li>Event registrations</li>
+        <li>Event PGPs</li>
+    </ul>
+    <p>Are you <b>sure</b> you want to delete the event?</p>
+    <div class="btn-container--flex">
+        <button
+            class="btn btn--cancel"
+            hx-delete="/courses/{{event.id}}"
+            hx-indicator="#toast"
+            hx-swap="none"
+            _="
+                on htmx:afterSettle trigger closeSidebar end
+            "
+        >
+            Yes, delete
+        </button>
+        <button
+            class="btn btn--secondary"
+            _="
+                on click trigger closeSidebar
+                then
+                call showToast('Probably a good idea.', 5000)
+            "
+        >
+            No, nevermind
+        </button>
+    </div>
+</div>

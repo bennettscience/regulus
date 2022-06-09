@@ -61,6 +61,7 @@ class CourseDetailSchema(Schema):
     type = fields.Nested("CourseTypeSchema")
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
     location = fields.Nested("LocationSchema")
+    active = fields.Bool()
 
 
 class NewCourseSchema(Schema):

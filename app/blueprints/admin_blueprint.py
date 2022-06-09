@@ -7,7 +7,13 @@ from app.models import Course, CourseLink, User, CourseLinkType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, UserSchema
 from app.static.assets.icons import attended, close
 
+from resources.courses import CourseAPI
+
+course_view = CourseAPI.as_view('course_view')
+
 admin_bp = Blueprint('admin_bp', __name__, url_prefix="/admin")
+
+admin_bp.add_url_rule('/events/<int:course_id>', view_func=course_view, methods=["PUT"])
 
 @cache.memoize(60)
 def get_event(event_id):
@@ -103,4 +109,14 @@ def edit_event_links(event_id):
         'shared/partials/sidebar.html',
         partial='admin/forms/edit-links.html',
         **content
+    )
+
+@admin_bp.get("/events/<int:event_id>/delete")
+def delete_event(event_id):
+    event = get_event(event_id)
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/delete-event.html',
+        event=event
     )
