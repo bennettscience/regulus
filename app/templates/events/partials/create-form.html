@@ -1,0 +1,115 @@
+<form
+    hx-post="/courses"
+    hx-trigger="request"
+    hx-swap="this"
+    hx-ext="make-tstamp"
+    hx-indicator="#toast"
+>
+    <h1>New Event</h1>
+        <p>
+            This form will create and publish a new event. You can edit the
+            event later in the <b>Presenter dashboard</b> if you need to make a change.
+        </p>
+            <fieldset class="basics">
+                <legend><h1>Basics</h1></legend>
+                <label
+                    ><b>Event title</b>
+                    <input
+                        autocomplete="off"
+                        name="title"
+                        value=""
+                        placeholder="Event title"
+                        required="true"
+                        tabindex="0"
+                    /></label
+                >
+                <label>
+                    Event description
+                    <textarea
+                        name="description"
+                        value=""
+                        required="true"
+                    ></textarea>
+                </label>
+            </fieldset>
+            <fieldset class="details">
+                <legend><h1>Event Details</h1></legend>
+                <label id="type"
+                    ><b>Event type</b>
+                    <select
+                        tabindex="0"
+                        name="coursetype_id"
+                    >
+                        {% for type in course_types %}
+                            <option value={{type.id}}>{{type.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <!-- <span
+                        tabindex="0"
+                        class="new-action-btn"
+                        on:click={handleNewEventType}
+                        >Add new event type</span
+                    > -->
+                </label>
+
+                <label id="location"
+                    ><b>Event Location</b>
+                    <select
+                        tabindex="0"
+                        value=""
+                        name="location_id"
+                    >
+                        {% for location in locations %}
+                            <option value={{location.id}}
+                                >{{location.name}}</option
+                            >
+                        {% endfor %}
+                    </select>
+                    <!-- <span
+                        tabindex="0"
+                        class="new-action-btn"
+                        on:click={handleNewLocation}>Add new location</span
+                    > -->
+                </label>
+                <label id="starts"
+                    ><b>Starts</b>
+                    <input
+                        tabindex="0"
+                        name="starts"
+                        type="datetime-local"
+                        value=""
+                        required="true"
+                    /></label
+                >
+                <label id="ends"
+                    ><b>Ends</b>
+                    <input
+                        tabindex="0"
+                        name="ends"
+                        type="datetime-local"
+                        value=""
+                        required="true"
+                    /></label
+                >
+                <label
+                    ><b>Attendance limit</b>
+                    <input
+                        tabindex="0"
+                        name="course_size"
+                        value=""
+                        type="number"
+                        required="true"
+                    /></label
+                >
+            </fieldset>
+            <button 
+                class="btn btn--primary" 
+                tabindex="0" 
+                type="submit"
+                _="on click trigger request add @disabled"
+            >
+                Submit
+            </button>
+        </form>
+    </section>
+</form>

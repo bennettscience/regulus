@@ -94,7 +94,9 @@ class CourseListAPI(MethodView):
         Returns:
             Course: JSON representation of the event
         """
-        args = parser.parse(NewCourseSchema(), location="json")
+        # breakpoint()
+
+        args = parser.parse(NewCourseSchema(), location="form")
 
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
@@ -177,11 +179,13 @@ class CourseListAPI(MethodView):
         db.session.add(result)
         db.session.commit()
 
-        # Now that the course exists, the default presenter can be added.
-        # result.presenters.append(args['presenter'])
-
         # dump the entire course record for the admin
-        return jsonify(CourseSchema().dump(result))
+        response = make_response(
+            render_template('home/clean-index.html')
+        )
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully created {}'.format(course.title)}))
+
+        return response
 
 
 class CourseAPI(MethodView):

@@ -118,3 +118,18 @@ def index():
             return render_template('home/index.html', menuitems=nav_items)
     else:
         return render_template('auth/login.html')
+
+@home_bp.get('/create')
+def create():
+    from app.models import CourseType, Location
+    from app.schemas import CourseTypeSchema, LocationSchema
+
+    course_types = CourseType.query.all()
+    locations = Location.query.all()
+
+    content = {
+        "course_types": CourseTypeSchema(many=True).dump(course_types),
+        "locations": LocationSchema(many=True).dump(locations)
+    }
+
+    return render_template('events/partials/create-form.html', **content)

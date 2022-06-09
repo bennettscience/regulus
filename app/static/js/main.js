@@ -74,10 +74,10 @@ htmx.on('showToast', evt => {
 //     showToast(evt.detail.xhr.responseText, true)
 // })
 
-document.addEventListener('htmx:beforeSend', function(evt) {
-    console.info('Dispatched...')
-    console.info(evt.detail)
-})
+// document.addEventListener('htmx:beforeSend', function(evt) {
+//     console.info('Dispatched...')
+//     console.info(evt.detail)
+// })
 
 window.cancelToast = cancelToast
 window.formatDate = formatDate
