@@ -3,7 +3,7 @@ from webargs import fields
 from webargs.flaskparser import parser
 
 from app import cache
-from app.models import Course, CourseLink, User, CourseLinkType
+from app.models import Course, CourseLink, CourseUserAttended, User, CourseLinkType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close
 
@@ -37,6 +37,25 @@ def index():
 
         result.available = result.available_size()
 
+        # Get the last registration activity
+        ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()
+        if ordered_regs:
+            last_reg = result.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
+        else:
+            last_reg = ""
+
+        # Add some calculated stats about the event
+        data = [
+            {
+                'label': 'Registrations',
+                'value': len(result.registrations.all())
+            },
+            {
+                'label': 'Last Registration',
+                'value': last_reg
+            }
+        ]
+
         content = {
             'event': schema.dump(result),
             'attended': attended,
@@ -44,7 +63,8 @@ def index():
             'icons': {
                 'attended': attended,
                 'not_attended': close
-            }
+            },
+            'data': data
         }
 
     else:

@@ -13,9 +13,13 @@
             </option>
             {% for event in events %}
             <!-- TODO: Format the event.starts field before sending -->
-            <option value="{{event.id}}">
-                {{event.starts}} - {{event.title}}
-            </option>
+            <option
+                value="{{event.id}}"
+                _="
+                    on load set :date to formatDate('dateOnly', {{event.starts}})
+                    then put (`${:date} - {{event.title}}`) as a String into my innerHTML
+                "
+            ></option>
             {% endfor %}
         </select>
     </div>

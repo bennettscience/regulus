@@ -1,4 +1,4 @@
-<section class="actions">
+<section id="course-data--actions">
     <button
         tabindex="0"
         class="btn form-toggle"
@@ -58,5 +58,11 @@
     </div>
     {% endif %}
 </section>
-{{ render_partial('admin/partials/registration-table.html',
-registrations=event.registrations, icons=icons)}}
+<section id="course-data--table">
+    {{ render_partial('admin/partials/registration-table.html',
+    registrations=event.registrations, icons=icons)}}
+</section>
+<section id="course-data--stats">
+    {% for stat in data %} {{render_partial('admin/partials/event-stats.html',
+    stat=stat)}} {% endfor %}
+</section>

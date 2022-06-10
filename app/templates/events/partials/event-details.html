@@ -14,7 +14,6 @@ event_id=event.id)}} {% else %} Disabled button {% endif %}
     _="init 
         set :starts to formatDate('starts', {{event.starts}})
         set :ends to formatDate('ends', {{event.ends}})
-        then log :starts and :ends
         
         then append (`${:starts} - ${:ends}`) as a String to my innerHTML
     "
