@@ -46,6 +46,8 @@
     /* interaction */
     --accent-active: #45a29e;
     --accent-hover: #2d3d50;
+    --shadow-left-border: rgba(0, 0, 0, 0.1) 0px 10px 25px -5px,
+            rgba(0, 0, 0, 0.04) -10px 0px 10px -5px;
 }
 
 body {
@@ -338,7 +340,7 @@ table tbody tr td {
 .sidebar {
     display: block;
     height: 100%;
-    width: 356px;
+    width: 30%;
     margin: 0;
     padding: 0;
     position: fixed;
@@ -376,7 +378,7 @@ table tbody tr td {
 }
 
 .sidebar--right.htmx-added {
-    right: -356px;
+    right: -35%;
 }
 
 .sidebar--right form label {
@@ -384,7 +386,7 @@ table tbody tr td {
 }
 
 .hide {
-    right: -356px;
+    right: -35%;
 }
 
 time,
@@ -506,15 +508,16 @@ form {
 
 #course-data--result {
     display: grid;
-    grid-template-areas: 'select''actions''registrations';
+    grid-template-areas: 'actions actions'
+                         'registrations stats';
     grid-gap: 1.5rem;
 }
 
-.tbl--registrations {
+#course-data--table {
     grid-area: registrations;
 }
 
-.actions {
+#course-data--actions {
     grid-area: actions;
     display: flex;
     flex-direction: row;
@@ -523,9 +526,23 @@ form {
     border-bottom: 1px solid var(--site-gray);
 }
 
-/* .snapshot :global(.snapshot-counter) {
-    flex-grow: 0;
-} */
+#course-data--stats {
+    grid-area: stats;
+}
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100px;
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-radius: 3px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.6rem;
+    padding: 0.6rem
+}
 
 #delete {
     background-color: var(--accent-red);
@@ -538,11 +555,6 @@ form {
     background-color: var(--text-white);
     color: var(--accent-red);
 }
-
-/* form) {
-    display: block;
-    position: relative;
-} */
 
 form {
     display: flex;
