@@ -1,3 +1,5 @@
+import html
+
 from flask import abort, Blueprint, render_template
 from webargs import fields
 from webargs.flaskparser import parser
@@ -34,6 +36,9 @@ def index():
         result = Course.query.get(args['event_id'])
 
         result.available = result.available_size()
+        result.description = html.escape(result.description)
+
+        print(result.description)
 
         # Get the last registration activity
         ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()

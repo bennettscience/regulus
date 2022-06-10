@@ -6,9 +6,15 @@
     </label>
     <label>
         <p>Edit description</p>
-        <textarea name="description" id="" cols="30" rows="10">
+        <div id="editor--container">
+            <div
+                id="editor"
+                _="on load call setInitial('{{event.description|e|safe}}')"
+            ></div>
+        </div>
+        <!-- <textarea name="description" id="" cols="30" rows="10">
             {{event.description}}
-        </textarea>
+        </textarea> -->
     </label>
     <label>
         <p>Edit start date</p>

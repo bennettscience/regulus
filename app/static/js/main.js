@@ -4,6 +4,7 @@ function makeQuill() {
         ['bold', 'italic', 'underline'],
         [{'list': 'ordered'}, {'list': 'bullet'}]
     ]
+
     let quill = new Quill('#editor', {
         theme: 'snow',
         placeholder: 'Enter the event description',
@@ -11,7 +12,15 @@ function makeQuill() {
             toolbar: toolbarOptions
         }
     })
+
     window.quill = quill;
+}
+
+// Set the initial value of the Quill editor if a description exists
+function setInitial(text) {
+    console.log(text)
+    const delta = quill.clipboard.convert(text)
+    quill.setContents(delta, 'silent')
 }
 
 function formatDate(target, dateStr) {
@@ -86,7 +95,12 @@ htmx.on('showToast', evt => {
 })
 
 document.addEventListener('htmx:afterSwap', (evt) => {
-    if(evt.detail.pathInfo.finalPath === '/create') {
+    const pathInfo = evt.detail.pathInfo;
+    const re = /\/admin\/events\/\d*\/edit/gmi;
+
+    const is_edit_path = pathInfo.finalPath.match(re)
+
+    if(pathInfo.finalPath === '/create' || is_edit_path) {
         makeQuill()
     }
 })
@@ -104,5 +118,6 @@ document.addEventListener('htmx:afterSwap', (evt) => {
 window.cancelToast = cancelToast
 window.formatDate = formatDate
 window.makeQuill = makeQuill
+window.setInitial = setInitial
 window.shiftISOTime = shiftISOTime
 window.showToast = showToast
