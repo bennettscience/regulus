@@ -49,6 +49,12 @@ class SmallCourseSchema(Schema):
     icon = fields.Str()
 
 
+class TinyCourseSchema(Schema):
+    id = fields.Int(dump_only=True)
+    title = fields.Str()
+    starts = DateTime(format='timestamp')
+
+
 class CourseDetailSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()

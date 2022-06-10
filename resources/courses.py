@@ -50,10 +50,11 @@ class CourseListAPI(MethodView):
             List: List of Course objects.
         """
 
-        now = datetime.now()
         if current_user.is_anonymous:
             abort(401)
 
+        now = datetime.now()
+        
         # This filters events down to active, future events.
         args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
             

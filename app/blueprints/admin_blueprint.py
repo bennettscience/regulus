@@ -4,7 +4,7 @@ from webargs.flaskparser import parser
 
 from app import cache
 from app.models import Course, CourseLink, User, CourseLinkType
-from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, UserSchema
+from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close
 
 from resources.courses import CourseAPI
@@ -48,7 +48,7 @@ def index():
         }
 
     else:
-        schema = CourseDetailSchema(many=True)
+        schema = TinyCourseSchema(many=True)
         result = Course.query.order_by(Course.starts).all()
         template = 'admin/index.html'
 
