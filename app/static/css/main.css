@@ -1,5 +1,4 @@
 /* TODO: Organize this file */
-/* TODO: Form styling */
 @font-face {
     font-family: 'Oswald';
     src: url('/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
@@ -389,12 +388,12 @@ table tbody tr td {
     right: -35%;
 }
 
-time,
+/* time,
 span {
     display: flex;
     align-items: center;
     margin: 15px 0;
-}
+} */
 
 hr {
     width: 70%;
@@ -432,11 +431,6 @@ hr {
 
 #links-list>li>button:hover {
     cursor: pointer;
-}
-
-form {
-    display: block;
-    position: relative;
 }
 
 #toast {
@@ -556,6 +550,7 @@ form {
     color: var(--accent-red);
 }
 
+/* FORM ELEMENTS */
 form {
     display: flex;
     flex-direction: column;
@@ -563,7 +558,7 @@ form {
 }
 
 fieldset {
-    margin: 20px;
+    margin: 1.2rem;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
@@ -591,13 +586,26 @@ label {
     resize: none;
 }
 
-input, textarea {
+label {
+    width: 100%;
+}
+
+input, 
+textarea, 
+select {
+    display: block;
     box-sizing: border-box;
+    font-size: inherit;
+    font-family: inherit;
     line-height: 1.2;
     border: 1px solid transparent;
     border-radius: 0;
     border-bottom: 3px solid var(--site-gray);
     transition: all 0.25s ease-in-out;
+
+    margin: 0.6rem 0;
+    padding: 0.6rem;
+    width: 100%;
 }
 
 input:focus, textarea:focus {
@@ -608,16 +616,6 @@ input:focus, textarea:focus {
     border-top-right-radius: 5px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-}
-/* 
-input, select, textarea {
-    display: block;
-    margin: 5px 0;
-    width: 100%;
-} */
-
-input[name='title'] {
-    width: 100%;
 }
 
 .details #type,
