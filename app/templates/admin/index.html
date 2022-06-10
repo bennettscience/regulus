@@ -12,6 +12,7 @@
                 Select an event
             </option>
             {% for event in events %}
+            <!-- TODO: Format the event.starts field before sending -->
             <option value="{{event.id}}">
                 {{event.starts}} - {{event.title}}
             </option>

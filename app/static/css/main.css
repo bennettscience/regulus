@@ -1,3 +1,5 @@
+/* TODO: Organize this file */
+/* TODO: Form styling */
 @font-face {
     font-family: 'Oswald';
     src: url('/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
@@ -35,7 +37,9 @@
     /* shadow */
     --box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
     rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
-    --active-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+    --hover-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+    rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    --active-shadow: inset rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
     rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
     --left-shadow: rgba(0, 0, 0, 0.1) -20px 0 25px -5px,
     rgba(0, 0, 0, 0.04) -10px 0 10px -5px;
@@ -123,6 +127,10 @@ button:disabled {
 }
 
 .btn:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+.btn:active {
     box-shadow: var(--active-shadow);
 }
 
@@ -226,7 +234,7 @@ nav {
 }
 
 .course:hover {
-    box-shadow: var(--active-shadow);
+    box-shadow: var(--hover-shadow);
     cursor: pointer;
 }
 
