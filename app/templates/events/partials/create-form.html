@@ -2,7 +2,7 @@
     hx-post="/courses"
     hx-trigger="request"
     hx-swap="this"
-    hx-ext="make-tstamp"
+    hx-ext="new-event"
     hx-indicator="#toast"
 >
     <h1>New Event</h1>
@@ -23,15 +23,9 @@
                         tabindex="0"
                     /></label
                 >
-                <!-- TODO: Update this to use Quill? -->
-                <label>
-                    <b>Event description</b>
-                    <textarea
-                        name="description"
-                        value=""
-                        required="true"
-                    ></textarea>
-                </label>
+                <div id="editor--container">
+                    <div id="editor"></div>
+                </div>
             </fieldset>
             <fieldset class="details">
                 <legend><h1>Event Details</h1></legend>

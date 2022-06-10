@@ -577,17 +577,9 @@ legend {
 }
 
 label {
-    /* width: 100%; */
+    width: 100%;
     box-sizing: border-box;
     padding: 5px;
-}
-
-:global(textarea) {
-    resize: none;
-}
-
-label {
-    width: 100%;
 }
 
 input, 
@@ -616,6 +608,10 @@ input:focus, textarea:focus {
     border-top-right-radius: 5px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+#editor--container {
+    width: 100%;
 }
 
 .details #type,

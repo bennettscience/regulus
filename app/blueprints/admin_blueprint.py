@@ -22,8 +22,6 @@ def get_event(event_id):
 
     return CourseSchema().dump(event)
 
-# TODO: implement caching on first load
-# TODO: Split DB query into it's own function?
 @admin_bp.get("/events")
 def index():
     args = parser.parse({

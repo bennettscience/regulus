@@ -10,6 +10,10 @@
             rel="stylesheet"
             href="{{url_for('static', filename='css/main.css')}}"
         />
+        <link
+            href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+            rel="stylesheet"
+        />
         {% block additional_css %} {%endblock%}
     </head>
     <body _="on keyup[key is 'Escape'] trigger closeSidebar end">
@@ -25,13 +29,15 @@
             src="{{ url_for('static', filename='js/main.js') }}"
         ></script>
         <script src="https://unpkg.com/htmx.org@1.7.0"></script>
-        <script src="{{url_for('static', filename='js/make-tstamp.js')}}"></script>
+        <script src="{{url_for('static', filename='js/new-event.js')}}"></script>
         <script
             type="text/hyperscript"
             src="{{url_for('static', filename='hs/dateParse._hs') }}"
         ></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
         <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
         {% block additional_js %} {% endblock %}
     </body>
 </html>

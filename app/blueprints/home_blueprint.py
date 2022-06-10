@@ -76,6 +76,7 @@ navigation_items = [
         "label": 'Create Event',
         "href": '/create',
         "icon": create,
+        "action": 'on htmx:afterSwap call makeQuill() end'
     },
     {
         "element": 'logout',

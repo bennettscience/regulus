@@ -1,3 +1,19 @@
+function makeQuill() {
+    const toolbarOptions = [
+        [{'header': [1, 2, false]}],
+        ['bold', 'italic', 'underline'],
+        [{'list': 'ordered'}, {'list': 'bullet'}]
+    ]
+    let quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Enter the event description',
+        modules: {
+            toolbar: toolbarOptions
+        }
+    })
+    window.quill = quill;
+}
+
 function formatDate(target, dateStr) {
 
     const formatted_date = new Date(dateStr)
@@ -69,6 +85,12 @@ htmx.on('showToast', evt => {
     showToast(evt.detail.value)
 })
 
+document.addEventListener('htmx:afterSwap', (evt) => {
+    if(evt.detail.pathInfo.finalPath === '/create') {
+        makeQuill()
+    }
+})
+
 // document.addEventListener('htmx:responseError', (evt) => {
 //     console.log(evt)
 //     showToast(evt.detail.xhr.responseText, true)
@@ -81,5 +103,6 @@ htmx.on('showToast', evt => {
 
 window.cancelToast = cancelToast
 window.formatDate = formatDate
+window.makeQuill = makeQuill
 window.shiftISOTime = shiftISOTime
 window.showToast = showToast

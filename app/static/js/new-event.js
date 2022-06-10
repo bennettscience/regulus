@@ -2,7 +2,14 @@ function convertString(dateString) {
     return new Date(dateString).getTime() / 1000;
 }
 
-htmx.defineExtension('make-tstamp', {
+function getDescription() {
+    return quill.root.innerHTML;
+}
+
+// Handle params for creating a new event. This is necessary to 
+// convert JS timestamps into Python timestamps and to extract
+// the description from the Quill editor.
+htmx.defineExtension('new-event', {
     onEvent : function(name, evt) {
         // When it's defined, catch the pre-request hook
         if(name === 'htmx:configRequest') {
@@ -11,6 +18,7 @@ htmx.defineExtension('make-tstamp', {
 
             request.starts = convertString(request.starts);
             request.ends = convertString(request.ends)
+            request.description = getDescription()
         }
     }
   })
