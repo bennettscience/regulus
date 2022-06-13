@@ -1,5 +1,6 @@
+import json
 from typing import List
-from flask import abort, jsonify, request
+from flask import abort, jsonify, make_response, render_template, request
 from flask.views import MethodView
 from webargs import fields, validate
 from webargs.flaskparser import parser
@@ -30,12 +31,26 @@ class LocationListAPI(MethodView):
         """Create a new Location
 
         Returns:
-            Location: <Location> as JSON.
+            Updated <select> of all available locations
         """
-        args = parser.parse(LocationSchema(), location="json")
+        args = parser.parse(LocationSchema(), location="form")
+
         try:
             location = Location().create(Location, args)
-            return jsonify(LocationSchema().dump(location))
+
+            data = [{"value": location.id, "text": location.name} for location in Location.query.all()]
+            response = make_response(
+                render_template(
+                    'shared/form-fields/select.html',
+                    name='location_id',
+                    options=data,
+                    oob='True',
+                    method='innerHTML',
+                    el="#location_id"
+                )
+            )
+            response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully added the location.'}))
+            return response
         except Exception as e:
             return jsonify(e)
 

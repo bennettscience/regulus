@@ -147,6 +147,15 @@ button:disabled {
     color: var(--text-white)
 }
 
+.btn--secondary {
+    background-color: var(--site-gray);
+}
+
+/* left align the new event and new location buttons */
+#btn--new-event, #btn--new-location {
+    margin: 0;
+}
+
 .btn--close {
     background-color: transparent;
     border: 1px solid;

@@ -1,4 +1,14 @@
-<select name="{{name}}">
+<select
+    name="{{name}}"
+    {%
+    if
+    oob
+    %}
+    hx-swap-oob="{{method}}:{{el}}"
+    {%
+    endif
+    %}
+>
     {% for option in options %}
     <option value="{{option.value}}">{{option.text}}</option>
     {% endfor %}

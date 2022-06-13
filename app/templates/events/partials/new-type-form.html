@@ -1,0 +1,29 @@
+<form
+    hx-post="/courses/types"
+    hx-trigger="request"
+    hx-swap="#eventtype_id"
+    hx-indicator="#toast"
+>
+    <b>New Event Type</b>
+    <label>
+        <b>Event Type Name</b>
+        <input
+            name="name"
+            type="text"
+            ,
+            placeholder="Google Meet, Panel, etc."
+        />
+    </label>
+    <label>
+        <b>Event type description</b>
+        <textarea name="description" id="" cols="30" rows="10"></textarea>
+    </label>
+    <button
+        type="submit"
+        class="btn btn--primary"
+        tabindex="0"
+        _="on click trigger request add @disabled"
+    >
+        Submit
+    </button>
+</form>

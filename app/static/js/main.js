@@ -1,24 +1,23 @@
-function makeQuill() {
+function makeQuill(el, placeholder) {
     const toolbarOptions = [
         [{'header': [1, 2, false]}],
         ['bold', 'italic', 'underline'],
         [{'list': 'ordered'}, {'list': 'bullet'}]
     ]
 
-    let quill = new Quill('#editor', {
+    let quill = new Quill(el, {
         theme: 'snow',
-        placeholder: 'Enter the event description',
+        placeholder: placeholder,
         modules: {
             toolbar: toolbarOptions
         }
     })
 
-    window.quill = quill;
+    window.quill = quill
 }
 
 // Set the initial value of the Quill editor if a description exists
 function setInitial(text) {
-    console.log(text)
     const delta = quill.clipboard.convert(text)
     quill.setContents(delta, 'silent')
 }
@@ -57,7 +56,7 @@ function shiftISOTime(datetime) {
     return localDate.slice(0, -8);
 }
 
-function showToast(msg = 'Loading...', timeout = 5000, err = false) {
+function showToast(msg = 'Processing...', timeout = 5000, err = false) {
     const toast = document.querySelector(`#toast`)
     // Handle message objects from hyperscript
     // For non-template returns, the backend will also return JSON with
@@ -75,7 +74,7 @@ function showToast(msg = 'Loading...', timeout = 5000, err = false) {
     toast.classList.add('show');
     setTimeout(() => {
         toast.classList.remove('show')
-        toast.children[0].innerText = 'Loading...'
+        toast.children[0].innerText = 'Processing...'
         if(err) {
             toast.classList.remove('error')
         }
@@ -85,7 +84,7 @@ function showToast(msg = 'Loading...', timeout = 5000, err = false) {
 function cancelToast() {
     const toast = document.querySelector(`#toast`)
     toast.classList.remove('show');
-    toast.children[0].innerText = 'Loading...'
+    toast.children[0].innerText = 'Processing...'
     clearTimeout()
 }
 
@@ -94,6 +93,13 @@ htmx.on('showToast', evt => {
     showToast(evt.detail.value)
 })
 
+// htmx.on('makeQuill', evt => {
+//     htmx.onLoad((elt) => {
+//         console.log(elt)
+//         makeQuill(evt.detail.element, evt.detail.placeholder)
+//     })
+// })
+
 document.addEventListener('htmx:afterSwap', (evt) => {
     const pathInfo = evt.detail.pathInfo;
     const re = /\/admin\/events\/\d*\/edit/gmi;
@@ -101,7 +107,7 @@ document.addEventListener('htmx:afterSwap', (evt) => {
     const is_edit_path = pathInfo.finalPath.match(re)
 
     if(pathInfo.finalPath === '/create' || is_edit_path) {
-        makeQuill()
+        makeQuill("#editor", "Enter event description")
     }
 })
 

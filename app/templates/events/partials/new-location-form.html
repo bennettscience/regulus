@@ -1,0 +1,35 @@
+<form
+    hx-post="/locations"
+    hx-trigger="request"
+    hx-swap="#location_id"
+    hx-indicator="#toast"
+>
+    <b>New Location</b>
+    <label>
+        <b>Location Name</b>
+        <input name="name" type="text" placeholder="Building name" />
+    </label>
+    <label>
+        <b>Location description</b>
+        <input
+            name="description"
+            type="text"
+            placeholder="Specific room, etc"
+        />
+    </label>
+    <label>
+        <b>Location address</b>
+        <input name="address" type="text" placeholder="1234 Main St." />
+    </label>
+    <button
+        type="submit"
+        class="btn btn--primary"
+        tabindex="0"
+        _="
+            on click trigger request add @disabled end
+            on htmx:afterSettle trigger closeSidebar end
+        "
+    >
+        Submit
+    </button>
+</form>

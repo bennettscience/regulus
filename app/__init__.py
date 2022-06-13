@@ -92,6 +92,7 @@ from app.blueprints.admin_blueprint import admin_bp
 from app.blueprints.documents_blueprint import documents_bp
 from app.blueprints.events_blueprint import events_bp
 from app.blueprints.home_blueprint import home_bp
+from app.blueprints.locations_blueprint import locations_bp
 from app.blueprints.users_blueprint import users_bp
 
 course_types_view = CourseTypesAPI.as_view("course_types_api")
@@ -102,10 +103,10 @@ course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
 course_linktype_view = CourseLinkTypeAPI.as_view("course_linktype_api")
 course_presenters_view = CoursePresentersAPI.as_view("course_presenters_api")
 course_presenter_view = CoursePresenterAPI.as_view("course_presenter_api")
-locations_view = LocationListAPI.as_view("locations_api")
-location_view = LocationAPI.as_view("location_api")
-location_user_view = LocationUsersAPI.as_view("location_user_api")
-location_course_view = LocationCoursesAPI.as_view("location_courses_api")
+# locations_view = LocationListAPI.as_view("locations_api")
+# location_view = LocationAPI.as_view("location_api")
+# location_user_view = LocationUsersAPI.as_view("location_user_api")
+# location_course_view = LocationCoursesAPI.as_view("location_courses_api")
 user_types_view = UserTypesAPI.as_view("user_types_api")
 
 # Register all the blueprints
@@ -113,6 +114,7 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(documents_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(home_bp)
+app.register_blueprint(locations_bp)
 app.register_blueprint(users_bp)
 
 @lm.user_loader
@@ -260,18 +262,6 @@ app.add_url_rule(
     "/courselinktypes/<int:linktype_id>",
     view_func=course_linktype_view,
     methods=["GET", "PUT", "DELETE"],
-)
-app.add_url_rule("/locations", view_func=locations_view, methods=["GET", "POST"])
-app.add_url_rule(
-    "/locations/<int:location_id>", view_func=location_view, methods=["GET"]
-)
-app.add_url_rule(
-    "/locations/<int:location_id>/users", view_func=location_user_view, methods=["GET"]
-)
-app.add_url_rule(
-    "/locations/<int:location_id>/courses",
-    view_func=location_course_view,
-    methods=["GET"],
 )
 
 

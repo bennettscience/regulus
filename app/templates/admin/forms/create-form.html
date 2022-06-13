@@ -32,6 +32,7 @@
                 <label id="type"
                     ><b>Event type</b>
                     <select
+                        id="coursetype_id"
                         tabindex="0"
                         name="coursetype_id"
                     >
@@ -40,17 +41,24 @@
                         {% endfor %}
                     </select>
                     <!-- TODO: Add button to insert new event type -->
-                    <!-- <span
+                    <button
+                        hx-get="/courses/types/create"
+                        hx-target="main"
+                        hx-swap="beforeend"
+                        hx-ext="ignore:new-event"
                         tabindex="0"
-                        class="new-action-btn"
-                        on:click={handleNewEventType}
-                        >Add new event type</span
-                    > -->
+                        id="btn--new-event"
+                        class="btn btn--secondary"
+                        >
+                            Add new event type
+                    </button
+                    >
                 </label>
 
                 <label id="location"
                     ><b>Event Location</b>
                     <select
+                        id="location_id"
                         tabindex="0"
                         value=""
                         name="location_id"
@@ -62,11 +70,17 @@
                         {% endfor %}
                     </select>
                     <!-- TODO: Add button to insert new location -->
-                    <!-- <span
+                    <button
+                        hx-get="/locations/create"
+                        hx-target="main"
+                        hx-swap="beforeend"
+                        hx-ext="ignore:new-event"
                         tabindex="0"
-                        class="new-action-btn"
-                        on:click={handleNewLocation}>Add new location</span
-                    > -->
+                        id="btn--new-location"
+                        class="btn btn--secondary"
+                        >
+                            Add new location
+                    </button>
                 </label>
                 <label id="starts"
                     ><b>Starts</b>

@@ -368,14 +368,26 @@ class CourseTypesAPI(MethodView):
     def post(self: None) -> CourseType:
         """Create a new CourseType in the database
 
+        # TODO: This shouldn't always be a select form, but it works for now
         Returns:
-            CourseType: <CourseType> as JSON
+            Select form of all locations
         """
-        args = parser.parse(CourseTypeSchema(), location="json")
+        args = parser.parse(CourseTypeSchema(), location="form")
+        course_type = CourseType().create(CourseType, args)
         try:
-            course_type = CourseType().create(CourseType, args)
-            result = CourseType.query.get(course_type.id)
-            return jsonify(CourseTypeSchema().dump(result))
+            data = [{"value": coursetype.id, "text": coursetype.name} for coursetype in CourseType.query.all()]
+            response = make_response(
+                render_template(
+                    'shared/form-fields/select.html',
+                    name='coursetype_id',
+                    options=data,
+                    oob='True',
+                    method='innerHTML',
+                    el="#coursetype_id"
+                )
+            )
+            response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully added the event type.'}))
+            return response
         except Exception as e:
             return jsonify(e)
 

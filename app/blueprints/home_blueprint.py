@@ -133,4 +133,4 @@ def create():
         "locations": LocationSchema(many=True).dump(locations)
     }
 
-    return render_template('events/partials/create-form.html', **content)
+    return render_template('admin/forms/create-form.html', **content)

@@ -1,10 +1,12 @@
-from flask import Blueprint
+import json
+from flask import Blueprint, make_response, render_template
 
 from resources.courses import (
     CourseListAPI, 
     CourseAPI,
     CourseAttendeesAPI,
-    CourseAttendeeAPI
+    CourseAttendeeAPI,
+    CourseTypesAPI
 )
 
 events_bp = Blueprint('events_bp', __name__)
@@ -13,6 +15,24 @@ courses_view = CourseListAPI.as_view("courses_api")
 course_view = CourseAPI.as_view("course_api")
 course_attendees_view = CourseAttendeesAPI.as_view("course_attendees_api")
 course_attendee_view = CourseAttendeeAPI.as_view("course_attendee_api")
+course_types_view = CourseTypesAPI.as_view("course_types_view")
+
+@events_bp.get('/courses/types/create')
+def new_event_type():
+    response = make_response(
+        render_template(
+            'shared/partials/sidebar.html',
+            partial='events/partials/new-type-form.html'
+        )
+    )
+    response.headers.set('HX-Trigger', json.dumps({
+            'makeQuill': {
+                "placeholder": "Edit event type description",
+                "element": "#editor--event"
+            }
+        }
+    ))
+    return response
 
 events_bp.add_url_rule("/courses", view_func=courses_view, methods=["GET", "POST"])
 events_bp.add_url_rule(
@@ -57,9 +77,9 @@ events_bp.add_url_rule(
     view_func=course_attendee_view,
     methods=["PUT"],
 )
-# events_bp.add_url_rule(
-#     "/courses/types", view_func=course_types_view, methods=["GET", "POST"]
-# )
+events_bp.add_url_rule(
+    "/courses/types", view_func=course_types_view, methods=["GET", "POST"]
+)
 # events_bp.add_url_rule(
 #     "/courses/types/<int:coursetype_id>", view_func=course_type_view, methods=["GET", "PUT", "DELETE"]
 # )
