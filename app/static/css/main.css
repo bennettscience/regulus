@@ -345,6 +345,55 @@ table tbody tr td {
     padding: 5px;
 }
 
+table tr td label {
+    display: block;
+    position: relative;
+}
+
+table tr td label svg {
+    display: inline-block;
+    vertical-align: middle;
+    width: 1.5rem;
+}
+
+table tbody tr td label svg:active {
+    border: 2px solid var(--accent-blue);
+}
+
+table tbody tr td label input[type="checkbox"] {
+    opacity: 0.00001;
+    height: 1em;
+    position: absolute;
+}
+
+table tbody tr td label input[type="checkbox"]:hover {
+    cursor: pointer;
+}
+
+table tbody tr td label svg .attended {
+    fill: var(--site-dark);
+}
+
+table tbody tr td label svg .attended__false {
+    opacity: 1;
+}
+
+table tbody tr td label svg .attended__true {
+    opacity: 0;
+}
+
+table tbody tr td label svg .attended {
+    transition: opacity 0.2s linear;
+}
+
+table tbody tr td label input[type="checkbox"]:checked+svg .attended__true {
+    opacity: 1;
+}
+
+table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
+    opacity: 0;
+}
+
 .sidebar {
     display: block;
     height: 100%;
@@ -533,6 +582,14 @@ hr {
 
 #course-data--table {
     grid-area: registrations;
+}
+
+#course-data--table td:last-child, th:last-child {
+    text-align: center;
+}
+
+#course-data--table td:last-child:hover {
+    cursor: pointer;
 }
 
 #course-data--actions {
@@ -781,7 +838,7 @@ input:focus, textarea:focus {
 
 svg {
     vertical-align: middle;
-    margin-right: 12px;
+    /* margin-right: 12px; */
 }
 
 @media only screen and (max-width: 767px) {
