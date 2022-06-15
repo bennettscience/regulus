@@ -312,8 +312,6 @@ class CourseAPI(MethodView):
             
             except Exception as e:
                 return jsonify(e)
-            
-            
 
     def delete(self: None, course_id: int) -> dict:
         """Remove an event
@@ -585,24 +583,23 @@ class CourseAttendeesAPI(MethodView):
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
-        args = request.get_json()
-        if type(args["user_ids"]) is not list:
-            return jsonify({"messages": "Expected an array of user_id"}), 422
 
-        if args:
-            users = [
-                user
-                for user in course.registrations
-                if user.user.id in args["user_ids"]
-            ]
-        else:
-            users = course.registrations
+        users = course.registrations
 
         for user in users:
-            user.attended = not user.attended
+            user.attended = True
 
         db.session.commit()
-        return jsonify(UserAttended(many=True).dump(course.registrations))
+
+        response = make_response(
+            render_template(
+                'admin/partials/registration-table.html',
+                registrations=users
+            )
+        )
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'All registrations updated'}))
+        return response
+        # return jsonify(UserAttended(many=True).dump(course.registrations))
 
     def post(self: None, course_id: int, *args: list) -> List[User]:
         """Add multiple users to a course as an attendee

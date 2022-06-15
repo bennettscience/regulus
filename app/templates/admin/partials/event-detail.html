@@ -63,6 +63,16 @@
     registrations=event.registrations, event_id=event.id)}}
 </section>
 <section id="course-data--stats">
+    <button
+        class="btn btn--primary"
+        hx-trigger="click"
+        hx-put="/courses/{{event.id}}/registrations"
+        hx-indicator="#toast"
+        hx-target="#registrations"
+        hx-swap="outerHTML"
+    >
+        Mark all attended
+    </button>
     {% for stat in data %} {{render_partial('admin/partials/event-stats.html',
     stat=stat)}} {% endfor %}
 </section>

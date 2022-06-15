@@ -602,10 +602,17 @@ hr {
 }
 
 #course-data--stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
     grid-area: stats;
 }
 
-.stats {
+#course-data--stats .btn {
+    width: 100%;
+}
+
+.stats--item {
     display: flex;
     flex-direction: column;
     width: 100%;
