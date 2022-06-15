@@ -7,7 +7,7 @@
     </thead>
     <tbody>
         {% for reg in registrations %}
-        <tr data-id="{{reg.user.id}}" hx-trigger="click">
+        <tr data-id="{{reg.user.id}}">
             <td>{{reg.user.name}}</td>
             <td>{{reg.user.location.name}}</td>
             <td>{{reg.user.email}}</td>
@@ -22,6 +22,9 @@
                         %}checked{%
                         endif
                         %}
+                        hx-trigger="click"
+                        hx-put="/courses/{{event_id}}/registrations/{{reg.user.id}}"
+                        hx-swap="none"
                     />
                     <svg
                         tabindex="0"

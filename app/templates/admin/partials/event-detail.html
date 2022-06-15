@@ -60,7 +60,7 @@
 </section>
 <section id="course-data--table">
     {{ render_partial('admin/partials/registration-table.html',
-    registrations=event.registrations, icons=icons)}}
+    registrations=event.registrations, event_id=event.id)}}
 </section>
 <section id="course-data--stats">
     {% for stat in data %} {{render_partial('admin/partials/event-stats.html',
