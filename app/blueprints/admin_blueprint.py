@@ -38,8 +38,6 @@ def index():
         result.available = result.available_size()
         result.description = html.escape(result.description)
 
-        print(result.description)
-
         # Get the last registration activity
         ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()
         if ordered_regs:
@@ -61,12 +59,6 @@ def index():
 
         content = {
             'event': schema.dump(result),
-            'attended': attended,
-            'not_attended': close,
-            'icons': {
-                'attended': attended,
-                'not_attended': close
-            },
             'data': data
         }
 
