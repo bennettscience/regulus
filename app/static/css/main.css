@@ -601,15 +601,23 @@ hr {
     border-bottom: 1px solid var(--site-gray);
 }
 
-#course-data--stats {
+#course-data--actions__sidebar {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     grid-area: stats;
 }
 
-#course-data--stats .btn {
+#course-data--actions__sidebar .btn {
     width: 100%;
+}
+
+#course-data--actions__sidebar p {
+    font-size: 1.2rem;
+}
+
+#course-data--actions__sidebar b {
+    font-size: 2rem;
 }
 
 .stats--item {
@@ -807,6 +815,10 @@ input:focus, textarea:focus {
     border-color: transparent;
     box-sizing: border-box;
     cursor: pointer;
+}
+
+.nav-item svg {
+    margin-right: 0.6rem;
 }
 
 .nav-item:not(.logout):hover {

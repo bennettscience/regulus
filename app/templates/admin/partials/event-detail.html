@@ -62,7 +62,7 @@
     {{ render_partial('admin/partials/registration-table.html',
     registrations=event.registrations, event_id=event.id)}}
 </section>
-<section id="course-data--stats">
+<section id="course-data--actions__sidebar">
     <button
         class="btn btn--primary"
         hx-trigger="click"
@@ -70,6 +70,15 @@
         hx-indicator="#toast"
         hx-target="#registrations"
         hx-swap="outerHTML"
+        {%
+        if
+        not
+        event.registrations
+        %}
+        disabled
+        {%
+        endif
+        %}
     >
         Mark all attended
     </button>

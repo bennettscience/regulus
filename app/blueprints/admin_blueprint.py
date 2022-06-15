@@ -42,8 +42,9 @@ def index():
         ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()
         if ordered_regs:
             last_reg = result.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
+            formatted_date = last_reg.strftime("%m/%d/%y, %I:%M %p")
         else:
-            last_reg = ""
+            formatted_date = "-"
 
         # Add some calculated stats about the event
         data = [
@@ -53,7 +54,7 @@ def index():
             },
             {
                 'label': 'Last Registration',
-                'value': last_reg
+                'value': formatted_date
             }
         ]
 

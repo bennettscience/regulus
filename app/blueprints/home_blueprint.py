@@ -19,9 +19,8 @@ from app.static.assets.icons import (
 
 # Possible navigation items for a given user.
 permissions = {
-    "User": ['home', 'schedule', 'documents', 'logout'],
+    "User": ['schedule', 'documents', 'logout'],
     "Presenter": [
-        'home',
         'schedule',
         'documents',
         'presenter',
@@ -29,7 +28,6 @@ permissions = {
         'logout',
     ],
     "SuperAdmin": [
-        'home',
         'schedule',
         'documents',
         'admin',
@@ -41,12 +39,6 @@ permissions = {
 
 # Store all of the navigation objects to use in a comprehension
 navigation_items = [
-    {
-        "element": 'home',
-        "label": 'Home',
-        "href": '/',
-        "icon": home
-    },
     {
         "element": 'presenter',
         "label": 'Presenter Dashboard',

@@ -16,7 +16,6 @@ class DateTime(fields.DateTime):
     SERIALIZATION_FUNCS['timestamp'] = lambda x: int(x.timestamp()) * 1000
     DESERIALIZATION_FUNCS['timestamp'] = datetime.fromtimestamp
 
-
 # Course Schemas
 class CourseLocationSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -52,14 +51,17 @@ class SmallCourseSchema(Schema):
 class TinyCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
-    starts = DateTime(format='timestamp')
+    starts = fields.DateTime()
+
+    class Meta:
+        datetimeformat = "%m/%d/%y"
 
 
 class CourseDetailSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
-    starts = DateTime(format='timestamp')
-    ends = DateTime(format='timestamp')
+    starts = fields.DateTime()
+    ends = fields.DateTime()
     available = fields.Int()
     state = fields.Str()
     presenters = fields.Nested("CoursePresenterSchema", many=True)
@@ -68,6 +70,9 @@ class CourseDetailSchema(Schema):
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
     location = fields.Nested("LocationSchema")
     active = fields.Bool()
+
+    class Meta:
+        datetimeformat = "%m/%d/%y, %I:%M %p"
 
 
 class NewCourseSchema(Schema):

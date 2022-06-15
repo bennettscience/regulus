@@ -12,13 +12,9 @@
                 Select an event
             </option>
             {% for event in events %}
-            <option
-                value="{{event.id}}"
-                _="
-                    on load set :date to formatDate('dateOnly', {{event.starts}})
-                    then put (`${:date} - {{event.title}}`) as a String into my innerHTML
-                "
-            ></option>
+            <option value="{{event.id}}">
+                {{event.starts}} - {{event.title}}
+            </option>
             {% endfor %}
         </select>
     </div>
