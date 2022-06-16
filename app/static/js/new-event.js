@@ -19,6 +19,11 @@ htmx.defineExtension('new-event', {
             request.starts = convertString(request.starts);
             request.ends = convertString(request.ends)
             request.description = getDescription()
+            evt.detail.headers['Content-Type'] = 'application/json'
         }
+    },
+    encodeParameters : function(xhr, parameters, elt) {
+        xhr.overrideMimeType('text/json');
+        return (JSON.stringify(parameters));
     }
   })

@@ -93,20 +93,13 @@ htmx.on('showToast', evt => {
     showToast(evt.detail.value)
 })
 
-// htmx.on('makeQuill', evt => {
-//     htmx.onLoad((elt) => {
-//         console.log(elt)
-//         makeQuill(evt.detail.element, evt.detail.placeholder)
-//     })
-// })
-
 document.addEventListener('htmx:afterSwap', (evt) => {
     const pathInfo = evt.detail.pathInfo;
     const re = /\/admin\/events\/\d*\/edit/gmi;
 
-    const is_edit_path = pathInfo.finalPath.match(re)
+    const is_edit_path = pathInfo.path.match(re)
 
-    if(pathInfo.finalPath === '/create' || is_edit_path) {
+    if(pathInfo.path === '/create' || is_edit_path) {
         makeQuill("#editor", "Enter event description")
     }
 })
