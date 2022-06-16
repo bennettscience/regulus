@@ -11,14 +11,7 @@ event_id=event.id) }} {% endif %} {% elif event.available == 0 and event.state
 event_id=event.id)}} {% else %} Disabled button {% endif %}
 <hr />
 <section id="event--details">
-    <time
-        _="init 
-        set :starts to formatDate('starts', {{event.starts}})
-        set :ends to formatDate('ends', {{event.ends}})
-        
-        then append (`${:starts} - ${:ends}`) as a String to my innerHTML
-    "
-    >
+    <time>
         {% autoescape false %}
         <svg
             fill="none"
@@ -29,7 +22,7 @@ event_id=event.id)}} {% else %} Disabled button {% endif %}
         >
             {{icons.clock}}
         </svg>
-        {% endautoescape %}
+        {% endautoescape %} {{event.starts}} - {{event.ends}}
     </time>
     <span id="course-size">
         {% autoescape false %}
@@ -44,7 +37,7 @@ event_id=event.id)}} {% else %} Disabled button {% endif %}
         </svg>
         {% endautoescape %} {{event.available}}
     </span>
-    <span>
+    <span id="#location">
         {% autoescape false %}
         <svg
             fill="none"

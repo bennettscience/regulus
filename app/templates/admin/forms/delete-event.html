@@ -1,5 +1,11 @@
-<div>
-    <h2>WARNING</h2>
+<div
+    hx-trigger="request"
+    hx-delete="/courses/{{event.id}}"
+    hx-target=".main-container"
+    hx-swap="innerHTML"
+    _="on htmx:afterSwap from .main-container trigger closeSidebar end"
+>
+    <h2>DANGER</h2>
     <p>
         You are about to permanently delete <b>{{event.title}}</b>. If you
         proceed, you will lose:
@@ -12,11 +18,10 @@
     <div class="btn-container--flex">
         <button
             class="btn btn--cancel"
-            hx-delete="/courses/{{event.id}}"
-            hx-indicator="#toast"
-            hx-swap="none"
             _="
-                on htmx:afterSettle trigger closeSidebar end
+                on click trigger request add @disabled 
+                then
+                    showToast('Deleting {{event.title}}...') end
             "
         >
             Yes, delete
