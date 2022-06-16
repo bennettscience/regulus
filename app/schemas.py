@@ -13,7 +13,9 @@ class DateTime(fields.DateTime):
     DESERIALIZATION_FUNCS = \
         fields.DateTime.DESERIALIZATION_FUNCS.copy()
 
+    # Return a JS formatted timestamp when dumping course details
     SERIALIZATION_FUNCS['timestamp'] = lambda x: int(x.timestamp()) * 1000
+    # Create a datetime object using a Python formatted timestamp from the client
     DESERIALIZATION_FUNCS['timestamp'] = datetime.fromtimestamp
 
 # Course Schemas
@@ -60,8 +62,8 @@ class TinyCourseSchema(Schema):
 class CourseDetailSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
-    starts = fields.DateTime()
-    ends = fields.DateTime()
+    starts = fields.DateTime(format="%m/%d/%y, %I:%M %p")
+    ends = fields.DateTime(format="%I:%M %p")
     available = fields.Int()
     state = fields.Str()
     presenters = fields.Nested("CoursePresenterSchema", many=True)
@@ -71,15 +73,12 @@ class CourseDetailSchema(Schema):
     location = fields.Nested("LocationSchema")
     active = fields.Bool()
 
-    class Meta:
-        datetimeformat = "%m/%d/%y, %I:%M %p"
-
 
 class NewCourseSchema(Schema):
     title = fields.Str(required=True)
     description = fields.Str(required=True)
-    starts = fields.Float(required=True)
-    ends = fields.Float(required=True)
+    starts = DateTime(format="timestamp")
+    ends = DateTime(format="timestamp")
     type = fields.Nested("CourseTypeSchema")
 
     class Meta:
@@ -96,8 +95,8 @@ class CourseSchema(Schema):
     course_size = fields.Int()
     title = fields.Str()
     description = fields.Str()
-    starts = DateTime(format='timestamp')
-    ends = DateTime(format='timestamp')
+    starts = DateTime(format="timestamp")
+    ends = DateTime(format="timestamp")
     active = fields.Bool(default=True)
     occurred = fields.Bool()
     ext_calendar = fields.Str()

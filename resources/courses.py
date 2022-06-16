@@ -22,6 +22,7 @@ from app.schemas import (
     CourseTypeSchema,
     NewCourseSchema,
     SmallCourseSchema,
+    TinyCourseSchema,
     UserAttended,
     UserSchema,
 )
@@ -95,10 +96,9 @@ class CourseListAPI(MethodView):
         Returns:
             Course: JSON representation of the event
         """
+        args = parser.parse(NewCourseSchema(), location="json")
+
         # breakpoint()
-
-        args = parser.parse(NewCourseSchema(), location="form")
-
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
         starts = CalendarService().convertToISO(args["starts"])
@@ -150,18 +150,14 @@ class CourseListAPI(MethodView):
 
         # Upate the args object before posting to the database
         args["ext_calendar"] = response.json()["id"]
-        args["starts"] = datetime.fromtimestamp(args["starts"])
-        args["ends"] = datetime.fromtimestamp(args["ends"])
-
         args["description"] = clean_escaped_html(args["description"])
 
-        # TODO: mutate the args into something without 'presenter' for creating the event.
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
 
         # Add a default presenter for now
         result.presenters.append(current_user)
-        # breakpoint()
+
         # If it's a Google Meet, add the link
         if 'conferenceData' in response.json():
             from app.models import CourseLinkType
@@ -180,7 +176,6 @@ class CourseListAPI(MethodView):
         db.session.add(result)
         db.session.commit()
 
-        # dump the entire course record for the admin
         response = make_response(
             render_template('home/clean-index.html')
         )
@@ -247,7 +242,12 @@ class CourseAPI(MethodView):
         """
         import requests
 
-        args = parser.parse(CourseSchema(), location='form')
+        # This bug was fixable by sending everything as JSON, but I'm not sure why.
+        # Sending requests through forms would result in invalid datetime objects.
+        # static/js/new-event.js formats the request as JSON from the client
+        # 
+        args = parser.parse(CourseSchema(), location='json')
+
         course = Course.query.get(course_id)
         calendar_id = Config.GOOGLE_CALENDAR_ID
         webhook_url = Config.CALENDAR_HOOK_URL
@@ -264,22 +264,18 @@ class CourseAPI(MethodView):
             response.headers.set('HX-Trigger', json.dumps({'showToast': 'Nothing to update'}))
             return response
         else:
+
             try:
                 if 'description' in args:
                     args['description'] = clean_escaped_html(args['description'])
                 
-                breakpoint()
                 course.update(args)
                 
                 if "starts" in args or "ends" in args:
                     if "starts" in args:
-                        starts = CalendarService().convertToISO(
-                            datetime.timestamp(args["starts"])
-                        )
+                        starts = CalendarService().convertToISO(args["starts"])
                     if "ends" in args:
-                        ends = CalendarService().convertToISO(
-                            datetime.timestamp(args["ends"])
-                        )
+                        ends = CalendarService().convertToISO(args["ends"])
 
                     body = {
                         "start": {
@@ -301,10 +297,34 @@ class CourseAPI(MethodView):
                     }
                     request = requests.post(webhook_url, json=payload)
                 
+                ordered_regs = course.registrations.order_by(CourseUserAttended.created_at).all()
+                if ordered_regs:
+                    last_reg = course.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
+                    formatted_date = last_reg.strftime("%m/%d/%y, %I:%M %p")
+                else:
+                    formatted_date = "-"
+
+                # Add some calculated stats about the event
+                data = [
+                    {
+                        'label': 'Registrations',
+                        'value': len(course.registrations.all())
+                    },
+                    {
+                        'label': 'Last Registration',
+                        'value': formatted_date
+                    }
+                ]
+
+                content = {
+                    'event': CourseDetailSchema().dump(course),
+                    'data': data
+                }
+                
                 response = make_response(
                     render_template(
                         'admin/partials/event-detail.html',
-                        event=CourseDetailSchema().dump(course)
+                        **content
                     )
                 )
                 response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully udpated {}'.format(course.title)}))
@@ -346,9 +366,18 @@ class CourseAPI(MethodView):
         db.session.delete(course)
         db.session.commit()
 
-        response = make_response('Success')
+        schema = TinyCourseSchema(many=True)
+        result = Course.query.order_by(Course.starts).all()
+        template = 'admin/index.html'
+
+        content = {
+            'events': schema.dump(result)
+        }
+
+        response = make_response(
+            render_template('admin/index.html', **content)
+        )
         response.headers.set('HX-Trigger', json.dumps({'showToast': "Successfully deleted {}".format(course.title)}))
-        response.headers.set('HX-Redirect', '/admin/events')
 
         return response
 

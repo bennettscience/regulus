@@ -1,4 +1,11 @@
-<form>
+<form
+    hx-put="/courses/{{event.id}}"
+    hx-trigger="request"
+    hx-swap="innerHTML"
+    hx-target="#course-data--result"
+    hx-ext="new-event"
+    hx-indicator="#toast"
+>
     <p>Editing <b>{{event.title}}</b></p>
     <label>
         <p>Edit title</p>
@@ -9,7 +16,7 @@
         <div id="editor--container">
             <div
                 id="editor"
-                _="on load call setInitial('{{event.description|e|safe}}')"
+                _='on load call setInitial("{{event.description|e}}")'
             ></div>
         </div>
         <!-- <textarea name="description" id="" cols="30" rows="10">
@@ -61,5 +68,11 @@
         <p>Edit location</p>
         <p>Location select goes here</p>
     </label>
-    <button type="submit" class="btn btn--primary">Submit</button>
+    <button
+        type="submit"
+        class="btn btn--primary"
+        _="on click trigger request add @disabled"
+    >
+        Submit
+    </button>
 </form>

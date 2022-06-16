@@ -25,5 +25,5 @@ class CalendarService:
     def build(self):
         return build('calendar', 'v3', credentials=credentials)
 
-    def convertToISO(self, timestamp):
-        return datetime.fromtimestamp(timestamp).isoformat()
+    def convertToISO(self, date):
+        return date.isoformat()
