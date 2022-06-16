@@ -62,7 +62,7 @@ def handle_error(err):
     messages = err.data.get("messages", ["Invalid request."])
     if headers:
         return jsonify({"errors": messages}), err.code, headers
-    else:    
+    else:
         return jsonify({"errors": messages}), err.code
 
 @app.errorhandler(500)
