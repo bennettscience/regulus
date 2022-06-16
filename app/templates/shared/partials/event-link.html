@@ -1,0 +1,14 @@
+<li class="event-link">
+    <button
+        class="btn btn--warn btn--warn__small"
+        hx-trigger="click"
+        hx-delete="/courses/{{event_id}}/links/{{link.id}}"
+        hx-indicator="#toast"
+        hx-swap="none"
+        _="on htmx:afterSettle remove the closest parent .event-link
+        then trigger closeSidebar end"
+    >
+        ×
+    </button>
+    <a href="{{link.uri}}">{{link.name}}</a>
+</li>

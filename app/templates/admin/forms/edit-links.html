@@ -1,13 +1,19 @@
 <p>Editing links for <b>{{event.title}}</b></p>
 <h2>Current links</h2>
 
-<ul>
+<ul id="links-list">
     {% for link in event.links %}
-    <li><a href="{{link.uri}}">{{link.name}}</a></li>
-    {% endfor %}
+    {{render_partial('shared/partials/event-link.html', link=link,
+    event_id=event.id)}} {% endfor %}
 </ul>
 
-<form>
+<form
+    hx-trigger="request"
+    hx-post="/courses/{{event.id}}/links"
+    hx-indicator="#toast"
+    hx-swap="none"
+    _="on htmx:afterSwap trigger closeSidebar end"
+>
     {{render_partial('shared/form-fields/select.html', options=data,
     name='courselinktype_id' )}}
     <label>
@@ -23,4 +29,11 @@
             placeholder="https://example.com"
         />
     </label>
+    <button
+        class="btn btn--primary"
+        type="submit"
+        _="on click trigger request add @disabled"
+    >
+        Add link
+    </button>
 </form>

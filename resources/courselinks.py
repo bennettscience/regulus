@@ -1,6 +1,6 @@
 import json
 from typing import List
-from flask import abort, jsonify
+from flask import abort, jsonify, make_response
 from flask.views import MethodView
 from webargs.flaskparser import parser
 
@@ -38,7 +38,7 @@ class CourseLinksAPI(MethodView):
         if course is None:
             abort(404)
 
-        args = parser.parse(NewCourseLinkSchema(), location="json")
+        args = parser.parse(NewCourseLinkSchema(), location="form")
         args["course_id"] = course_id
 
         try:
@@ -48,7 +48,9 @@ class CourseLinksAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
-        return jsonify({"message": "Link successfuly created", "links": DisplayCourseLinkSchema().dump(link)})
+        response = make_response("Ok", 200)
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Link successfully created.'}))
+        return response
 
 
 class CourseLinkAPI(MethodView):
@@ -108,5 +110,7 @@ class CourseLinkAPI(MethodView):
         db.session.commit()
 
         links = Course.query.get(course_id).links
+        response = make_response('Ok', 200)
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Link deleted successfully.'}))
 
-        return jsonify({"message": "Deletion successful", "links": DisplayCourseLinkSchema(many=True).dump(links)})
+        return response

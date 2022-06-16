@@ -46,7 +46,7 @@
     --accent-active: #45a29e;
     --accent-hover: #2d3d50;
     --shadow-left-border: rgba(0, 0, 0, 0.1) 0px 10px 25px -5px,
-            rgba(0, 0, 0, 0.04) -10px 0px 10px -5px;
+    rgba(0, 0, 0, 0.04) -10px 0px 10px -5px;
 }
 
 body {
@@ -149,6 +149,20 @@ button:disabled {
 
 .btn--secondary {
     background-color: var(--site-gray);
+}
+
+.btn--warn {
+    background-color: var(--accent-red);
+}
+
+.btn--warn__small {
+    border: none;
+    color: var(--text-white);
+    font-weight: bold;
+    margin: 0;
+    margin-right: 0.6rem;
+    height: auto;
+    width: auto;
 }
 
 /* left align the new event and new location buttons */
@@ -318,19 +332,6 @@ nav {
     border-bottom: 2px solid var(--site-gray);
 }
 
-/* .document-meta a {
-    padding: 1em;
-    display: block;
-    border: 2px solid var(--accent-blue);
-    border-radius: 5px;
-    transition: 0.25s all ease-in-out;
-}
-
-.document-meta a:hover {
-    background-color: var(--accent-blue);
-    color: var(--text-white);
-} */
-
 table {
     width: 100%;
     table-layout: fixed;
@@ -406,7 +407,7 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
     padding: 0;
     position: fixed;
     top: 0;
-
+    
     box-sizing: border-box;
     background-color: #fff;
     padding: 15px;
@@ -486,16 +487,7 @@ hr {
     flex-direction: row;
     align-content: center;
     align-items: center;
-}
-
-#links-list>li>button {
-    background-color: var(--accent-red);
-    border: none;
-    color: var(--text-white);
-    font-weight: bold;
-    /* font-size: 12px; */
-    margin-right: 25px;
-    margin-bottom: 0;
+    margin-bottom: 0.6rem;
 }
 
 #links-list>li>button:hover {
@@ -572,7 +564,7 @@ hr {
 #course-data--result {
     display: grid;
     grid-template-areas: 'actions actions'
-                         'registrations stats';
+    'registrations stats';
     grid-gap: 1.5rem;
 }
 
@@ -656,7 +648,7 @@ fieldset {
     justify-content: space-evenly;
     align-content: center;
     margin-bottom: 20px;
-
+    
     /* Fieldset styles */
     border: 0;
     padding-left: 200px;
@@ -686,7 +678,7 @@ select {
     border-radius: 0;
     border-bottom: 3px solid var(--site-gray);
     transition: all 0.25s ease-in-out;
-
+    
     margin: 0.6rem 0;
     padding: 0.6rem;
     width: 100%;
