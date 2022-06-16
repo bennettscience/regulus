@@ -1,18 +1,25 @@
 <p>Editing presenters for <b>{{event.title}}</b></p>
 <h2>Current presenters</h2>
 
-<ul>
+<ul id="links-list">
     {% for user in event.presenters %}
-    <li>{{user.name}}</li>
-    {% endfor %}
+    {{render_partial('shared/partials/event-presenter.html', user=user,
+    event_id=event.id)}} {% endfor %}
 </ul>
 
-<form>
+<form
+    hx-trigger="request"
+    hx-post="/courses/{{event.id}}/presenters"
+    hx-target="#links-list"
+    hx-swap="beforeend"
+>
+    <!-- TODO: Make this a search form -->
     {{render_partial('shared/form-fields/select.html', options=data,
-    name='presenters' )}}
-    <!-- <select name="presenters">
-        {% for user in data %}
-        <option value="{{user.id}}">{{user.name}}</option>
-        {% endfor %}
-    </select> -->
+    name='user_id' )}}
+    <button
+        class="btn btn--primary"
+        _="on click trigger request add @disabled end"
+    >
+        Add presenter
+    </button>
 </form>

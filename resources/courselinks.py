@@ -1,6 +1,6 @@
 import json
 from typing import List
-from flask import abort, jsonify, make_response
+from flask import abort, jsonify, make_response, render_template
 from flask.views import MethodView
 from webargs.flaskparser import parser
 
@@ -48,7 +48,9 @@ class CourseLinksAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
-        response = make_response("Ok", 200)
+        response = make_response(
+            render_template('shared/partials/event-link.html', link=link, event_id=course.id)
+        )
         response.headers.set('HX-Trigger', json.dumps({'showToast': 'Link successfully created.'}))
         return response
 

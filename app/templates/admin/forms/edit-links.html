@@ -11,7 +11,8 @@
     hx-trigger="request"
     hx-post="/courses/{{event.id}}/links"
     hx-indicator="#toast"
-    hx-swap="none"
+    hx-target="#links-list"
+    hx-swap="beforeend"
     _="on htmx:afterSwap trigger closeSidebar end"
 >
     {{render_partial('shared/form-fields/select.html', options=data,

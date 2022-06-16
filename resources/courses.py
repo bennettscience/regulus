@@ -483,18 +483,18 @@ class CoursePresentersAPI(MethodView):
         return jsonify(CoursePresenterSchema(many=True).dump(presenters))
 
     def post(self: None, course_id: int, *args: list) -> List[User]:
-        """Bulk add presenter(s) to an event. Accepts a list of any length.
+        """ Add a presenter to an event. Accepts a list of any length.
 
         Args:
-            course_id (int): course id
-            user_ids[] (list): list of user IDs
+            course_id (int): course ID
+            user_id (int): user ID
 
         Returns:
             list: event presenters
         """
-        args = request.get_json()
-        if type(args["user_ids"]) is not list:
-            return jsonify({"messages": "Expected an array of user_id"}), 422
+        args = request.form
+
+        breakpoint()
 
         course = Course.query.get(course_id)
 
@@ -504,29 +504,32 @@ class CoursePresentersAPI(MethodView):
         import requests
         webhook_url = Config.CALENDAR_HOOK_URL
 
-        for user_id in args["user_ids"]:
-            user = User.query.get(user_id)
-            if user is not None:
+        user = User.query.get(args['user_id'])
+        if user is not None:
 
-                # Update the user to a presenter so they get the dashboard at login
-                if user.usertype_id != 1 and user.usertype_id != 2:
-                    user.update({"usertype_id": 2})
-                course.presenters.append(user)
+            # Update the user to a presenter so they get the dashboard at login
+            if user.usertype_id != 1 and user.usertype_id != 2:
+                user.update({"usertype_id": 2})
+            course.presenters.append(user)
 
-                # Add the presenter to the calendar event automatically.
-                raw = {
-                    "method": "patch",
-                    "token": Config.CALENDAR_HOOK_TOKEN,
-                    "userId": user.email,
-                    "calendarId": Config.GOOGLE_CALENDAR_ID,
-                    "eventId": course.ext_calendar,
-                }
+            # Add the presenter to the calendar event automatically.
+            raw = {
+                "method": "patch",
+                "token": Config.CALENDAR_HOOK_TOKEN,
+                "userId": user.email,
+                "calendarId": Config.GOOGLE_CALENDAR_ID,
+                "eventId": course.ext_calendar,
+            }
 
-                response = requests.post(webhook_url, json=raw)
+            response = requests.post(webhook_url, json=raw)
 
         db.session.commit()
 
-        return jsonify(CoursePresenterSchema(many=True).dump(course.presenters))
+        response = make_response(
+            render_template('shared/partials/event-presenter.html', user=user, event_id=course.id)
+        )
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Added {} as a presenter.'.format(user.name)}))
+        return response
 
 
 class CoursePresenterAPI(MethodView):
@@ -556,7 +559,13 @@ class CoursePresenterAPI(MethodView):
 
         db.session.commit()
 
-        return jsonify(CoursePresenterSchema().dump(course.presenters))
+        response = make_response(
+            render_template(
+                'shared/partials/event-presenter.html', user=user, event_id=course.id
+            )
+        )
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Added {} as a presenter'.format(user.name)}))
+        return response
 
     def delete(self: None, course_id: int, user_id: int) -> List[User]:
         """Remove a single presenter from an event.
@@ -577,7 +586,9 @@ class CoursePresenterAPI(MethodView):
         course.presenters.remove(user)
         db.session.commit()
 
-        return jsonify({"message": "Deletion successful"})
+        response = make_response("ok", 200)
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully removed the presenter.'}))
+        return response
 
 
 class CourseAttendeesAPI(MethodView):
