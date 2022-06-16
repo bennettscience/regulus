@@ -296,6 +296,10 @@ nav {
     margin-right: 20px;
 }
 
+.state svg {
+    margin-right: 0.6rem;
+}
+
 .registered {
     color: var(--site-gray);
 }
@@ -426,7 +430,10 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
     flex-direction: column;
 }
 
-#event--details time, span {
+#event--details 
+time, 
+#course-size,
+#location {
     display: block;
     margin: 0.6rem 0;
 }
@@ -461,20 +468,9 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
     right: -35%;
 }
 
-/* time,
-span {
-    display: flex;
-    align-items: center;
-    margin: 15px 0;
-} */
-
 hr {
     width: 70%;
 }
-
-/* svg {
-    margin-right: 12px;
-} */
 
 #result {
     position: relative;
@@ -853,11 +849,6 @@ input:focus, textarea:focus {
 
 .mobile-icon {
     display: none;
-}
-
-svg {
-    vertical-align: middle;
-    /* margin-right: 12px; */
 }
 
 @media only screen and (max-width: 767px) {
