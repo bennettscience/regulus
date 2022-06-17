@@ -1,4 +1,5 @@
 import json
+import html
 from datetime import datetime
 from typing import List
 
@@ -656,19 +657,18 @@ class CourseAttendeesAPI(MethodView):
         Returns:
             List[User]: [description]
         """
-        args = request.get_json()
-        if type(args["user_ids"]) is not list:
-            return jsonify({"messages": "Expected an array of user_id"}), 422
+        webhook_url = Config.CALENDAR_HOOK_URL
+        args = parser.parse({"user_id": fields.List(fields.Int())}, location="form")
 
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
 
         # If the list is longer than the number of seats left, throw an error
-        if len(args["user_ids"]) > course.available_size():
+        if len(args["user_id"]) > course.available_size():
             abort(409)
 
-        for user_id in args["user_ids"]:
+        for user_id in args["user_id"]:
             user = User.query.get(user_id)
 
             # TODO: Handle NoneType IDs with an error?
@@ -680,9 +680,56 @@ class CourseAttendeesAPI(MethodView):
                         CourseUserAttended(course_id=course.id, user_id=user.id)
                     )
 
+                import requests
+
+                raw = {
+                    "method": "patch",
+                    "token": Config.CALENDAR_HOOK_TOKEN,
+                    "userId": user.email,
+                    "calendarId": Config.GOOGLE_CALENDAR_ID,
+                    "eventId": course.ext_calendar,
+                }
+
+                requests.post(webhook_url, json=raw)
+
         db.session.commit()
 
-        return jsonify(UserAttended(many=True).dump(course.registrations))
+        # Collect all the necessary info to repaint the course dashboard
+        schema = CourseDetailSchema()
+
+        course.available = course.available_size()
+        course.description = html.escape(course.description)
+
+        # Get the last registration activity
+        ordered_regs = course.registrations.order_by(CourseUserAttended.created_at).all()
+        if ordered_regs:
+            last_reg = course.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
+            formatted_date = last_reg.strftime("%m/%d/%y, %I:%M %p")
+        else:
+            formatted_date = "-"
+
+        # Add some calculated stats about the event
+        data = [
+            {
+                'label': 'Registrations',
+                'value': len(course.registrations.all())
+            },
+            {
+                'label': 'Last Registration',
+                'value': formatted_date
+            }
+        ]
+
+        content = {
+            'event': schema.dump(course),
+            'data': data
+        }
+        response = make_response(
+            render_template('admin/partials/event-detail.html', **content)
+        )
+        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Updated registrations successfully.'}))
+        return response
+        # return jsonify(UserAttended(many=True).dump(course.registrations))
 
 
 class CourseAttendeeAPI(MethodView):
