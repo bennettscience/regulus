@@ -14,16 +14,9 @@
         <option value="{{option.value}}">{{option.text}}</option>
         {% endfor %}
     </select>
-    <input
-        type="search"
-        placeholder="Search for a user..."
-        _="on keyup
-               if the event's key is 'Escape'
-                 set my value to ''
-                 trigger keyup
-               else
-                show <tr/> in #user-data--result when its textContent contains my value"
-    />
+    {{render_partial('shared/form-fields/search.html', target='
+    <tr />
+    ', container="#user-data--result", placeholder="Search for a user...")}}
 </section>
 <table id="user-data--table">
     <thead>

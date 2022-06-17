@@ -60,7 +60,7 @@ navigation_items = [
     {
         "element": 'users',
         "label": 'User Management',
-        "href": '/people',
+        "href": '/admin/users',
         "icon": users,
     },
     {

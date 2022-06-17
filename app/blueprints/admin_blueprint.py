@@ -127,6 +127,28 @@ def edit_event_links(event_id):
         **content
     )
 
+@admin_bp.get("/events/<int:event_id>/users/edit")
+def edit_event_regisrations(event_id):
+    # Add a user to the event manually
+    event = get_event(event_id)
+
+    # Return a list of users to register for the event
+    query = User.query.order_by(User.name.asc()).all()
+
+    content = {
+        "event": {
+            "title": event['title'],
+            "id": event['id']
+        },
+        "data": UserSchema(many=True).dump(query)
+    }
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/edit-users.html',
+        **content
+    )
+
 @admin_bp.get("/events/<int:event_id>/delete")
 def delete_event(event_id):
     event = get_event(event_id)

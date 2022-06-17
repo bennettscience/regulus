@@ -1,0 +1,52 @@
+<p>Editing {{event.title}} - <{{event.id}}></p>
+<section class="actions user-registration--actions">
+    <button
+        class="btn btn--primary"
+        id="edit-user--submit"
+        disabled
+        _="on click trigger request add @disabled"
+    >
+        Register users
+    </button>
+    <button
+        class="btn btn--secondary"
+        _='on click
+            js
+                let selected = document.querySelectorAll(`input[name="user_id"]:checked`)
+                selected.forEach( el =>el.checked = false )
+            end
+        '
+    >
+        Uncheck all
+    </button>
+</section>
+{{render_partial('shared/form-fields/search.html', target=".user",
+container="#course-data--register",placeholder="Search by name...")}}
+<form
+    id="course-data--register"
+    hx-trigger="request from:#edit-user--submit"
+    hx-target="#course-data--result"
+    hx-swap="innerHTML"
+    hx-post="/courses/{{event.id}}/registrations"
+    _="on htmx:afterSwap from .main-container trigger closeSidebar end"
+>
+    {% for user in data %}
+    <label
+        class="user"
+        _="
+            on load set $counter to 0 end
+            on mouseup debounced at 150ms set $counter to (<input[name='user_id']:checked/>).length
+                then 
+                    if $counter === 1 
+                        put `Register ${$counter} user` into #edit-user--submit
+                    otherwise 
+                        put `Register ${$counter} users` into #edit-user--submit
+                    end
+            if $counter > 0 remove @disabled from #edit-user--submit end
+            "
+    >
+        <input type="checkbox" name="user_id" value="{{user.id}}" />
+        <span>{{user.name}}</span>
+    </label>
+    {% endfor %}
+</form>
