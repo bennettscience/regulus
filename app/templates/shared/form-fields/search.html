@@ -1,0 +1,10 @@
+<input
+    type="search"
+    placeholder="{{placeholder}}"
+    _="on keyup
+               if the event's key is 'Escape'
+                 set my value to ''
+                 trigger keyup
+               else
+                show {{target}} in {{container}} when its textContent contains my value"
+/>
