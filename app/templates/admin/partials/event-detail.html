@@ -1,4 +1,4 @@
-<section id="course-data--actions">
+<section class="actions" id="course-data--actions">
     <button
         tabindex="0"
         class="btn form-toggle"
@@ -32,7 +32,7 @@
         class="btn form-toggle"
         hx-put="/admin/events/{{event.id}}"
         hx-vals='{"active": "{{not event.active}}"}'
-        hx-ext="json-enc"
+        hx-ext="json-enc-local"
         hx-indicator="#toast"
         hx-target="#course-data--result"
         hx-swap="innerHTML"
@@ -63,6 +63,7 @@
     registrations=event.registrations, event_id=event.id)}}
 </section>
 <section id="course-data--actions__sidebar">
+    <h2>Attendee Tools</h2>
     <button
         class="btn btn--primary"
         hx-trigger="click"
@@ -81,6 +82,16 @@
         %}
     >
         Mark all attended
+    </button>
+    <button
+        class="btn btn--secondary"
+        hx-trigger="click"
+        hx-get="/admin/events/{{event.id}}/users/edit"
+        hx-indicator="#toast"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Add registration
     </button>
     {% for stat in data %} {{render_partial('admin/partials/event-stats.html',
     stat=stat)}} {% endfor %}
