@@ -1,5 +1,9 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 from app import app, db
+from app.models import UserType, User
+
+from webargs import fields
+from webargs.flaskparser import parser
 
 from resources.users import (
     UserAPI,
@@ -10,7 +14,9 @@ from resources.users import (
     UserConfirmedAPI
 )
 
-users_bp = Blueprint('users_bp', __name__)
+from app.schemas import UserRoleSchema, UserSchema
+
+users_bp = Blueprint('users_bp', __name__, url_prefix="/admin")
 
 users_view = UserListAPI.as_view("users_api")
 user_view = UserAPI.as_view("user_api")
@@ -19,7 +25,42 @@ user_attending_view = UserAttendingAPI.as_view("user_attending_api")
 user_confirmed_view = UserConfirmedAPI.as_view("user_confirmed_api")
 user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
 
-users_bp.add_url_rule("/users", view_func=users_view, methods=["GET", "POST"])
+@users_bp.get('/users')
+def index():
+    args = parser.parse({
+        'usertype_id': fields.Int(missing=None)
+    }, location='querystring')
+
+    usertypes = UserType.query.all()
+    options = [{"value": usertype.id, "text": usertype.name} for usertype in usertypes]
+
+    # If a usertype id is in the request query, return users for that role.
+    # Otherwise, return only the select field to filter down.
+    if args['usertype_id'] is not None:
+        template = 'users/partials/user-table-rows.html'
+
+        if args['usertype_id'] != 0:
+            query = User.query.filter(User.usertype_id == args['usertype_id']).order_by(User.name.asc()).all()
+        else:
+            query = User.query.order_by(User.name.asc()).all()
+
+        content = {
+            "users": UserSchema(many=True).dump(query)
+        }
+    else:
+        template = ('users/index.html')
+        query = User.query.order_by(User.name.asc()).all()
+        
+        content = {
+            "options": options,
+            "name": "usertype_id",
+            "users": UserSchema(many=True).dump(query)
+        }
+
+    return render_template(template, **content)
+
+
+users_bp.add_url_rule("/users/<int:usertype_id>", view_func=users_view, methods=["GET", "POST"])
 
 users_bp.add_url_rule(
     "/users/<int:user_id>", view_func=user_view, methods=["GET", "PUT", "DELETE"]

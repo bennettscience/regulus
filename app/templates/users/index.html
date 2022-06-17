@@ -1,0 +1,39 @@
+<section id="user-search">
+    <select
+        class="select select--narrow"
+        tabindex="0"
+        hx-get="/admin/users"
+        name="usertype_id"
+        hx-trigger="change"
+        hx-target="#user-data--result"
+        hx-swap="innerHTML"
+    >
+        <option value="0" selected>All Roles</option>
+
+        {% for option in options %}
+        <option value="{{option.value}}">{{option.text}}</option>
+        {% endfor %}
+    </select>
+    <input
+        type="search"
+        placeholder="Search for a user..."
+        _="on keyup
+               if the event's key is 'Escape'
+                 set my value to ''
+                 trigger keyup
+               else
+                show <tr/> in #user-data--result when its textContent contains my value"
+    />
+</section>
+<table id="user-data--table">
+    <thead>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </thead>
+    <tbody id="user-data--result">
+        {% if users %} {{render_partial("users/partials/user-table-rows.html",
+        users=users)}} {% endif %}
+    </tbody>
+</table>

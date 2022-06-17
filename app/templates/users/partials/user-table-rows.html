@@ -1,0 +1,8 @@
+{% for user in users %}
+<tr id="user-{{user.id}}">
+    <td>{{user.name}}</td>
+    <td>{{user.location.name}}</td>
+    <td>{{user.email}}</td>
+    <td>Do something</td>
+</tr>
+{% endfor %}

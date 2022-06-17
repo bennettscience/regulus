@@ -724,6 +724,28 @@ input:focus, textarea:focus {
     display: block;
 }
 
+#user-search {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: flex-start;
+    gap: 1.2rem
+}
+
+#user-search > select {
+    width: auto;
+}
+
+#user-search:nth-child(2) {
+    flex-grow: 2;
+}
+
+#user-data--table {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 2px solid var(--site-gray);
+}
+
 
 @media only screen and (max-width: 767px) {
     .course {
