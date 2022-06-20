@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template
+from flask import abort, Blueprint, render_template
+from flask_login import current_user
 from app import app, db
 from app.models import UserType, User
 
@@ -27,6 +28,8 @@ user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
 
 @users_bp.get('/users')
 def index():
+    if current_user.usertype_id != 1:
+        abort(403)
     args = parser.parse({
         'usertype_id': fields.Int(missing=None)
     }, location='querystring')
@@ -40,16 +43,17 @@ def index():
         template = 'users/partials/user-table-rows.html'
 
         if args['usertype_id'] != 0:
-            query = User.query.filter(User.usertype_id == args['usertype_id']).order_by(User.name.asc()).all()
+            query = sorted(User.query.filter(User.usertype_id == args['usertype_id']).order_by(User.name.asc()).all())
         else:
-            query = User.query.order_by(User.name.asc()).all()
+            query = sorted(User.query.order_by(User.name.asc()).all())
 
         content = {
-            "users": UserSchema(many=True).dump(query)
+            "users": UserSchema(many=True).dump(query),
+            "options": options
         }
     else:
         template = ('users/index.html')
-        query = User.query.order_by(User.name.asc()).all()
+        query = sorted(User.query.order_by(User.name.asc()).all())
         
         content = {
             "options": options,
@@ -60,7 +64,8 @@ def index():
     return render_template(template, **content)
 
 
-users_bp.add_url_rule("/users/<int:usertype_id>", view_func=users_view, methods=["GET", "POST"])
+# Create new usertypes
+# users_bp.add_url_rule("/users/<int:usertype_id>", view_func=users_view, methods=["GET", "POST"])
 
 users_bp.add_url_rule(
     "/users/<int:user_id>", view_func=user_view, methods=["GET", "PUT", "DELETE"]

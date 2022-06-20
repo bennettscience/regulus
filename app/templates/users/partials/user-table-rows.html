@@ -1,8 +1,28 @@
 {% for user in users %}
-<tr id="user-{{user.id}}">
+<tr 
+    _="on htmx:afterSwap remove me"
+    id="user-{{user.id}}">
     <td>{{user.name}}</td>
     <td>{{user.location.name}}</td>
     <td>{{user.email}}</td>
-    <td>Do something</td>
+    <td>
+        <select 
+            name="usertype_id"
+            hx-trigger="change"
+            hx-put="/admin/users/{{user.id}}"
+            hx-indicator="#toast"
+        >
+            {% for option in options %}
+            <option 
+                {% if option.value == user.role['id'] %} 
+                    selected
+                {% endif %} 
+                value="{{option.value}}"
+            >
+                {{option.text}}
+            </option>
+            {% endfor %}
+        </select>
+    </td>
 </tr>
 {% endfor %}

@@ -23,10 +23,10 @@
         <th>Name</th>
         <th>Location</th>
         <th>Email</th>
-        <th>Actions</th>
+        <th>Role</th>
     </thead>
     <tbody id="user-data--result">
         {% if users %} {{render_partial("users/partials/user-table-rows.html",
-        users=users)}} {% endif %}
+        users=users, options=options)}} {% endif %}
     </tbody>
 </table>

@@ -1,6 +1,7 @@
+import json
 from math import ceil
 
-from flask import jsonify, request, abort, render_template
+from flask import jsonify, request, abort, make_response, render_template
 from flask.views import MethodView
 from flask_login import current_user
 from typing import List
@@ -99,14 +100,17 @@ class UserAPI(MethodView):
 
         # Limit this to SuperAdmins or the user making the request.
         if current_user.usertype_id == 1 or current_user.id == user_id:
-            args = parser.parse(UserSchema(), location="json")
+            args = parser.parse(UserSchema(), location="form")
             user = User.query.get(user_id)
             if user is None:
                 abort(404)
 
             try:
                 user.update(args)
-                return jsonify(UserSchema().dump(user))
+                response = make_response('ok')
+                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully updated the user role.'}))
+                return response
+                # return jsonify(UserSchema().dump(user))
             except Exception as e:
                 return jsonify(e)
         else:
