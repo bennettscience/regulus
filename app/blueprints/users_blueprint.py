@@ -17,7 +17,7 @@ from resources.users import (
 
 from app.schemas import UserRoleSchema, UserSchema
 
-users_bp = Blueprint('users_bp', __name__, url_prefix="/admin")
+users_bp = Blueprint('users_bp', __name__)
 
 users_view = UserListAPI.as_view("users_api")
 user_view = UserAPI.as_view("user_api")
@@ -26,7 +26,7 @@ user_attending_view = UserAttendingAPI.as_view("user_attending_api")
 user_confirmed_view = UserConfirmedAPI.as_view("user_confirmed_api")
 user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
 
-@users_bp.get('/users')
+@users_bp.get('/admin/users')
 def index():
     if current_user.usertype_id != 1:
         abort(403)
