@@ -12,7 +12,7 @@ from app import db
 
 from app.static.assets.icons import attended, registered
 from app.auth import admin_only
-from app.models import Course, CourseUserAttended, User
+from app.models import Course, CourseUserAttended, Location, User
 from app.schemas import (
     CourseSchema,
     NewUserLocation,
@@ -83,8 +83,18 @@ class UserAPI(MethodView):
         """
         # Limit this to SuperAdmin, Presenters, or the user making the request
         if current_user.usertype_id == 1 or current_user.usertype_id == 2 or user_id is current_user.id:
+            options = [{"value": location.id, "text": location.name} for location in Location.query.all()]
             user = User.query.get(user_id)
-            return jsonify(UserSchema().dump(user))
+
+            content = {
+                "data": options,
+                "user": user,
+            }
+            return render_template(
+                'shared/partials/sidebar.html',
+                partial='users/partials/user-edit-account-form.html',
+                **content
+            )
         else:
             abort(403)
 
@@ -97,10 +107,16 @@ class UserAPI(MethodView):
         Returns:
             User: updated user as JSON
         """
-
+        # Validate the fields coming from the user
+        required = {
+            "name": fields.Str(),
+            "location_id": fields.Int(),
+            "usertype_id": fields.Int()
+        }
         # Limit this to SuperAdmins or the user making the request.
         if current_user.usertype_id == 1 or current_user.id == user_id:
-            args = parser.parse(UserSchema(), location="form")
+            args = parser.parse(required, location="form")
+           
             user = User.query.get(user_id)
             if user is None:
                 abort(404)
@@ -108,7 +124,7 @@ class UserAPI(MethodView):
             try:
                 user.update(args)
                 response = make_response('ok')
-                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully updated the user role.'}))
+                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully updated the user.'}))
                 return response
                 # return jsonify(UserSchema().dump(user))
             except Exception as e:

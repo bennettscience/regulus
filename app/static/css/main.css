@@ -322,6 +322,33 @@ nav {
     color: var(--accent-active);
 }
 
+.user-meta {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        'title action'
+        'description description';
+    align-content: center;
+    align-items: center;
+}
+
+.user-meta > h1 {
+    grid-area: title;
+}
+
+.user-meta > button {
+    grid-area: action;
+    position: absolute;
+    right: 0;
+    width: auto;
+}
+
+.user-meta > p {
+    grid-area: description
+}
+
 .document-meta {
     display: flex;
     flex-direction: row;
@@ -725,7 +752,7 @@ input:focus, textarea:focus {
 #location {
     width: 30%;
     flex: 1 0 auto;
-    margin-bottom: 25px;
+    margin: 0 0 1.2rem 0;
 }
 
 .new-action-btn {

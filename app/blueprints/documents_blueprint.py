@@ -22,9 +22,16 @@ def get_documents(user_id):
             event_total = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
             total = total + event_total
             event.course.total = event_total
+
+        content = {
+            "events": registrations,
+            "total": total,
+            "total_registrations": total_registrations,
+            "user": current_user
+        }
         
         return render_template(
-            'users/documents/index.html', events=registrations, total=total, total_registrations=total_registrations
+            'users/documents/index.html', **content
         )
 
 

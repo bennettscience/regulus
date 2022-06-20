@@ -93,15 +93,15 @@ def index():
         if current_user.role.name == "SuperAdmin":
             is_admin = True
 
-        nav_items.insert(1, {
+        nav_items.insert(0, {
             "element": 'schedule',
             "label": "My Schedule",
             "href": "/users/{}/registrations".format(current_user.id),
             "icon": calendar
         })
-        nav_items.insert(2, {
+        nav_items.insert(1, {
             "element": 'documents',
-            "label": 'My PGPs',
+            "label": 'Account & Documents',
             "href": '/users/{}/documents'.format(current_user.id),
             "icon": documents,
         })

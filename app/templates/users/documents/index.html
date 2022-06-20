@@ -1,10 +1,22 @@
-<h1>My PGPs</h1>
-<p>
-    This page holds documentation for all PD which has been confirmed by the
-    presenter. You are responsible for saving and/or printing documents created
-    by this page. You can vist this page at any time to create new PDFs for your
-    records.
-</p>
+<section class="user-meta">
+    <h1>My Account</h1>
+    <button
+        class="btn btn--secondary"
+        hx-trigger="click"
+        hx-get="/users/{{user.id}}"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Account Settings
+    </button>
+    <p>
+        This page holds documentation for all PD which has been confirmed by the
+        presenter. You are responsible for saving and/or printing documents
+        created by this page. You can vist this page at any time to create new
+        PDFs for your records. You can also edit your display name and other
+        account information on this page.
+    </p>
+</section>
 <section class="document-meta">
     <p>Total registrations: {{total_registrations}}</p>
     <p>Total PGP: {{total}}</p>
