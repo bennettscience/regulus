@@ -9,7 +9,7 @@
         <select 
             name="usertype_id"
             hx-trigger="change"
-            hx-put="/admin/users/{{user.id}}"
+            hx-put="/users/{{user.id}}"
             hx-indicator="#toast"
         >
             {% for option in options %}
