@@ -99,6 +99,8 @@ class CourseListAPI(MethodView):
         """
         args = parser.parse(NewCourseSchema(), location="json")
 
+        print(args)
+
         # breakpoint()
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
@@ -122,7 +124,8 @@ class CourseListAPI(MethodView):
             }],
         }
 
-        if args['coursetype_id'] == 2:
+        # Make sure to read the course type as an integer
+        if int(args['coursetype_id']) == 1:
             import uuid
             request_id = uuid.uuid1().hex
 
