@@ -186,7 +186,7 @@ class CourseListAPI(MethodView):
                 events = current_user.presenting
             else:
                 abort(403)
-                
+
             template = 'admin/index.html'
         else:
             template = 'home/clean-index.html'
@@ -360,9 +360,6 @@ class CourseAPI(MethodView):
         import requests
         webhook_url = Config.CALENDAR_HOOK_URL
         calendar_id = Config.GOOGLE_CALENDAR_ID
-
-        if current_user.usertype_id != 1 or current_user.usertype_id != 2:
-            abort(403)
 
         course = Course.query.get(course_id)
         if course is None:
