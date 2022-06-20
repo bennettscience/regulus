@@ -1,0 +1,25 @@
+<form
+    hx-trigger="request"
+    hx-put="/users/{{user.id}}"
+    hx-swap="none"
+    _="on htmx:afterRequest wait 2s then trigger closeSidebar"
+>
+    <input type="text" name="name" value="{{user.name}}"/>
+    <select name="location_id">
+        {% for option in data %}
+            <option 
+                {% if option.value == user.location['id'] %} 
+                    selected
+                {% endif %} 
+                value="{{option.value}}"
+            >
+                {{option.text}}
+            </option>
+        {% endfor %}
+    </select>
+    <button 
+        type="submit" 
+        class="btn btn--primary"
+        _="on click trigger request add @disabled"
+    >Submit</button>
+</form>
