@@ -23,7 +23,7 @@ permissions = {
     "Presenter": [
         'schedule',
         'documents',
-        'presenter',
+        'admin',
         'create',
         'logout',
     ],
