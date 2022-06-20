@@ -104,6 +104,10 @@ document.addEventListener('htmx:afterSwap', (evt) => {
     }
 })
 
+// document.addEventListener('htmx:afterRequest', (evt) => {
+//     console.log(evt)
+// })
+
 // document.addEventListener('htmx:responseError', (evt) => {
 //     console.log(evt)
 //     showToast(evt.detail.xhr.responseText, true)
