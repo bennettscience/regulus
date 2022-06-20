@@ -1,6 +1,7 @@
 import html
 
 from flask import abort, Blueprint, render_template
+from flask_login import current_user
 from webargs import fields
 from webargs.flaskparser import parser
 
@@ -65,8 +66,14 @@ def index():
 
     else:
         schema = TinyCourseSchema(many=True)
-        result = Course.query.order_by(Course.starts).all()
         template = 'admin/index.html'
+        
+        if current_user.usertype_id == 1:
+            result = Course.query.order_by(Course.starts).all()
+        elif current_user.usertype_id == 2:
+            result = current_user.presenting
+        else:
+            abort(403)
 
         content = {
             'events': schema.dump(result)
@@ -84,6 +91,19 @@ def edit_event(event_id):
     return render_template(
         'shared/partials/sidebar.html',
         partial='admin/forms/edit-event.html',
+        event=event
+    )
+
+@admin_bp.get("/events/<int:event_id>/copy")
+def copy_event(event_id):
+    event = get_event(event_id)
+
+    if event is None:
+        abort(404)
+
+    return render_template(
+        'shared/partials/sidebar.html',
+        partial='admin/forms/duplicate-event.html',
         event=event
     )
 

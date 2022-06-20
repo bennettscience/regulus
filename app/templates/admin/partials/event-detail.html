@@ -26,7 +26,15 @@
     >
         Edit Links
     </button>
-    <button tabindex="0" class="btn form-toggle">View Event Logs</button>
+    <button
+        tabindex="0"
+        class="btn form-toggle"
+        hx-get="/admin/events/{{event.id}}/copy"
+        hx-target="main"
+        hx-swap="beforeend"
+    >
+        Duplicate Event
+    </button>
     <button
         tabindex="0"
         class="btn form-toggle"

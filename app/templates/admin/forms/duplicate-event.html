@@ -1,0 +1,82 @@
+<form
+    id="form--duplicate"
+    hx-post="/courses"
+    hx-trigger="request"
+    hx-swap="innerHTML"
+    hx-target=".main-container"
+    hx-ext="new-event"
+    hx-indicator="#toast"
+    _="on htmx:afterSwap from .main-container trigger closeSidebar end"
+>
+    <p>Duplicating <b>{{event.title}}</b></p>
+    <label>
+        <b>
+            <p>Title</p>
+        </b>
+        <input type="text" name="title" id="" value="{{event.title}}" />
+    </label>
+    <label>
+        <b>
+            <p>Description</p>
+        </b>
+        <div id="editor--container">
+            <div
+                id="editor"
+                _='on load call setInitial("{{event.description|e}}")'
+            ></div>
+        </div>
+    </label>
+    <label>
+        <b>
+            <p>Edit start date</p>
+        </b>
+        <input
+            _="
+                on load 
+                    call shiftISOTime({{event.starts}})
+                then set @value to the result
+            "
+            type="datetime-local"
+            name="starts"
+            id=""
+            value=""
+        />
+    </label>
+    <label for="">
+        <b>
+            <p>Edit end date</p>
+        </b>
+        <input
+            _="
+                on load 
+                    call shiftISOTime({{event.ends}})
+                then set @value to the result
+            "
+            type="datetime-local"
+            name="ends"
+            id=""
+            value=""
+        />
+    </label>
+    <label for="">
+        <b>
+            <p>Edit max size</p>
+        </b>
+        <input
+            type="number"
+            name="course_size"
+            id=""
+            value="{{event.course_size}}"
+        />
+    </label>
+    <input type="hidden" name="coursetype_id" value="{{event.coursetype_id}}" />
+    <input type="hidden" name="location_id" value="{{event.location_id}}" />
+
+    <button
+        type="submit"
+        class="btn btn--primary"
+        _="on click trigger request add @disabled"
+    >
+        Submit
+    </button>
+</form>

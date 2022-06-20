@@ -95,11 +95,12 @@ htmx.on('showToast', evt => {
 
 document.addEventListener('htmx:afterSwap', (evt) => {
     const pathInfo = evt.detail.pathInfo;
-    const re = /\/admin\/events\/\d*\/edit/gmi;
 
-    const is_edit_path = pathInfo.path.match(re)
+    if(pathInfo.path.includes('edit') || pathInfo.path.includes('copy')) {
+        makeQuill("#editor", "Enter event description")
+    }
 
-    if(pathInfo.path === '/create' || is_edit_path) {
+    if(pathInfo.path === '/create') {
         makeQuill("#editor", "Enter event description")
     }
 })

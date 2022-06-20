@@ -99,8 +99,6 @@ class CourseListAPI(MethodView):
         """
         args = parser.parse(NewCourseSchema(), location="json")
 
-        print(args)
-
         # breakpoint()
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
@@ -180,8 +178,21 @@ class CourseListAPI(MethodView):
         db.session.add(result)
         db.session.commit()
 
+        if request.headers.get('HX-Trigger') == "form--duplicate":
+            schema = TinyCourseSchema(many=True)
+            if current_user.usertype_id == 1:
+                events = sorted(Course.query.all())
+            elif current_user.usertype_id == 2:
+                events = current_user.presenting
+            else:
+                abort(403)
+                
+            template = 'admin/index.html'
+        else:
+            template = 'home/clean-index.html'
+
         response = make_response(
-            render_template('home/clean-index.html')
+            render_template(template, events=schema.dump(events))
         )
         response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully created {}'.format(course.title)}))
 
@@ -350,6 +361,9 @@ class CourseAPI(MethodView):
         webhook_url = Config.CALENDAR_HOOK_URL
         calendar_id = Config.GOOGLE_CALENDAR_ID
 
+        if current_user.usertype_id != 1 or current_user.usertype_id != 2:
+            abort(403)
+
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
@@ -371,8 +385,13 @@ class CourseAPI(MethodView):
         db.session.commit()
 
         schema = TinyCourseSchema(many=True)
-        result = Course.query.order_by(Course.starts).all()
-        template = 'admin/index.html'
+
+        if current_user.usertype_id == 1:
+            result = Course.query.order_by(Course.starts).all()
+        elif current_user.usertype_id == 2:
+            result = current_user.presenting
+        else:
+            abort(403)
 
         content = {
             'events': schema.dump(result)
