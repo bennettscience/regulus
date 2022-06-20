@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from marshmallow import INCLUDE, Schema, fields
 
@@ -200,11 +201,22 @@ class NewUserSchema(Schema):
 
 class UserSchema(Schema):
     id = fields.Int(dump_only=True)
-    name = fields.Str()
+    name = fields.Method("last_name_first")
     email = fields.Str()
     location = fields.Nested(LocationSchema)
     role = fields.Nested("UserRoleSchema")
     usertype_id = fields.Int()
+
+    def last_name_first(self, user):
+        regex = r"^(?P<first>[\w.]+)\s*(?P<middle>.+)\s*\b(?P<last>\w+)$"
+
+        match = re.match(regex, user.name, re.MULTILINE | re.VERBOSE)
+        if match:
+            name = f"{match.group('last')}, {match.group('first')} {match.group('middle')}"
+        else:
+            name = user.name
+        
+        return name
 
 
 class UserAttended(Schema):
