@@ -1,14 +1,14 @@
-<li class="event-link">
+<li class="presenter-link">
     <button
         class="btn btn--warn btn--warn__small"
         hx-trigger="click"
         hx-delete="/courses/{{event_id}}/presenters/{{user.id}}"
         hx-indicator="#toast"
         hx-swap="none"
-        _="on htmx:afterSettle remove the closest parent .event-link
+        _="on htmx:afterRequest remove the closest parent .presenter-link
         then trigger closeSidebar end"
     >
         ×
     </button>
-    <p>{{user.name}}</p>
+    <a href="mailto:{{user.email}}">{{user.name}}</a>
 </li>

@@ -5,6 +5,7 @@
     hx-target="#course-data--result"
     hx-ext="new-event"
     hx-indicator="#toast"
+    _="on htmx:afterSwap from #course-data--result trigger closeSidebar"
 >
     <p>Editing <b>{{event.title}}</b></p>
     <label>

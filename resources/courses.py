@@ -178,6 +178,9 @@ class CourseListAPI(MethodView):
         db.session.add(result)
         db.session.commit()
 
+        # This catches event creation when it's duplicated from another event.
+        # Duplication happens on the admin page, so only return events the presenter
+        # is responsible for if it's a presenter. If it's an admin, return all events.
         if request.headers.get('HX-Trigger') == "form--duplicate":
             schema = TinyCourseSchema(many=True)
             if current_user.usertype_id == 1:
@@ -188,7 +191,15 @@ class CourseListAPI(MethodView):
                 abort(403)
 
             template = 'admin/index.html'
+        # If the event is created from the <Create> page, then kick the upcoming events
+        # back to the user on the home page.
         else:
+            now = datetime.now()
+            events = Course.query.filter(
+                Course.active == True, Course.starts >= now
+            ).all()
+
+            schema = SmallCourseSchema(many=True)
             template = 'home/clean-index.html'
 
         response = make_response(
@@ -512,8 +523,6 @@ class CoursePresentersAPI(MethodView):
             list: event presenters
         """
         args = request.form
-
-        breakpoint()
 
         course = Course.query.get(course_id)
 
