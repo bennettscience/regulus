@@ -3,7 +3,7 @@ import html
 from datetime import datetime
 from typing import List
 
-from flask import abort, jsonify, make_response, render_template, request
+from flask import abort, current_app, jsonify, make_response, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
 from webargs import fields
@@ -89,7 +89,8 @@ class CourseListAPI(MethodView):
                 events=SmallCourseSchema(many=True).dump(sorted_courses)
             )
         else:
-            return render_template('shared/partials/no-upcoming.html')
+            return render_template('shared/partials/no-upcoming.html',
+            email=current_app.config['CONTACT_EMAIL'])
 
     def post(self: None) -> Course:
         """Create a new event
