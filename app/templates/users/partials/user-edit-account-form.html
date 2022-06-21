@@ -4,19 +4,25 @@
     hx-swap="none"
     _="on htmx:afterRequest wait 2s then trigger closeSidebar"
 >
-    <input type="text" name="name" value="{{user.name}}"/>
-    <select name="location_id">
-        {% for option in data %}
-            <option 
-                {% if option.value == user.location['id'] %} 
-                    selected
-                {% endif %} 
-                value="{{option.value}}"
-            >
-                {{option.text}}
-            </option>
-        {% endfor %}
-    </select>
+    <label>
+        <b>Update display name</b>
+        <input type="text" name="name" value="{{user.name}}"/>
+    </label>
+    <label>
+        <b>Update your location</b>
+        <select name="location_id">
+            {% for option in data %}
+                <option 
+                    {% if option.value == user.location['id'] %} 
+                        selected
+                    {% endif %} 
+                    value="{{option.value}}"
+                >
+                    {{option.text}}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
     <button 
         type="submit" 
         class="btn btn--primary"
