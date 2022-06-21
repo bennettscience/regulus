@@ -361,6 +361,25 @@ nav {
     border-bottom: 2px solid var(--site-gray);
 }
 
+.no-upcoming-events {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: 0 auto;
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+}
+
+.no-upcoming-events--emoji {
+    font-size: 184px;
+}
+
+.no-upcoming-events--text {
+    font-size: 26px;
+    text-align: center;
+}
+
 table {
     width: 100%;
     table-layout: fixed;

@@ -89,7 +89,7 @@ class CourseListAPI(MethodView):
                 events=SmallCourseSchema(many=True).dump(sorted_courses)
             )
         else:
-            return jsonify({"message": "No upcoming events."})
+            return render_template('shared/partials/no-upcoming.html')
 
     def post(self: None) -> Course:
         """Create a new event
@@ -260,7 +260,6 @@ class CourseAPI(MethodView):
         # This bug was fixable by sending everything as JSON, but I'm not sure why.
         # Sending requests through forms would result in invalid datetime objects.
         # static/js/new-event.js formats the request as JSON from the client
-        # 
         args = parser.parse(CourseSchema(), location='json')
 
         course = Course.query.get(course_id)
