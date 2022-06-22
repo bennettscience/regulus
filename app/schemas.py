@@ -208,14 +208,14 @@ class UserSchema(Schema):
     usertype_id = fields.Int()
 
     def last_name_first(self, user):
-        regex = r"^(?P<first>[\w.]+)\s*(?P<middle>.+)\s*\b(?P<last>\w+)$"
-
-        match = re.match(regex, user.name, re.MULTILINE | re.VERBOSE)
-        if match:
-            name = f"{match.group('last')}, {match.group('first')} {match.group('middle')}"
+        name_arr = user.name.split(" ")
+        if len(name_arr) == 2:
+            name = f"{name_arr[1]}, {name_arr[0]}"
+        elif len(name_arr) > 2:
+            name = f"{name_arr[1:]}, {name_arr[0]}"
         else:
             name = user.name
-        
+
         return name
 
 
