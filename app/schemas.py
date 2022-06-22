@@ -212,7 +212,7 @@ class UserSchema(Schema):
         if len(name_arr) == 2:
             name = f"{name_arr[1]}, {name_arr[0]}"
         elif len(name_arr) > 2:
-            name = f"{name_arr[1:]}, {name_arr[0]}"
+            name = f"{' '.join(name_arr[1:])}, {name_arr[0]}"
         else:
             name = user.name
 
