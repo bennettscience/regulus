@@ -738,6 +738,11 @@ label {
     padding: 5px;
 }
 
+label > span.length-meta {
+    font-style: italic;
+    color: var(--site-gray);
+}
+
 input, 
 textarea, 
 select {

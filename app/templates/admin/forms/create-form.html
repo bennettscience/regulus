@@ -13,7 +13,7 @@
             <fieldset class="basics">
                 <legend><h1>Basics</h1></legend>
                 <label
-                    ><b>Event title</b>
+                    ><b>Event title</b> <span class="length-meta"><span id="max-len">64</span> characters left</span>
                     <input
                         autocomplete="off"
                         name="title"
@@ -21,8 +21,15 @@
                         placeholder="Event title"
                         required="true"
                         tabindex="0"
-                    /></label
-                >
+                        maxlength="64"
+                        _="
+                            on keyup
+                                set $current to my value.length
+                                then put (64 - $current) into #max-len
+                        "
+                    />
+                    </label
+                />
                 <div id="editor--container">
                     <div id="editor"></div>
                 </div>
