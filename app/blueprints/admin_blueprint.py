@@ -6,9 +6,10 @@ from webargs import fields
 from webargs.flaskparser import parser
 
 from app import cache
-from app.models import Course, CourseLink, CourseUserAttended, User, CourseLinkType
+from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close
+from app.utils import object_to_select
 
 from resources.courses import CourseAPI
 
@@ -83,15 +84,26 @@ def index():
 
 @admin_bp.get("/events/<int:event_id>/edit")
 def edit_event(event_id):
+    locations = object_to_select(Location.query.all())
     event = get_event(event_id)
 
     if event is None:
         abort(404)
 
+    print(locations)
+
+    content = {
+        'event': event,
+        'data': {
+            'locations': locations,
+            'selected': event['location']['id']
+        }
+    }
+
     return render_template(
         'shared/partials/sidebar.html',
         partial='admin/forms/edit-event.html',
-        event=event
+        **content
     )
 
 @admin_bp.get("/events/<int:event_id>/copy")

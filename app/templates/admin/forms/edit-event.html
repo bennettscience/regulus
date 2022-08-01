@@ -67,7 +67,8 @@
     </label>
     <label for="">
         <p>Edit location</p>
-        <p>Location select goes here</p>
+        {{ render_partial('shared/form-fields/select.html', name='location_id',
+        options=data['locations'], selected=data['selected'])}}
     </label>
     <button
         type="submit"
