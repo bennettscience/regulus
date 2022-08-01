@@ -63,12 +63,14 @@
     </label>
     <label for="">
         <p>Edit event type</p>
-        <p>Event type select goes here</p>
+        {{ render_partial('shared/form-fields/select.html',
+        name='coursetype_id', options=data['types'],
+        selected=data['type_selected'])}}
     </label>
     <label for="">
         <p>Edit location</p>
         {{ render_partial('shared/form-fields/select.html', name='location_id',
-        options=data['locations'], selected=data['selected'])}}
+        options=data['locations'], selected=data['location_selected'])}}
     </label>
     <button
         type="submit"
