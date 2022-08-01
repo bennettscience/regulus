@@ -353,7 +353,7 @@ class CourseAPI(MethodView):
                         **content
                     )
                 )
-                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully udpated {}'.format(course.title)}))
+                response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully updated {}'.format(course.title)}))
                 return response
             
             except Exception as e:
