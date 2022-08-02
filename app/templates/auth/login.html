@@ -1,4 +1,5 @@
 {% extends 'shared/_layout.html' %} {% block main_content %}
+
 <h1>ECS PD Registration</h1>
 <p>
     Welcome to the new PD registration website. All items related to
@@ -6,5 +7,7 @@
     register for events, and get your documents for attendance on demand. Log in
     with your ECS Google Account to get started.
 </p>
-<a role="button" href="/authorize/google">Login with Google</a>
+<a role="button" class="btn btn--primary" href="/authorize/google"
+    >Login with Google</a
+>
 {% endblock %}
