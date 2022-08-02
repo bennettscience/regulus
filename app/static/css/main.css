@@ -182,18 +182,6 @@ button:disabled {
 }
 
 a[role='button'] {
-    display: inline-block;
-    width: auto;
-    padding: 1.2rem;
-    margin-top: 1.2rem;
-    border: 1px solid var(--accent-blue);
-    font-family: sans-serif;
-    border-radius: 5px;
-    transition: all 0.25s ease-in-out;
-    text-align: center;
-    font-weight: bold;
-    background-color: var(--accent-blue);
-    color: var(--text-white);
     text-decoration: none;
 }
 
