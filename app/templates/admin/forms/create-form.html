@@ -13,7 +13,10 @@
             <fieldset class="basics">
                 <legend><h1>Basics</h1></legend>
                 <label
-                    ><b>Event title</b> <span class="length-meta"><span id="max-len">64</span> characters left</span>
+                    ><b>Event title</b> 
+                    <span class="length-meta">
+                        <span id="max-len"></span> characters left
+                    </span>
                     <input
                         autocomplete="off"
                         name="title"
@@ -23,9 +26,9 @@
                         tabindex="0"
                         maxlength="64"
                         _="
+                            init put my @maxlength into #max-len end
                             on keyup
-                                set $current to my value.length
-                                then put (64 - $current) into #max-len
+                                put (@maxlength - my value.length) into #max-len
                         "
                     />
                     </label
