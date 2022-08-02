@@ -1,9 +1,12 @@
+import csv
 import html
 
-from flask import abort, Blueprint, render_template
+from flask import abort, Blueprint, Response, render_template, stream_with_context
 from flask_login import current_user
+from io import StringIO
 from webargs import fields
 from webargs.flaskparser import parser
+from werkzeug.wrappers import Response
 
 from app import cache
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
@@ -121,6 +124,40 @@ def copy_event(event_id):
         partial='admin/forms/duplicate-event.html',
         event=event
     )
+
+@admin_bp.get("/events/<int:event_id>/registrations/save")
+def get_roster(event_id):
+    
+    course = Course.query.get(event_id)
+    if not course:
+        abort(404)
+    
+    @stream_with_context
+    def generate():
+        data = StringIO()
+        w = csv.writer(data)
+
+        w.writerow(('Name', 'Email', 'Location', 'Created At'))
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+
+        for reg in course.registrations.all():
+            w.writerow((
+                reg.user.name,
+                reg.user.email,
+                reg.user.location.name,
+                reg.created_at.isoformat()
+            ))
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+    
+    response = Response(generate(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=registrations.csv"
+
+    return response
+        
 
 @admin_bp.get("/events/<int:event_id>/presenters/edit")
 def edit_event_presenters(event_id):

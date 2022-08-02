@@ -101,6 +101,16 @@
     >
         Add registration
     </button>
-    {% for stat in data %} {{render_partial('admin/partials/event-stats.html',
-    stat=stat)}} {% endfor %}
+    {% if event.registrations|length > 0 %}
+    <a
+        role="button"
+        class="btn btn--secondary"
+        href="/admin/events/{{event.id}}/registrations/save"
+        download="{{event.title}} Registrations"
+    >
+        Download registrations
+    </a>
+    {% endif %} {% for stat in data %}
+    {{render_partial('admin/partials/event-stats.html', stat=stat)}} {% endfor
+    %}
 </section>
