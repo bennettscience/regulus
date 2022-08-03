@@ -137,7 +137,7 @@ def get_roster(event_id):
         data = StringIO()
         w = csv.writer(data)
 
-        w.writerow(('Name', 'Email', 'Location', 'Created At'))
+        w.writerow(('Name', 'Email', 'Location', 'Attended', 'Created At'))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -147,7 +147,8 @@ def get_roster(event_id):
                 reg.user.name,
                 reg.user.email,
                 reg.user.location.name,
-                reg.created_at.isoformat()
+                reg.attended,
+                reg.created_at.isoformat(),
             ))
             yield data.getvalue()
             data.seek(0)
