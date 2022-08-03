@@ -135,6 +135,11 @@ button:disabled {
     box-shadow: var(--active-shadow);
 }
 
+.btn__small {
+    width: auto;
+    margin: 0;
+}
+
 .btn--primary {
     background-color: var(--accent-blue);
     border-color: var(--accent-blue);
@@ -189,6 +194,19 @@ a[role='button']:hover {
     cursor: pointer;
     background-color: var(--text-white);
     color: var(--site-dark);
+}
+
+.banner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    position: relative;
+    padding: 0.6rem;
+    margin-bottom: 15px;
+    margin-top: -8px; /* Push to top of body container */
+    background-color: var(--accent-green);
 }
 
 main {

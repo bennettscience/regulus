@@ -1,5 +1,25 @@
 <nav>
     <div class="inner">
+        {% if not current_user.location %}
+        <section
+            class="banner"
+            _="
+                on userUpdated remove me
+            "
+        >
+            <p>Take a moment to update your building assignment.</p>
+            <button
+                class="btn btn__small"
+                hx-trigger="click"
+                hx-get="/users/{{current_user.id}}"
+                hx-target=".main-container"
+                hx-swap="beforeend"
+                _="on htmx:afterSwap from .main-container trigger userUpdated end"
+            >
+                Update Location
+            </button>
+        </section>
+        {% endif %}
         <span class="nav-item active">
             <a
                 hx-get="/"
