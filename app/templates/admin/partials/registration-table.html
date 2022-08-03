@@ -6,7 +6,7 @@
         <th>Attended</th>
     </thead>
     <tbody>
-        {% for reg in registrations %}
+        {% for reg in registrations | sort(attribute="user.name") %}
         <tr data-id="{{reg.user.id}}">
             <td>{{reg.user.name}}</td>
             <td>{{reg.user.location.name}}</td>
