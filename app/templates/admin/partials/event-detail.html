@@ -110,6 +110,12 @@
     >
         Download registrations
     </a>
+    <a
+        role="button"
+        class="btn btn--secondary"
+        href="mailto:{{ event.presenters | map(attribute='email') | join(', ')}}?bcc={{ event.registrations | map(attribute='user') | map(attribute='email') | join(', ') }}"
+        >Email Attendees</a
+    >
     {% endif %} {% for stat in data %}
     {{render_partial('admin/partials/event-stats.html', stat=stat)}} {% endfor
     %}
