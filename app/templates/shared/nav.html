@@ -1,6 +1,6 @@
 <nav>
     <div class="inner">
-        {% if not current_user.location %}
+        {% if not current_user.is_anonymous and not current_user.location %}
         <section
             class="banner"
             _="
