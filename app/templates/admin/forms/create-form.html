@@ -1,6 +1,6 @@
 <form
     hx-post="/courses"
-    hx-trigger="request"
+    hx-trigger="submit"
     hx-swap="this"
     hx-ext="new-event"
     hx-indicator="#toast"
@@ -22,7 +22,7 @@
                         name="title"
                         value=""
                         placeholder="Event title"
-                        required="true"
+                        required
                         tabindex="0"
                         maxlength="64"
                         _="
@@ -45,6 +45,7 @@
                         id="coursetype_id"
                         tabindex="0"
                         name="coursetype_id"
+                        required
                     >
                         {% for type in course_types %}
                             <option value={{type.id}}>{{type.name}}</option>
@@ -72,6 +73,7 @@
                         tabindex="0"
                         value=""
                         name="location_id"
+                        required
                     >
                         {% for location in locations %}
                             <option value={{location.id}}
@@ -99,7 +101,7 @@
                         name="starts"
                         type="datetime-local"
                         value=""
-                        required="true"
+                        required
                     /></label
                 >
                 <label id="ends"
@@ -109,7 +111,7 @@
                         name="ends"
                         type="datetime-local"
                         value=""
-                        required="true"
+                        required
                     /></label
                 >
                 <label
@@ -119,7 +121,7 @@
                         name="course_size"
                         value=""
                         type="number"
-                        required="true"
+                        required
                     /></label
                 >
             </fieldset>
@@ -127,7 +129,7 @@
                 class="btn btn--primary" 
                 tabindex="0" 
                 type="submit"
-                _="on click trigger request add @disabled
+                _="on submit 
                     showToast('Creating the event...') end
                     on htmx:afterSwap trigger closeSidebar end
                 "
