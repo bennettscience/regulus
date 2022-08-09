@@ -1,5 +1,9 @@
 import csv
 import html
+import pytz
+
+# Set all time zones to Eastern for reporting
+EST = pytz.timezone("US/Eastern")
 
 from flask import abort, Blueprint, Response, render_template, stream_with_context
 from flask_login import current_user
@@ -47,7 +51,7 @@ def index():
         ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()
         if ordered_regs:
             last_reg = result.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
-            formatted_date = last_reg.strftime("%m/%d/%y, %I:%M %p")
+            formatted_date = last_reg.astimezone(EST).strftime("%m/%d/%y, %I:%M %p")
         else:
             formatted_date = "-"
 
