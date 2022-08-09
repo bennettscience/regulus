@@ -34,19 +34,19 @@
     --text-white: #f0ecec;
     
     /* shadow */
-    --box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
-    rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
-    --hover-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-    rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    --box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 3px 0px,
+    rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+    --hover-shadow: rgba(0, 0, 0, 0.2) 0px 20px 25px -5px,
+    rgba(0, 0, 0, 0.1) 0px 10px 10px -5px;
     --active-shadow: inset rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
     rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
-    --left-shadow: rgba(0, 0, 0, 0.1) -20px 0 25px -5px,
-    rgba(0, 0, 0, 0.04) -10px 0 10px -5px;
+    --left-shadow: rgba(0, 0, 0, 0.2) -20px 0 25px -5px,
+    rgba(0, 0, 0, 0.02) -10px 0 10px -5px;
     /* interaction */
     --accent-active: #45a29e;
     --accent-hover: #2d3d50;
-    --shadow-left-border: rgba(0, 0, 0, 0.1) 0px 10px 25px -5px,
-    rgba(0, 0, 0, 0.04) -10px 0px 10px -5px;
+    --shadow-left-border: rgba(0, 0, 0, 0.2) 0px 10px 25px -5px,
+    rgba(0, 0, 0, 0.1) -10px 0px 10px -5px;
 }
 
 body {
