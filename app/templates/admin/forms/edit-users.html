@@ -28,6 +28,7 @@ container="#course-data--register",placeholder="Search by name...")}}
     hx-target="#course-data--result"
     hx-swap="innerHTML"
     hx-post="/courses/{{event.id}}/registrations"
+    hx-indicator="#toast"
     _="on htmx:afterSwap from .main-container trigger closeSidebar end"
 >
     {% for user in data %}
