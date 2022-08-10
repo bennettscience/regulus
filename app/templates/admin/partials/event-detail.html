@@ -114,6 +114,7 @@
         role="button"
         class="btn btn--secondary"
         href="mailto:{{ event.presenters | map(attribute='email') | join(', ')}}?bcc={{ event.registrations | map(attribute='user') | map(attribute='email') | join(', ') }}"
+        target="_blank"
         >Email Attendees</a
     >
     {% endif %} {% for stat in data %}
