@@ -1,22 +1,32 @@
 <section class="course-data">
-    <div class="course-select">
-        <select
-            tabindex="0"
-            hx-get="/admin/events"
-            name="event_id"
-            hx-trigger="change"
-            hx-target="#course-data--result"
-            hx-swap="innerHTML"
-        >
-            <option value="" readonly="true" hidden="true" selected>
-                Select an event
-            </option>
-            {% for event in events %}
-            <option value="{{event.id}}">
-                {{event.starts}} - {{event.title}}
-            </option>
-            {% endfor %}
-        </select>
+    {{ render_partial('shared/form-fields/search.html', placeholder='Search by title...', target='
+    <tr />
+    ', container='#course-list--result')}}
+    <div class="course-list">
+            <table id="course-list--table">
+                <thead>
+                    <th>Date</th>
+                    <th>Title</th>
+                </thead>
+                <tbody id="course-list--result">
+                    {% if events %} 
+                        {% for event in events %}
+                        <tr>
+                            <td>{{event.date}}</td>
+                            <td
+                                tabindex="0"
+                                hx-get="/admin/events?event_id={{event.id}}"
+                                name="event_id"
+                                hx-trigger="click"
+                                hx-target="main"
+                                hx-swap="beforeend"
+                                >{{event.title}}</td>
+                        </tr> 
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div id="course-data--result"></div>
+    <!-- <div id="course-data--result" class="hide--bottom"></div> -->
 </section>
