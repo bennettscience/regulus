@@ -1,123 +1,142 @@
-<section class="actions" id="course-data--actions">
-    <button
-        tabindex="0"
-        class="btn form-toggle"
-        hx-get="/admin/events/{{event.id}}/edit"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Edit Details
-    </button>
-    <button
-        tabindex="0"
-        class="btn form-toggle"
-        hx-get="/admin/events/{{event.id}}/presenters/edit"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Edit Presenters
-    </button>
-    <button
-        tabindex="0"
-        class="btn form-toggle"
-        hx-get="/admin/events/{{event.id}}/links/edit"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Edit Links
-    </button>
-    <button
-        tabindex="0"
-        class="btn form-toggle"
-        hx-get="/admin/events/{{event.id}}/copy"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Duplicate Event
-    </button>
-    <button
-        tabindex="0"
-        class="btn form-toggle"
-        hx-put="/admin/events/{{event.id}}"
-        hx-vals='{"active": "{{not event.active}}"}'
-        hx-ext="json-enc-local"
-        hx-indicator="#toast"
-        hx-target="#course-data--result"
-        hx-swap="innerHTML"
-    >
-        {% if event.active %}Cancel Event{% else %}Activate Event{% endif %}
-    </button>
-    <button
-        class="btn form-toggle"
-        tabindex="0"
-        id="delete"
-        hx-get="/admin/events/{{event.id}}/delete"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Delete Event
-    </button>
-    {% if event.accommodations|length > 0 %}
-    <div id="notes">
-        <h2>Accommodations requested:</h2>
-        {% for item in event.accommodations %}
-        <p>{{item.note}}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-</section>
-<section id="course-data--table">
-    {{ render_partial('admin/partials/registration-table.html',
-    registrations=event.registrations, event_id=event.id)}}
-</section>
-<section id="course-data--actions__sidebar">
-    <h2>Attendee Tools</h2>
-    <button
-        class="btn btn--primary"
-        hx-trigger="click"
-        hx-put="/courses/{{event.id}}/registrations"
-        hx-indicator="#toast"
-        hx-target="#registrations"
-        hx-swap="outerHTML"
-        {%
-        if
-        not
-        event.registrations
-        %}
-        disabled
-        {%
-        endif
-        %}
-    >
-        Mark all attended
-    </button>
-    <button
-        class="btn btn--secondary"
-        hx-trigger="click"
-        hx-get="/admin/events/{{event.id}}/users/edit"
-        hx-indicator="#toast"
-        hx-target="main"
-        hx-swap="beforeend"
-    >
-        Add registration
-    </button>
-    {% if event.registrations|length > 0 %}
-    <a
-        role="button"
-        class="btn btn--secondary"
-        href="/admin/events/{{event.id}}/registrations/save"
-        download="{{event.title}} Registrations"
-    >
-        Download registrations
-    </a>
-    <a
-        role="button"
-        class="btn btn--secondary"
-        href="mailto:{{ event.presenters | map(attribute='email') | join(', ')}}?bcc={{ event.registrations | map(attribute='user') | map(attribute='email') | join(', ') }}"
-        target="_blank"
-        >Email Attendees</a
-    >
-    {% endif %} {% for stat in data %}
-    {{render_partial('admin/partials/event-stats.html', stat=stat)}} {% endfor
-    %}
-</section>
+<div
+    id="course-data--result"
+    _="
+        on hideEventDetail add .hide--bottom to me
+        then wait 1s 
+        then remove me
+        end
+    "
+>
+    <section class="actions" id="course-data--actions">
+        <button
+            tabindex="0"
+            class="btn"
+            _="
+                on click trigger hideEventDetail
+            "
+        >
+            <- Back
+        </button>
+        <button
+            tabindex="0"
+            class="btn form-toggle"
+            hx-get="/admin/events/{{event.id}}/edit"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Edit Details
+        </button>
+        <button
+            tabindex="0"
+            class="btn form-toggle"
+            hx-get="/admin/events/{{event.id}}/presenters/edit"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Edit Presenters
+        </button>
+        <button
+            tabindex="0"
+            class="btn form-toggle"
+            hx-get="/admin/events/{{event.id}}/links/edit"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Edit Links
+        </button>
+        <button
+            tabindex="0"
+            class="btn form-toggle"
+            hx-get="/admin/events/{{event.id}}/copy"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Duplicate Event
+        </button>
+        <button
+            tabindex="0"
+            class="btn form-toggle"
+            hx-put="/admin/events/{{event.id}}"
+            hx-vals='{"active": "{{not event.active}}"}'
+            hx-ext="json-enc-local"
+            hx-indicator="#toast"
+            hx-target="#course-data--result"
+            hx-swap="innerHTML"
+        >
+            {% if event.active %}Cancel Event{% else %}Activate Event{% endif %}
+        </button>
+        <button
+            class="btn form-toggle"
+            tabindex="0"
+            id="delete"
+            hx-get="/admin/events/{{event.id}}/delete"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Delete Event
+        </button>
+        {% if event.accommodations|length > 0 %}
+        <div id="notes">
+            <h2>Accommodations requested:</h2>
+            {% for item in event.accommodations %}
+            <p>{{item.note}}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+    <section id="course-data--table">
+        {{ render_partial('admin/partials/registration-table.html',
+        registrations=event.registrations, event_id=event.id)}}
+    </section>
+    <section id="course-data--actions__sidebar">
+        <h2>Attendee Tools</h2>
+        <button
+            class="btn btn--primary"
+            hx-trigger="click"
+            hx-put="/courses/{{event.id}}/registrations"
+            hx-indicator="#toast"
+            hx-target="#registrations"
+            hx-swap="outerHTML"
+            {%
+            if
+            not
+            event.registrations
+            %}
+            disabled
+            {%
+            endif
+            %}
+        >
+            Mark all attended
+        </button>
+        <button
+            class="btn btn--secondary"
+            hx-trigger="click"
+            hx-get="/admin/events/{{event.id}}/users/edit"
+            hx-indicator="#toast"
+            hx-target="main"
+            hx-swap="beforeend"
+        >
+            Add registration
+        </button>
+        {% if event.registrations|length > 0 %}
+        <a
+            role="button"
+            class="btn btn--secondary"
+            href="/admin/events/{{event.id}}/registrations/save"
+            download="{{event.title}} Registrations"
+        >
+            Download registrations
+        </a>
+        <a
+            role="button"
+            class="btn btn--secondary"
+            href="mailto:{{ event.presenters | map(attribute='email') | join(', ')}}?bcc={{ event.registrations | map(attribute='user') | map(attribute='email') | join(', ') }}"
+            target="_blank"
+            >Email Attendees</a
+        >
+        {% endif %} {% for stat in data %}
+        {{render_partial('admin/partials/event-stats.html', stat=stat)}} {%
+        endfor %}
+    </section>
+</div>
