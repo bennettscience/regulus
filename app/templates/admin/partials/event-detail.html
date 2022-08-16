@@ -1,5 +1,6 @@
 <div
     id="course-data--result"
+    class="course-data--bottom"
     _="
         on hideEventDetail add .hide--bottom to me
         then wait 1s 
@@ -11,9 +12,10 @@
         <button
             tabindex="0"
             class="btn"
-            _="
-                on click trigger hideEventDetail
-            "
+            hx-get="/admin/events"
+            hx-target=".main-container"
+            hx-swap="innerHTML"
+            hx-push-url="true"
         >
             <- Back
         </button>

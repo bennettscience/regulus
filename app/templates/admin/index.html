@@ -7,20 +7,26 @@
                 <thead>
                     <th>Date</th>
                     <th>Title</th>
+                    <th>Registrations</th>
                 </thead>
                 <tbody id="course-list--result">
                     {% if events %} 
                         {% for event in events %}
-                        <tr>
-                            <td>{{event.date}}</td>
-                            <td
-                                tabindex="0"
-                                hx-get="/admin/events?event_id={{event.id}}"
-                                name="event_id"
-                                hx-trigger="click"
-                                hx-target="main"
-                                hx-swap="beforeend"
-                                >{{event.title}}</td>
+                        <tr
+                            tabindex="0"
+                            hx-get="/admin/events?event_id={{event.id}}"
+                            name="event_id"
+                            hx-trigger="click"
+                            hx-target=".main-container"
+                            hx-swap="innerHTML"
+                            hx-push-url="true"
+                            hx-indicator="#toast"
+                        >
+                            <td>{{event.starts}}</td>
+                            <td>{{event.title}}</td>
+                                <td>
+                                    {{event.registrations|length}}
+                                </td>
                         </tr> 
                         {% endfor %}
                     {% endif %}

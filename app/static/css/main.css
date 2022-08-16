@@ -520,6 +520,10 @@ time,
 }
 
 .hide {
+    opacity: 0;
+}
+
+.hide--right {
     right: -35%;
 }
 
@@ -644,11 +648,38 @@ hr {
     gap: 1.2rem;
 }
 
+/* #course-data--result {
+    display: grid;
+    grid-template-areas: 'actions actions'
+    'registrations stats';
+    grid-gap: 1.5rem;
+} */
+
 #course-data--result {
     display: grid;
     grid-template-areas: 'actions actions'
     'registrations stats';
     grid-gap: 1.5rem;
+    grid-template-rows: auto 1fr;
+    
+    position: fixed;
+    background: #fff;
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.4);
+    padding: 1.2rem;
+    border-radius: 0.5rem;
+    margin: 0;
+    box-sizing: border-box;
+    left: 256px;
+    top: 100%;
+    transition: top 350ms ease-in-out;
+}
+
+#course-data--result.course-data--bottom {
+    top: 0;
+}
+
+#course-data--result.hide--bottom {
+    top: 105%;
 }
 
 #course-data--table {
@@ -823,10 +854,16 @@ input:focus, textarea:focus {
     flex-grow: 2;
 }
 
-#user-data--table {
+#user-data--table,
+#course-list--result {
     margin-top: 0.6rem;
     padding-top: 0.6rem;
     border-top: 2px solid var(--site-gray);
+}
+
+#course-list--result tr:hover {
+    cursor:pointer;
+    box-shadow: var(--hover-shadow);
 }
 
 
