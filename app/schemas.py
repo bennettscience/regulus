@@ -55,6 +55,7 @@ class TinyCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
     starts = fields.DateTime()
+    registrations = fields.Nested("UserAttended", many=True)
 
     class Meta:
         datetimeformat = "%m/%d/%y"
