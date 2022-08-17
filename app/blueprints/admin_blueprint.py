@@ -77,14 +77,18 @@ def index():
         template = 'admin/index.html'
         
         if current_user.usertype_id == 1:
-            result = Course.query.order_by(Course.starts).all()
+            results = Course.query.order_by(Course.starts).all()
         elif current_user.usertype_id == 2:
-            result = current_user.presenting
+            results = current_user.presenting
         else:
             abort(403)
+        
+        # Find the number of registrations before serializing
+        for result in results:
+            result.reg_length = len(result.registrations.all())
 
         content = {
-            'events': schema.dump(result)
+            'events': schema.dump(results)
         }
 
     return render_template(template, **content)
