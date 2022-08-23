@@ -12,6 +12,7 @@
     hx-post="/courses/{{event.id}}/presenters"
     hx-target="#links-list"
     hx-swap="beforeend"
+    hx-indicator="#toast"
     _="on htmx:afterSwap from #links-list trigger closeSidebar"
 >
     <!-- TODO: Make this a search form -->
