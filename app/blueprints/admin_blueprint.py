@@ -151,10 +151,16 @@ def get_roster(event_id):
         data.truncate(0)
 
         for reg in course.registrations.all():
+
+            if not reg.user.location:
+                location = "Not specified"
+            else:
+                location = reg.user.location.name
+
             w.writerow((
                 reg.user.name,
                 reg.user.email,
-                reg.user.location.name,
+                location,
                 reg.attended,
                 reg.created_at.isoformat(),
             ))
