@@ -1,6 +1,7 @@
 .venv/
 .vscode/
 .flaskenv
+.env
 __pycache__/
 .DS_STORE
 app.db
@@ -11,3 +12,5 @@ config.py
 
 update.md
 restore/
+logs/
+client/
