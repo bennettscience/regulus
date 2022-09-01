@@ -83,7 +83,8 @@ def index():
             upcoming = Course.query.filter(Course.starts > today).order_by(Course.starts).all()
             past = Course.query.filter(Course.starts < today).order_by(Course.starts).all()
         elif current_user.usertype_id == 2:
-            results = current_user.presenting
+            upcoming = current_user.presenting.filter(Course.starts > today).order_by(Course.starts).all()
+            past = current_user.presenting.filter(Course.starts > today).order_by(Course.starts).all()
         else:
             abort(403)
         

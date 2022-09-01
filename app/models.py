@@ -141,7 +141,7 @@ class Course(Manager, db.Model):
     type = db.relationship(CourseType, backref="course")
     links = db.relationship("CourseLink", uselist=True)
     presenters = db.relationship(
-        "User", secondary=course_presenters, backref="presenting", uselist=True
+        "User", secondary=course_presenters, backref=db.backref("presenting", lazy='dynamic'), uselist=True
     )
     registrations = db.relationship(
         "CourseUserAttended",
