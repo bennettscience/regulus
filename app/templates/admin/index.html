@@ -10,25 +10,52 @@
                     <th>Registrations</th>
                 </thead>
                 <tbody id="course-list--result">
-                    {% if events %} 
-                        {% for event in events %}
-                        <tr
-                            tabindex="0"
-                            hx-get="/admin/events?event_id={{event.id}}"
-                            name="event_id"
-                            hx-trigger="click"
-                            hx-target=".main-container"
-                            hx-swap="innerHTML"
-                            hx-push-url="true"
-                            hx-indicator="#toast"
-                        >
-                            <td>{{event.starts}}</td>
-                            <td>{{event.title}}</td>
-                                <td>
-                                    {{event.reg_length}}
-                                </td>
-                        </tr> 
-                        {% endfor %}
+                    {% if upcoming or past %} 
+                        {% if upcoming %}
+                        <tr>
+                            <td colspan="3"><b>Upcoming</b></td></tr>
+                            {% for event in upcoming %}
+                                <tr
+                                    tabindex="0"
+                                    hx-get="/admin/events?event_id={{event.id}}"
+                                    name="event_id"
+                                    hx-trigger="click"
+                                    hx-target=".main-container"
+                                    hx-swap="innerHTML"
+                                    hx-push-url="true"
+                                    hx-indicator="#toast"
+                                >
+                                    <td>{{event.starts}}</td>
+                                    <td>{{event.title}}</td>
+                                        <td>
+                                            {{event.reg_length}}
+                                        </td>
+                                </tr> 
+                            {% endfor %}
+                        {% endif %}
+                        {% if past %}
+                            <tr>
+                                <td colspan="3"><b>Past</b></td>
+                            </tr>
+                            {% for event in past %}
+                            <tr
+                                tabindex="0"
+                                hx-get="/admin/events?event_id={{event.id}}"
+                                name="event_id"
+                                hx-trigger="click"
+                                hx-target=".main-container"
+                                hx-swap="innerHTML"
+                                hx-push-url="true"
+                                hx-indicator="#toast"
+                            >
+                                <td>{{event.starts}}</td>
+                                <td>{{event.title}}</td>
+                                    <td>
+                                        {{event.reg_length}}
+                                    </td>
+                            </tr> 
+                            {% endfor %}
+                        {% endif %}
                     {% endif %}
                 </tbody>
             </table>

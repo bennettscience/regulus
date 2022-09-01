@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime, date
 import html
 import pytz
 
@@ -74,22 +75,28 @@ def index():
         }
 
     else:
+        today = date.today()
         schema = TinyCourseSchema(many=True)
         template = 'admin/index.html'
         
         if current_user.usertype_id == 1:
-            results = Course.query.order_by(Course.starts).all()
+            upcoming = Course.query.filter(Course.starts > today).order_by(Course.starts).all()
+            past = Course.query.filter(Course.starts < today).order_by(Course.starts).all()
         elif current_user.usertype_id == 2:
             results = current_user.presenting
         else:
             abort(403)
         
         # Find the number of registrations before serializing
-        for result in results:
+        for result in upcoming:
+            result.reg_length = len(result.registrations.all())
+        
+        for result in past:
             result.reg_length = len(result.registrations.all())
 
         content = {
-            'events': schema.dump(results)
+            'past': schema.dump(past),
+            'upcoming': schema.dump(upcoming)
         }
 
     return render_template(template, **content)
