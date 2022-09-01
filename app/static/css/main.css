@@ -657,10 +657,12 @@ hr {
 
 #course-data--result {
     display: grid;
-    grid-template-areas: 'actions actions'
+    grid-template-areas: 
+    'title title'
+    'actions actions'
     'registrations stats';
     grid-gap: 1.5rem;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     
     background: #fff;
     padding: 1.2rem;
@@ -669,6 +671,10 @@ hr {
     left: 256px;
     top: 100%;
     transition: top 350ms ease-in-out;
+}
+
+#course-data--result h1 {
+    grid-area: title;
 }
 
 #course-data--result.course-data--bottom {
