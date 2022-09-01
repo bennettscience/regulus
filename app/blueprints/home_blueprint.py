@@ -118,7 +118,7 @@ def create():
     from app.schemas import CourseTypeSchema, LocationSchema
 
     course_types = CourseType.query.all()
-    locations = Location.query.all()
+    locations = sorted(Location.query.all())
 
     content = {
         "course_types": CourseTypeSchema(many=True).dump(course_types),

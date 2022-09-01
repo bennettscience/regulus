@@ -108,6 +108,12 @@ class Location(Manager, db.Model):
     courses = db.relationship("Course", backref="location")
     users = db.relationship("User", backref="location")
 
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __lt__(self, other):
+        return self.name < other.name
+
 
 class UserType(Manager, db.Model):
     id = db.Column(db.Integer, primary_key=True)
