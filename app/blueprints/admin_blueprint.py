@@ -15,7 +15,7 @@ from werkzeug.wrappers import Response
 from app import cache
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
-from app.static.assets.icons import attended, close
+from app.static.assets.icons import attended, close, left_arrow
 from app.utils import object_to_select
 
 from resources.courses import CourseAPI
@@ -69,7 +69,8 @@ def index():
 
         content = {
             'event': schema.dump(result),
-            'data': data
+            'data': data,
+            'icon': left_arrow
         }
 
     else:
