@@ -489,8 +489,15 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
 time, 
 #course-size,
 #location {
-    display: block;
+    display: flex;
     margin: 0.6rem 0;
+    align-items: center;
+}
+
+time svg, 
+#course-size svg, 
+#location svg {
+    margin-right: 0.6rem;
 }
 
 #option-container {
@@ -647,13 +654,6 @@ hr {
     align-items: center;
     gap: 1.2rem;
 }
-
-/* #course-data--result {
-    display: grid;
-    grid-template-areas: 'actions actions'
-    'registrations stats';
-    grid-gap: 1.5rem;
-} */
 
 #course-data--result {
     display: grid;
@@ -813,13 +813,6 @@ input:focus, textarea:focus {
 
 #editor--container {
     width: 100%;
-}
-
-.details #type,
-#location {
-    width: 30%;
-    flex: 1 0 auto;
-    margin: 0 0 1.2rem 0;
 }
 
 .new-action-btn {
