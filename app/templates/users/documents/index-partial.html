@@ -1,5 +1,4 @@
-{% extends 'shared/_layout.html' %} {% block main_content %}
-<section class="user-meta" _="on load add .active to #documents">
+<section class="user-meta">
     <h1>My Account</h1>
     <button
         class="btn btn--secondary"
@@ -42,7 +41,7 @@
             <tr>
                 <td>{{event.course.title}}</td>
                 <td
-                    _='init call formatDate("starts", "{{event.course.starts}}") then set my innerHTML to it'
+                    _="init call formatDate('starts', '{{event.course.starts}}') then set my innerHTML to it"
                 ></td>
                 <td>{{event.course.total}}</td>
                 <td>
@@ -58,4 +57,3 @@
         </tbody>
     </table>
 </section>
-{% endblock %}

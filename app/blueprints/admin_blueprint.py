@@ -6,7 +6,7 @@ import pytz
 # Set all time zones to Eastern for reporting
 EST = pytz.timezone("US/Eastern")
 
-from flask import abort, Blueprint, Response, render_template, stream_with_context
+from flask import abort, Blueprint, render_template, request, stream_with_context
 from flask_login import current_user
 from io import StringIO
 from webargs import fields
@@ -17,7 +17,7 @@ from app import cache
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close, left_arrow
-from app.utils import object_to_select
+from app.utils import get_user_navigation, object_to_select
 
 from resources.courses import CourseAPI
 
@@ -40,6 +40,7 @@ def index():
         'event_id': fields.Int(missing=False)
     }, location='querystring')
 
+    nav_items = get_user_navigation()
     if args['event_id']:
         template = 'admin/partials/event-detail.html'
         schema = CourseDetailSchema()
@@ -71,13 +72,17 @@ def index():
         content = {
             'event': schema.dump(result),
             'data': data,
-            'icon': left_arrow
+            'icon': left_arrow,
         }
 
     else:
         today = date.today()
         schema = TinyCourseSchema(many=True)
-        template = 'admin/index.html'
+
+        if request.headers.get('HX-Request'):
+            template = 'admin/index-partial.html'
+        else:
+            template = 'admin/index.html'
         
         if current_user.usertype_id == 1:
             upcoming = Course.query.filter(Course.starts > today).order_by(Course.starts).all()
@@ -97,7 +102,8 @@ def index():
 
         content = {
             'past': schema.dump(past),
-            'upcoming': schema.dump(upcoming)
+            'upcoming': schema.dump(upcoming),
+            'menuitems': nav_items
         }
 
     return render_template(template, **content)

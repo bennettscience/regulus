@@ -1,12 +1,13 @@
 from datetime import datetime
 from math import ceil
-from flask import abort, Blueprint, render_template
+from flask import abort, Blueprint, render_template, request
 from flask_login import current_user
 from flask_weasyprint import render_pdf, HTML
 
 import app
 
 from app.models import CourseUserAttended, User
+from app.utils import get_user_navigation
 
 documents_bp = Blueprint('documents_bp', __name__)
 
@@ -15,6 +16,13 @@ def get_documents(user_id):
     if current_user.id != user_id:
         abort(403)
     else:
+        if request.headers.get('HX-Request'):
+            template = 'users/documents/index-partial.html'
+            nav_items = None
+        else:
+            template = 'users/documents/index.html'
+            nav_items = get_user_navigation()
+
         total = 0
         total_registrations = len(current_user.registrations.all())
         registrations = current_user.registrations.filter(CourseUserAttended.attended == True).all()
@@ -27,11 +35,12 @@ def get_documents(user_id):
             "events": registrations,
             "total": total,
             "total_registrations": total_registrations,
-            "user": current_user
+            "user": current_user,
+            "menuitems": nav_items
         }
         
         return render_template(
-            'users/documents/index.html', **content
+            template, **content
         )
 
 

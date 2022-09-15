@@ -1,10 +1,11 @@
-from flask import abort, Blueprint, render_template
+from flask import abort, Blueprint, render_template, request
 from flask_login import current_user
 from app import app, db
 from app.models import UserType, User
 
 from webargs import fields
 from webargs.flaskparser import parser
+from app.utils import get_user_navigation
 
 from resources.users import (
     UserAPI,
@@ -34,6 +35,8 @@ def index():
         'usertype_id': fields.Int(missing=None)
     }, location='querystring')
 
+    nav_items = get_user_navigation()
+
     usertypes = UserType.query.all()
     options = [{"value": usertype.id, "text": usertype.name} for usertype in usertypes]
 
@@ -49,16 +52,21 @@ def index():
 
         content = {
             "users": UserSchema(many=True).dump(query),
-            "options": options
+            "options": options,
         }
     else:
-        template = ('users/index.html')
+        if request.headers.get('HX-Request'):
+            template = 'users/index-partial.html'
+        else:
+            template = 'users/index.html'
+
         query = sorted(User.query.order_by(User.name.asc()).all())
         
         content = {
             "options": options,
             "name": "usertype_id",
-            "users": UserSchema(many=True).dump(query)
+            "users": UserSchema(many=True).dump(query),
+            "menuitems": nav_items
         }
 
     return render_template(template, **content)

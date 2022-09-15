@@ -1,4 +1,4 @@
-<span class="nav-item {{ 'logout' if item.element == 'logout' }}">
+<span class="nav-item {{ 'logout' if item.element == 'logout' }}" id="{{item.element}}">
     {% if item.element == 'logout' %}
     <a href="{{item.href}}">
     {% else %}

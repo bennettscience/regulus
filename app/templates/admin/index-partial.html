@@ -1,6 +1,4 @@
-{% extends 'shared/_layout.html' %}
-{% block main_content %}
-<section class="course-data" _="on load add .active to #admin">
+<section class="course-data">
     {{ render_partial('shared/form-fields/search.html', placeholder='Search by title...', target='
     <tr />
     ', container='#course-list--result')}}
@@ -63,4 +61,3 @@
     </div>
     <!-- <div id="course-data--result" class="hide--bottom"></div> -->
 </section>
-{% endblock %}

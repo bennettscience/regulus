@@ -1,5 +1,4 @@
-{% extends 'shared/_layout.html' %} {% block main_content %}
-<section id="user-search" _="on load add .active to #users">
+<section id="user-search">
     <select
         class="select select--narrow"
         tabindex="0"
@@ -31,4 +30,3 @@
         users=users, options=options)}} {% endif %}
     </tbody>
 </table>
-{% endblock %}
