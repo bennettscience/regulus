@@ -24,12 +24,19 @@ def create():
     from app.models import CourseType, Location
     from app.schemas import CourseTypeSchema, LocationSchema
 
+    if request.headers.get('HX-Request'):
+        template = 'admin/forms/create-form-partial.html'
+    else:
+        template = 'admin/forms/create-form-full.html'
+
+    nav_items = get_user_navigation()
     course_types = CourseType.query.all()
     locations = sorted(Location.query.all())
 
     content = {
         "course_types": CourseTypeSchema(many=True).dump(course_types),
-        "locations": LocationSchema(many=True).dump(locations)
+        "locations": LocationSchema(many=True).dump(locations),
+        "menuitems": nav_items
     }
 
-    return render_template('admin/forms/create-form.html', **content)
+    return render_template(template, **content)

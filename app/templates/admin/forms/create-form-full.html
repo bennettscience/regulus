@@ -1,0 +1,145 @@
+{% extends 'shared/_layout.html' %}
+{% block main_content %}
+<form
+    hx-post="/courses"
+    hx-trigger="submit"
+    hx-swap="this"
+    hx-ext="new-event"
+    hx-indicator="#toast"
+    _="
+        init call makeQuill('#editor') then add .active to #create end
+        "
+>
+    <h1>New Event</h1>
+        <p>
+            This form will create and publish a new event. You can edit the
+            event later in the <b>Presenter dashboard</b> if you need to make a change.
+        </p>
+            <fieldset class="basics">
+                <legend><h1>Basics</h1></legend>
+                <label
+                    ><b>Event title</b> 
+                    <span class="length-meta">
+                        <span id="max-len"></span> characters left
+                    </span>
+                    <input
+                        autocomplete="off"
+                        name="title"
+                        value=""
+                        placeholder="Event title"
+                        required
+                        tabindex="0"
+                        maxlength="64"
+                        _="
+                            init put my @maxlength into #max-len end
+                            on keyup
+                                put (@maxlength - my value.length) into #max-len
+                        "
+                    />
+                    </label
+                />
+                <div id="editor--container">
+                    <div id="editor"></div>
+                </div>
+            </fieldset>
+            <fieldset class="details">
+                <legend><h1>Event Details</h1></legend>
+                <label id="type"
+                    ><b>Event type</b>
+                    <select
+                        id="coursetype_id"
+                        tabindex="0"
+                        name="coursetype_id"
+                        required
+                    >
+                        {% for type in course_types %}
+                            <option value={{type.id}}>{{type.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <button
+                        hx-get="/courses/types/create"
+                        hx-target="main"
+                        hx-swap="beforeend"
+                        hx-ext="ignore:new-event"
+                        tabindex="0"
+                        id="btn--new-event"
+                        class="btn btn--secondary"
+                        >
+                            Add new event type
+                    </button
+                    >
+                </label>
+
+                <label id="location"
+                    ><b>Event Location</b>
+                    <select
+                        id="location_id"
+                        tabindex="0"
+                        value=""
+                        name="location_id"
+                        required
+                    >
+                        {% for location in locations %}
+                            <option value={{location.id}}
+                                >{{location.name}}</option
+                            >
+                        {% endfor %}
+                    </select>
+                    <button
+                        hx-get="/locations/create"
+                        hx-target="main"
+                        hx-swap="beforeend"
+                        hx-ext="ignore:new-event"
+                        tabindex="0"
+                        id="btn--new-location"
+                        class="btn btn--secondary"
+                        >
+                            Add new location
+                    </button>
+                </label>
+                <label id="starts"
+                    ><b>Starts</b>
+                    <input
+                        tabindex="0"
+                        name="starts"
+                        type="datetime-local"
+                        value=""
+                        required
+                    /></label
+                >
+                <label id="ends"
+                    ><b>Ends</b>
+                    <input
+                        tabindex="0"
+                        name="ends"
+                        type="datetime-local"
+                        value=""
+                        required
+                    /></label
+                >
+                <label
+                    ><b>Attendance limit</b>
+                    <input
+                        tabindex="0"
+                        name="course_size"
+                        value=""
+                        type="number"
+                        required
+                    /></label
+                >
+            </fieldset>
+            <button 
+                class="btn btn--primary" 
+                tabindex="0" 
+                type="submit"
+                _="on submit 
+                    showToast('Creating the event...') end
+                    on htmx:afterSwap trigger closeSidebar end
+                "
+            >
+                Submit
+            </button>
+        </form>
+    </section>
+</form>
+{% endblock %}
