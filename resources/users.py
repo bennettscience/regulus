@@ -1,5 +1,6 @@
 import json
 from math import ceil
+from webbrowser import get
 
 from flask import jsonify, request, abort, make_response, render_template
 from flask.views import MethodView
@@ -22,6 +23,7 @@ from app.schemas import (
     UserLocationSchema,
     UserSchema,
 )
+from app.utils import get_user_navigation
 
 
 class UserListAPI(MethodView):
@@ -242,6 +244,13 @@ class UserAttendingAPI(MethodView):
             user = User.query.get(user_id)
             if user is None:
                 abort(404)
+        
+            if request.headers.get('HX-Request'):
+                template = 'registrations/index-partial.html'
+                nav_items = None
+            else:
+                template = 'registrations/index.html'
+                nav_items = get_user_navigation()
             
             registrations = user.registrations.all()
 
@@ -259,8 +268,9 @@ class UserAttendingAPI(MethodView):
             sorted_regs = sorted([reg.course for reg in registrations])
 
             return render_template(
-                'registrations/index.html',
-                events=SmallCourseSchema(many=True).dump(sorted_regs)
+                template,
+                events=SmallCourseSchema(many=True).dump(sorted_regs),
+                menuitems=nav_items
             )
 
         else:
