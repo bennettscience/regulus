@@ -24,7 +24,7 @@ event_id=event.id)}} {% else %} Disabled button {% endif %}
         </svg>
         {% endautoescape %} {{event.starts}} - {{event.ends}}
     </time>
-    <span id="course-size">
+    <span id="event--size">
         {% autoescape false %}
         <svg
             fill="none"
@@ -37,7 +37,7 @@ event_id=event.id)}} {% else %} Disabled button {% endif %}
         </svg>
         {% endautoescape %} {{event.available}}
     </span>
-    <span id="location">
+    <span id="event--location">
         {% autoescape false %}
         <svg
             fill="none"

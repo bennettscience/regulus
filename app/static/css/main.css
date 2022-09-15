@@ -459,16 +459,16 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
 
 #event--details 
 time, 
-#course-size,
-#location {
+#event--size,
+#event--location {
     display: flex;
     margin: 0.6rem 0;
     align-items: center;
 }
 
 time svg, 
-#course-size svg, 
-#location svg {
+#event--size svg, 
+#event--location svg {
     margin-right: 0.6rem;
 }
 
@@ -735,7 +735,7 @@ fieldset {
     
     /* Fieldset styles */
     border: 0;
-    padding-left: 200px;
+    padding-left: 215px;
     position: relative;
 }
 
@@ -748,6 +748,11 @@ label {
     width: 100%;
     box-sizing: border-box;
     padding: 5px;
+}
+
+/* Specific labels in the Create form */
+label#type, label#location {
+    width: 50%;
 }
 
 label > span.length-meta {
