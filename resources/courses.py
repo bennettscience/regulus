@@ -207,6 +207,7 @@ class CourseListAPI(MethodView):
             render_template(template, events=schema.dump(events))
         )
         response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully created {}'.format(course.title)}))
+        response.headers.set('HX-Redirect', '/')
 
         return response
 
