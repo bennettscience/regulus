@@ -35,11 +35,11 @@ from sqlalchemy import func
 
 from config import Config
 
-# sentry_sdk.init(
-#     dsn=Config.SENTRY_DSN,
-#     integrations=[FlaskIntegration()],
-#     traces_sample_rate=0.5
-# )
+sentry_sdk.init(
+    dsn=Config.SENTRY_DSN,
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=0.5
+)
 
 app = Flask(__name__)
 app.secret_key = "!secret"
