@@ -275,10 +275,8 @@ nav {
 
 .course-details {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     grid-area: details;
-    align-items: center;
-    flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
     padding: 20px 15px 20px 0;
