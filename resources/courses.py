@@ -269,7 +269,8 @@ class CourseAPI(MethodView):
             Course: JSON representation of the updated event
         """
         import requests
-
+        from app.static.assets.icons import left_arrow
+        
         # This bug was fixable by sending everything as JSON, but I'm not sure why.
         # Sending requests through forms would result in invalid datetime objects.
         # static/js/new-event.js formats the request as JSON from the client
@@ -345,7 +346,8 @@ class CourseAPI(MethodView):
 
                 content = {
                     'event': CourseDetailSchema().dump(course),
-                    'data': data
+                    'data': data,
+                    'icon': left_arrow
                 }
                 
                 response = make_response(

@@ -1,11 +1,11 @@
 <form
     hx-put="/courses/{{event.id}}"
     hx-trigger="request"
-    hx-swap="innerHTML"
+    hx-swap="outerHTML"
     hx-target="#course-data--result"
     hx-ext="new-event"
     hx-indicator="#toast"
-    _="on htmx:afterSwap from #course-data--result trigger closeSidebar"
+    _="on htmx:afterSwap from .main-container trigger closeSidebar"
 >
     <p>Editing <b>{{event.title}}</b></p>
     <label>
