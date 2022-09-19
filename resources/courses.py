@@ -191,7 +191,7 @@ class CourseListAPI(MethodView):
             else:
                 abort(403)
 
-            template = 'admin/index.html'
+            template = 'admin/index-partial.html'
         # If the event is created from the <Create> page, then kick the upcoming events
         # back to the user on the home page.
         else:
@@ -201,7 +201,7 @@ class CourseListAPI(MethodView):
             ).all()
 
             schema = SmallCourseSchema(many=True)
-            template = 'home/clean-index.html'
+            template = 'home/index.html'
 
         response = make_response(
             render_template(template, events=schema.dump(events))
