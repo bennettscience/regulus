@@ -65,4 +65,4 @@ class GoogleSignIn(OAuthSignIn):
         return self.token
 
     def parse_id_token(self, token):
-        return self.oauth.google.parse_id_token(token)
+        return self.oauth.google.parse_id_token(token, nonce=token['userinfo']['nonce'])
