@@ -2,7 +2,7 @@
 <tr 
     _="on htmx:afterSwap remove me"
     id="user-{{user.id}}">
-    <td>{{user.name}}</td>
+    <td><a href="/users/{{user.id}}/documents">{{user.name}}</a></td>
     <td>{{user.location.name}}</td>
     <td>{{user.email}}</td>
     <td>

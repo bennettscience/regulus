@@ -13,9 +13,7 @@ documents_bp = Blueprint('documents_bp', __name__)
 
 @documents_bp.route("/users/<int:user_id>/documents")
 def get_documents(user_id):
-    if current_user.id != user_id:
-        abort(403)
-    else:
+    if current_user.id == user_id or current_user.usertype_id == 1:
         if request.headers.get('HX-Request'):
             template = 'users/documents/index-partial.html'
             nav_items = None
@@ -23,9 +21,13 @@ def get_documents(user_id):
             template = 'users/documents/index.html'
             nav_items = get_user_navigation()
 
+        # Set the user_id to the correct value
+        user = User.query.get(user_id)
+
         total = 0
-        total_registrations = len(current_user.registrations.all())
-        registrations = current_user.registrations.filter(CourseUserAttended.attended == True).all()
+        total_registrations = len(user.registrations.all())
+        registrations = user.registrations.filter(CourseUserAttended.attended == True).all()
+
         for event in registrations:
             event_total = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
             total = total + event_total
@@ -35,24 +37,48 @@ def get_documents(user_id):
             "events": registrations,
             "total": total,
             "total_registrations": total_registrations,
-            "user": current_user,
+            "user": user,
             "menuitems": nav_items
         }
         
         return render_template(
             template, **content
         )
+    else:
+        abort(403)
 
 
 @documents_bp.route("/users/<int:user_id>/documents/create/")
 def generate_pdf(user_id):
-    if current_user.id != user_id:
+    if current_user.id == user_id or current_user.usertype_id == 1:
+
+        events = []
+        total = 0
+        user = User.query.get(user_id)
+        query = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
+        for event in query:
+            eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
+            total = total + eventTotal
+            events.append(
+                {
+                    'title': event.course.title,
+                    'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
+                    'total': eventTotal,
+                }
+            )
+
+        html = render_template('pdf.html', user=user, events=events, total=total)
+        return render_pdf(HTML(string=html))
+    else:
         abort(403)
-    events = []
-    total = 0
-    user = User.query.get(user_id)
-    query = CourseUserAttended.query.filter_by(user_id=user_id, attended=1).all()
-    for event in query:
+
+@documents_bp.route("/users/<int:user_id>/documents/create/<int:course_id>")
+def generate_single_pdf(user_id, course_id):
+    if current_user.id == user_id or current_user.usertype_id == 1:
+        events = []
+        total = 0
+        user = User.query.get(user_id)
+        event = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
         eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
         total = total + eventTotal
         events.append(
@@ -63,26 +89,7 @@ def generate_pdf(user_id):
             }
         )
 
-    html = render_template('pdf.html', user=user, events=events, total=total)
-    return render_pdf(HTML(string=html))
-
-@documents_bp.route("/users/<int:user_id>/documents/create/<int:course_id>")
-def generate_single_pdf(user_id, course_id):
-    if current_user.id != user_id:
+        html = render_template('pdf.html', user=user, events=events, total=total)
+        return render_pdf(HTML(string=html))
+    else:
         abort(403)
-    events = []
-    total = 0
-    user = User.query.get(user_id)
-    event = CourseUserAttended.query.filter_by(user_id=user_id, course_id=course_id, attended=1).first()
-    eventTotal = ceil((event.course.ends - event.course.starts).total_seconds() / 3600)
-    total = total + eventTotal
-    events.append(
-        {
-            'title': event.course.title,
-            'start': datetime.date(event.course.starts).strftime("%B %d, %Y"),
-            'total': eventTotal,
-        }
-    )
-
-    html = render_template('pdf.html', user=user, events=events, total=total)
-    return render_pdf(HTML(string=html))
