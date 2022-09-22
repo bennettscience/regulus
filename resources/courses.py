@@ -51,7 +51,7 @@ class CourseListAPI(MethodView):
         Returns:
             List: List of Course objects.
         """
-
+        from app.static.assets.icons import edit
         if current_user.is_anonymous:
             abort(401)
 
@@ -123,6 +123,7 @@ class CourseListAPI(MethodView):
             }],
         }
 
+        # Create and attach a Google Meet if the course type is submitted as Google Meet
         # Make sure to read the course type as an integer
         if int(args['coursetype_id']) == 1:
             import uuid
@@ -161,7 +162,7 @@ class CourseListAPI(MethodView):
         # Add a default presenter for now
         result.presenters.append(current_user)
 
-        # If it's a Google Meet, add the link
+        # If it's a Google Meet, add the link to th event automatically
         if 'conferenceData' in response.json():
             from app.models import CourseLinkType
             linktype_id = CourseLinkType.query.filter(CourseLinkType.name == "Google Meet").first().id
@@ -224,6 +225,7 @@ class CourseAPI(MethodView):
         """
         from app.static.assets.icons import (
             clock,
+            edit,
             pin,
             user
         )
@@ -248,7 +250,8 @@ class CourseAPI(MethodView):
         icons = {
             'clock': clock,
             'pin': pin,
-            'user': user
+            'user': user,
+            'edit': edit,
         }
 
         return render_template(

@@ -234,6 +234,23 @@ nav {
     transition: all 0.125s ease-in-out;
 }
 
+#right-sidebar-inner .edit {
+    border-radius: 50%;
+    border: 1px solid transparent;
+    padding: 0.3rem;
+    vertical-align: middle;
+    transition: all 250ms ease-in-out;
+}
+
+#right-sidebar-inner .edit:hover {
+    border: 1px solid var(--site-dark);
+    /* background-color: var(--site-dark) */
+}
+
+/* .course .edit:hover path {
+    fill: var(--site-gray);
+} */
+
 .course-calendar {
     grid-area: calendar;
 }
@@ -278,8 +295,7 @@ nav {
     flex-direction: column;
     grid-area: details;
     justify-content: space-between;
-    width: 100%;
-    padding: 20px 15px 20px 0;
+    padding: 0.6rem 0.6rem 0.6rem 0;
 }
 
 .state {

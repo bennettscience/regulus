@@ -1,4 +1,20 @@
-<h1>{{event.title}}</h1>
+<h1>
+    {{event.title}} {% if current_user.usertype_id == 1 %} {% autoescape false
+    %}
+    <a href="/admin/events?event_id={{event.id}}">
+    <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        height="16"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+        class="edit"
+    >
+        {{icons.edit}}</a>
+    </svg>
+    </a>
+    {% endautoescape %} {% endif %}
+</h1>
 <hr />
 
 <!-- prettier ignore -->
