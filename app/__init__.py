@@ -1,37 +1,23 @@
-from datetime import datetime
-from math import ceil
-
 from flask import (
     Flask,
     jsonify,
     redirect,
-    render_template,
-    request,
-    session,
-    send_from_directory,
-    abort,
-    Blueprint
 )
 
 from flask_login import (
     LoginManager,
     current_user,
-    login_required,
     login_user,
     logout_user,
 )
 
 from flask_caching import Cache
-# from authlib.integrations.flask_client import OAuth
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import jinja_partials
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-from werkzeug.exceptions import HTTPException
-
-from sqlalchemy import func
 
 from config import Config
 
@@ -53,32 +39,15 @@ cache = Cache(app)
 jinja_partials.register_extensions(app)
 
 # TODO: Check all sensititve API routes for access control logic.
-from app import app, db, errors
+from app import app, db
 from app.logging import create_log
-from app.auth import OAuthSignIn, admin_only
-from app.calendar import CalendarService
-from app.models import CourseUserAttended, User, Course, Log
-from resources.courselinks import CourseLinkAPI, CourseLinksAPI
+from app.auth import OAuthSignIn
+from app.models import User, Log
 from resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
-from resources.courses import (
-    CourseAPI,
-    CourseTypesAPI,
-    CourseTypeAPI,
-    CourseAttendeeAPI,
-    CourseAttendeesAPI,
-    CourseListAPI,
-    CoursePresenterAPI,
-    CoursePresentersAPI,
-)
-from resources.locations import (
-    LocationAPI,
-    LocationCoursesAPI,
-    LocationListAPI,
-    LocationUsersAPI,
-)
+from resources.courses import CourseTypeAPI
 
 from resources.usertypes import UserTypesAPI
-from app.schemas import UserSchema, CourseSchema, LogSchema
+from app.schemas import UserSchema, LogSchema
 
 # from app.blueprints import users_blueprint
 from app.blueprints.admin_blueprint import admin_bp
