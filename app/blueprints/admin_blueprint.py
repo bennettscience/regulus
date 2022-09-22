@@ -42,7 +42,11 @@ def index():
 
     nav_items = get_user_navigation()
     if args['event_id']:
-        template = 'admin/partials/event-detail.html'
+
+        if request.headers.get('HX-Request'):
+            template = 'admin/partials/event-detail.html'
+        else:
+            template = 'admin/event-detail.html'
         schema = CourseDetailSchema()
         result = Course.query.get(args['event_id'])
 
@@ -73,6 +77,7 @@ def index():
             'event': schema.dump(result),
             'data': data,
             'icon': left_arrow,
+            'menuitems': nav_items
         }
 
     else:
@@ -116,8 +121,6 @@ def edit_event(event_id):
 
     if event is None:
         abort(404)
-
-    print(locations)
 
     content = {
         'event': event,
