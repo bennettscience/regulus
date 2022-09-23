@@ -265,7 +265,7 @@ class UserAttendingAPI(MethodView):
                 else:
                     reg.course.state = 'available'
             
-            sorted_regs = sorted([reg.course for reg in registrations])
+            sorted_regs = sorted([reg.course for reg in registrations], reverse=True)
 
             return render_template(
                 template,
