@@ -97,7 +97,10 @@
         {% endif %}
     </section>
     <section id="course-data--table">
-        {{ render_partial('admin/partials/registration-table.html',
+        {{render_partial('shared/form-fields/search.html', target='
+        <tr />
+        ', container="#registrations", placeholder="Search for a user...")}} {{
+        render_partial('admin/partials/registration-table.html',
         registrations=event.registrations, event_id=event.id)}}
     </section>
     <section id="course-data--actions__sidebar">
