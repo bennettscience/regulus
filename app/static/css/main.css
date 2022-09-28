@@ -208,6 +208,12 @@ nav {
     background-color: #fff;
 }
 
+.error-wrap {
+    display: block;
+    margin:0 auto;
+    text-align: center;
+}
+
 .course-detail {
     position: fixed;
     overflow-y: scroll;
