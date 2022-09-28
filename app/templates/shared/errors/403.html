@@ -1,0 +1,11 @@
+{% extends 'shared/_layout.html' %} {% block main_content %}
+<div class="error-wrap">
+    <h1>Uh oh!</h1>
+    <p>
+        Looks like you're trying to access something you don't get to access. If
+        you think this is wrong, get in touch with
+        <a href="mailto:pd@elkhart.k12.in.us">Elkhart PD</a>.
+    </p>
+    <a href="{{url_for('home_bp.index')}}">Go back home.</a>
+</div>
+{% endblock %}

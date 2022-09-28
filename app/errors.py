@@ -1,6 +1,7 @@
 import json
-from flask import jsonify
+from flask import jsonify, render_template
 from app import app
+from app.utils import get_user_navigation
 
 @app.errorhandler(401)
 def unauthorized(err):
@@ -17,29 +18,13 @@ def unauthorized(err):
 
 @app.errorhandler(403)
 def forbidden(err):
-    response = err.get_response()
-    response.data = json.dumps(
-        {
-            "code": err.code,
-            "name": "Forbidden",
-            "description": "You do not have permission to access this resource."
-        }
-    )
-    response.content_type = "application/json"
-    return response
+    nav_items = get_user_navigation()
+    return render_template('shared/errors/403.html', menuitems=nav_items)
 
 @app.errorhandler(404)
 def page_not_found(err):
-    response = err.get_response()
-    response.data = json.dumps(
-        {
-            "code": err.code,
-            "name": "Address not found",
-            "description": "You tried to get something that we can't find. Check the URL and try again.",
-        }
-    )
-    response.content_type = "application/json"
-    return response
+    nav_items = get_user_navigation()
+    return render_template('shared/errors/404.html', menuitems=nav_items), 404
 
 @app.errorhandler(409)
 def request_conflict(err):
