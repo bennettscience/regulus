@@ -59,7 +59,7 @@ from app.blueprints.locations_blueprint import locations_bp
 from app.blueprints.users_blueprint import users_bp
 
 from app.errors import forbidden, page_not_found
-from app.utils import get_user_navigation
+
 
 course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
@@ -134,12 +134,6 @@ def log_request():
 def get_logs(course_id):
     query = Log.query.filter(Log.endpoint.like(f'/courses/{course_id}/%')).all()
     return jsonify(LogSchema(many=True).dump(query))
-
-# Handle any incoming 404 error
-# @app.errorhandler(404)
-# def handle_404(e):
-#     nav_items = get_user_navigation()
-#     return render_template('shared/errors/404.html', menuitems=nav_items)
 
 app.add_url_rule(
     "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
