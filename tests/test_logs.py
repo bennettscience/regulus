@@ -13,10 +13,10 @@ class TestLog(unittest.TestCase):
         user = User.query.filter_by(name=username).first()
         login_user(user, remember=True)
         return "ok"
-    
+
     def login(self, username):
         response = self.client.get(f"/auto_login/{username}")
-    
+
     def setUp(self) -> None:
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
         db.create_all()
@@ -25,7 +25,7 @@ class TestLog(unittest.TestCase):
         course = Course(title="Course 1")
         location = Location(name="Building 1")
         ut = UserType(name="Type1")
-        
+
         db.session.add_all([course, user, superadmin, location, ut])
         db.session.commit()
 
@@ -34,9 +34,11 @@ class TestLog(unittest.TestCase):
     def tearDown(self) -> None:
         db.session.remove()
         db.drop_all()
-    
+
     # Log is empty because it is an anonymous request.
     def test_anonymous_log(self):
+        login_user('SuperAdmin')
+        
         self.client.get("/courses")
         log = Log.query.all()
         self.assertEqual(len(log), int('0'))
