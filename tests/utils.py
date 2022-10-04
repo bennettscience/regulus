@@ -1,10 +1,20 @@
+import json
 import unittest
+
 from contextlib import contextmanager
 from flask import template_rendered
 from flask_login.utils import login_user
 
 from app import app
 from app.models import User
+
+
+class Loader(object):
+
+    def load(filename):
+        with open(filename) as file_in:
+            return json.load(file_in)
+
 
 class TestBase(unittest.TestCase):
     @app.route('/auto_login/<user_name>')
@@ -16,8 +26,10 @@ class TestBase(unittest.TestCase):
     def login(self, user_name):
         response = self.client.get(f"/auto_login/{user_name}")
 
+
 @contextmanager
 def captured_templates(app):
+    # Capture all request data and return a dictionary to the test runner
     recorded = []
 
     def record(sender, template, context, **extra):
