@@ -51,7 +51,36 @@
             </a>
         </span>
         {% for item in menuitems %}
-        {{render_partial('shared/partials/menu-item.html', item=item)}} {%
-        endfor %}
+        <span class="nav-item {{ 'logout' if item.element == 'logout' }}" id="{{item.element}}">
+            {% if item.element == 'logout' %}
+                <a href="{{item.href}}">
+            {% else %}
+                <a 
+                    hx-get="{{item.href}}"
+                    hx-target=".main-container"
+                    hx-replace="outerHTML"
+                    hx-push-url="true"
+                    hx-indicator="#toast"
+                    _="
+                        on click 
+                            remove .active from .nav-item
+                            add .active to the closest .nav-item
+                        end
+                    "
+                    >
+                    {% endif %}
+                    <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        height="16"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        {% autoescape false %} {{item.icon}} {% endautoescape %}
+                    </svg>
+                    {{item.label}}
+                </a>
+        </span> 
+    {% endfor %}
     </div>
 </nav>
