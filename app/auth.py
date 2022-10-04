@@ -11,7 +11,7 @@ def admin_only(func):
     def wrapper(*args, **kwargs):
         if current_user.is_anonymous:
             abort(401)
-        if not current_user.usertype_id == 1:
+        if current_user.usertype_id == 3 or current_user.usertype_id == 4:
             abort(403)
         return func(*args, **kwargs)
     return wrapper
