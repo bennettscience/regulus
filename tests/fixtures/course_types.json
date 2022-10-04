@@ -1,0 +1,15 @@
+[
+    {
+        "table": "course_type",
+        "records": [
+            {
+                "id": 1,
+                "name": "Online"
+            },
+            {
+                "id": 2,
+                "name": "In Person"
+            }
+        ]
+    }
+]

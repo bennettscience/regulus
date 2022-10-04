@@ -1,0 +1,23 @@
+[
+    {
+        "table": "course",
+        "records": [
+            {
+                "id": 1,
+                "title": "Course 1",
+                "course_size": 10,
+                "description": "This is the first event.",
+                "location_id": 1,
+                "coursetype_id": 1
+            },
+            {
+                "id": 2,
+                "title": "Course 2",
+                "course_size": 10,
+                "description": "This is the second event.",
+                "location_id": 1,
+                "coursetype_id": 1
+            }
+        ]
+    }
+]

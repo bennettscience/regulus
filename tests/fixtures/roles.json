@@ -1,0 +1,23 @@
+[
+    {
+        "table": "user_type",
+        "records": [
+            {
+                "id": 1,
+                "name": "SuperAdmin"
+            },
+            {
+                "id": 2,
+                "name": "Presenter"
+            },
+            {
+                "id": 3,
+                "name": "Observer"
+            },
+            {
+                "id": 4,
+                "name": "User"
+            }
+        ]
+    }
+]

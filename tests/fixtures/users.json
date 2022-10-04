@@ -1,0 +1,25 @@
+[
+    {
+        "table": "user",
+        "records": [
+            {
+                "id": 1,
+                "name": "Admin",
+                "email": "admin@example.com",
+                "usertype_id": 1
+            },
+            {
+                "id": 2,
+                "name": "Presenter",
+                "email": "presenter@example.com",
+                "usertype_id": 2
+            },
+            {
+                "id": 3,
+                "name": "User",
+                "email": "user@example.com",
+                "usertype_id": 4
+            }
+        ]
+    }
+]
