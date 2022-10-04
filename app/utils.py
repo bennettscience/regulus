@@ -126,12 +126,13 @@ def get_user_navigation():
     """ Page refreshes need to rebuild the user menu. This gets the current user and adds their
         menu options to the response before being sent back to the client.
     """
-    is_admin = False
-    nav_items = get_user_navigation_menu()
+    if current_user.is_anonymous:
+        nav_items = []
+    else:
+        nav_items = get_user_navigation_menu()
+    
     # If the user session isn't fresh, they need to log in again.
     if not current_user.is_anonymous and session['_fresh']:
-        if current_user.role.name == "SuperAdmin":
-            is_admin = True
 
         nav_items.insert(0, {
             "element": 'schedule',
