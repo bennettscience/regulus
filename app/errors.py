@@ -5,21 +5,13 @@ from app.utils import get_user_navigation
 
 @app.errorhandler(401)
 def unauthorized(err):
-    response = err.get_response()
-    response.data = json.dumps(
-        {
-            "code": err.code,
-            "name": "Wrong Authorization",
-            "description": "Incorrect authorization credentials used in the request."
-        }
-    )
-    response.content_type = "application/json"
-    return response
+    nav_items = get_user_navigation()
+    return render_template('shared/errors/401.html'), 401
 
 @app.errorhandler(403)
 def forbidden(err):
     nav_items = get_user_navigation()
-    return render_template('shared/errors/403.html', menuitems=nav_items)
+    return render_template('shared/errors/403.html', menuitems=nav_items), 403
 
 @app.errorhandler(404)
 def page_not_found(err):

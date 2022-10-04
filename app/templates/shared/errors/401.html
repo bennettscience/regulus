@@ -1,0 +1,7 @@
+{% extends 'shared/_layout.html' %} {% block main_content %}
+<div class="error-wrap">
+    <h1>Unauthorized</h1>
+    <p>You are not able to access this page without logging in.</p>
+    <a href="{{url_for('home_bp.index')}}">Go back home.</a>
+</div>
+{% endblock %}
