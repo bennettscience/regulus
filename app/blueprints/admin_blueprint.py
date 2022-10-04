@@ -14,6 +14,7 @@ from webargs.flaskparser import parser
 from werkzeug.wrappers import Response
 
 from app import cache
+from app.auth import admin_only
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close, left_arrow
@@ -35,6 +36,7 @@ def get_event(event_id):
     return CourseSchema().dump(event)
 
 @admin_bp.get("/events")
+@admin_only
 def index():
     args = parser.parse({
         'event_id': fields.Int(missing=False)
