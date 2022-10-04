@@ -19,6 +19,11 @@
             href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
             rel="stylesheet"
         />
+        <link
+            rel="shortcut icon"
+            href="{{url_for('static', filename='favicon.ico')}}"
+            type="image/x-icon"
+        />
         {% block additional_css %} {%endblock%}
     </head>
     <body _="on keyup[key is 'Escape'] trigger closeSidebar end">
