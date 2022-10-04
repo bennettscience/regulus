@@ -1,5 +1,5 @@
 <section class="user-meta">
-    <h1>My Account</h1>
+    <h1>{{current_user.name}} - {{current_user.location.name}}</h1>
     <button
         class="btn btn--secondary"
         hx-trigger="click"
@@ -10,11 +10,11 @@
         Account Settings
     </button>
     <p>
-        This page holds documentation for all PD which has been confirmed by the
-        presenter. You are responsible for saving and/or printing documents
-        created by this page. You can vist this page at any time to create new
-        PDFs for your records. You can also edit your display name and other
-        account information on this page.
+        Your PGPs for sessions are below. You are responsible for saving and/or
+        printing documents created by this page. You can vist this page at any
+        time to create new PDFs for your records. You can also edit your display
+        name and other account information by clicking on
+        <b>Account Settings</b> above.
     </p>
 </section>
 <section class="document-meta">
