@@ -14,7 +14,7 @@ from webargs.flaskparser import parser
 from werkzeug.wrappers import Response
 
 from app import cache
-from app.auth import restricted
+from app.wrappers import restricted
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close, left_arrow

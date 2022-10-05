@@ -5,6 +5,8 @@ from app.models import UserType, User
 
 from webargs import fields
 from webargs.flaskparser import parser
+
+from app.wrappers import admin_or_self
 from app.utils import get_user_navigation
 
 from resources.users import (
@@ -28,9 +30,13 @@ user_confirmed_view = UserConfirmedAPI.as_view("user_confirmed_api")
 user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
 
 @users_bp.get('/admin/users')
+@admin_or_self
 def index():
-    if current_user.usertype_id != 1:
-        abort(403)
+    """ Return users based on the current_user and the optional
+
+    Returns:
+        _type_: _description_
+    """
     args = parser.parse({
         'usertype_id': fields.Int(missing=None)
     }, location='querystring')
