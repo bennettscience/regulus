@@ -14,7 +14,7 @@ from webargs.flaskparser import parser
 from werkzeug.wrappers import Response
 
 from app import cache
-from app.auth import admin_only
+from app.auth import restricted
 from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
 from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
 from app.static.assets.icons import attended, close, left_arrow
@@ -36,7 +36,7 @@ def get_event(event_id):
     return CourseSchema().dump(event)
 
 @admin_bp.get("/events")
-@admin_only
+@restricted
 def index():
     args = parser.parse({
         'event_id': fields.Int(missing=False)
@@ -116,6 +116,7 @@ def index():
     return render_template(template, **content)
 
 @admin_bp.get("/events/<int:event_id>/edit")
+@restricted
 def edit_event(event_id):
     locations = object_to_select(Location.query.all())
     types = object_to_select(CourseType.query.all())
@@ -154,6 +155,7 @@ def copy_event(event_id):
     )
 
 @admin_bp.get("/events/<int:event_id>/registrations/save")
+@restricted
 def get_roster(event_id):
     
     course = Course.query.get(event_id)
@@ -195,6 +197,7 @@ def get_roster(event_id):
         
 
 @admin_bp.get("/events/<int:event_id>/presenters/edit")
+@restricted
 def edit_event_presenters(event_id):
     from app.schemas import CoursePresenterSchema
     event = get_event(event_id)
@@ -217,6 +220,7 @@ def edit_event_presenters(event_id):
     )
 
 @admin_bp.get("/events/<int:event_id>/links/edit")
+@restricted
 def edit_event_links(event_id):
     event = get_event(event_id)
 
@@ -235,6 +239,7 @@ def edit_event_links(event_id):
     )
 
 @admin_bp.get("/events/<int:event_id>/users/edit")
+@restricted
 def edit_event_regisrations(event_id):
     # Add a user to the event manually
     event = get_event(event_id)
@@ -257,6 +262,7 @@ def edit_event_regisrations(event_id):
     )
 
 @admin_bp.get("/events/<int:event_id>/delete")
+@restricted
 def delete_event(event_id):
     event = get_event(event_id)
 
