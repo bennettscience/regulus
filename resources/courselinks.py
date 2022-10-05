@@ -10,6 +10,7 @@ from app.schemas import (
     DisplayCourseLinkSchema,
     NewCourseLinkSchema,
 )
+from app.wrappers import restricted
 
 
 class CourseLinksAPI(MethodView):
@@ -25,6 +26,7 @@ class CourseLinksAPI(MethodView):
         links = Course.query.get(course_id).links
         return jsonify(DisplayCourseLinkSchema(many=True).dump(links))
 
+    @restricted
     def post(self: None, course_id: int) -> CourseLink:
         """Create a new link to display with an event
 
@@ -72,6 +74,7 @@ class CourseLinkAPI(MethodView):
 
         return jsonify(DisplayCourseLinkSchema().dump(link))
 
+    @restricted
     def put(self: None, course_id: int, link_id: int) -> CourseLink:
         """Update a CourseLink
 
@@ -94,6 +97,7 @@ class CourseLinkAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
+    @restricted
     def delete(self: None, course_id: int, link_id: int) -> dict:
         """Remove a link from an event.
 

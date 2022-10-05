@@ -8,6 +8,7 @@ from webargs.flaskparser import parser
 from app import db
 from app.models import CourseLink, CourseLinkType
 from app.schemas import CourseLinkTypeSchema, NewCourseLinkTypeSchema
+from app.wrappers import admin_only, restricted
 
 
 class CourseLinkTypesAPI(MethodView):
@@ -20,6 +21,7 @@ class CourseLinkTypesAPI(MethodView):
         links = CourseLinkType.query.all()
         return jsonify(CourseLinkTypeSchema(many=True).dump(links))
 
+    @restricted
     def post(self: None) -> CourseLinkType:
         """Create a new link type
 
@@ -35,6 +37,7 @@ class CourseLinkTypesAPI(MethodView):
 
 
 class CourseLinkTypeAPI(MethodView):
+    @restricted
     def get(self: None, linktype_id: int) -> CourseLinkType:
         """Get a single link type.
 
@@ -51,6 +54,7 @@ class CourseLinkTypeAPI(MethodView):
 
         return jsonify(CourseLinkTypeSchema().dump(link))
 
+    @restricted
     def put(self: None, linktype_id: int) -> CourseLinkType:
         """Edit a single link type.
 
@@ -72,6 +76,7 @@ class CourseLinkTypeAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
+    @admin_only
     def delete(self: None, linktype_id: int) -> dict:
         """Delete a link type.
 

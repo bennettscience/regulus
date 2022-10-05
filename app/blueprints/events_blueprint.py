@@ -1,5 +1,6 @@
 import json
 from flask import Blueprint, make_response, render_template
+from app.wrappers import restricted
 
 from resources.courselinks import CourseLinksAPI, CourseLinkAPI
 from resources.courses import (
@@ -25,6 +26,7 @@ course_presenter_view = CoursePresenterAPI.as_view("course_presenter_view")
 course_types_view = CourseTypesAPI.as_view("course_types_view")
 
 @events_bp.get('/courses/types/create')
+@restricted
 def new_event_type():
     response = make_response(
         render_template(

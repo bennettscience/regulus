@@ -1,5 +1,7 @@
 from flask import Blueprint, make_response, render_template
 
+from app.wrappers import restricted
+
 from resources.locations import (
     LocationListAPI,
     LocationAPI,
@@ -16,6 +18,7 @@ location_course_view = LocationCoursesAPI.as_view("location_courses_api")
 
 
 @locations_bp.get('/locations/create')
+@restricted
 def create_new_location():
     response = make_response(
         render_template(

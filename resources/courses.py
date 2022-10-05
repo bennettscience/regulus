@@ -32,6 +32,7 @@ from app.static.assets.icons import (
     attended
 )
 from app.utils import clean_escaped_html
+from app.wrappers import admin_only, admin_or_self, restricted
 
 course_schema = CourseSchema()
 courses_schema = CourseSchema(many=True)
@@ -92,11 +93,10 @@ class CourseListAPI(MethodView):
             return render_template('shared/partials/no-upcoming.html',
             email=current_app.config['CONTACT_EMAIL'])
 
+    @restricted
     def post(self: None) -> Course:
-        """Create a new event
-
-        Returns:
-            Course: JSON representation of the event
+        """
+        Create a new event
         """
         args = parser.parse(NewCourseSchema(), location="json")
 
@@ -262,6 +262,7 @@ class CourseAPI(MethodView):
         )
         # return jsonify(SmallCourseSchema().dump(course))
 
+    @restricted
     def put(self: None, course_id: int) -> Course:
         """Update details for an event
 
@@ -365,6 +366,7 @@ class CourseAPI(MethodView):
             except Exception as e:
                 return jsonify(e)
 
+    @restricted
     def delete(self: None, course_id: int) -> dict:
         """Remove an event
 
@@ -429,6 +431,7 @@ class CourseTypesAPI(MethodView):
         course_types = CourseType.query.all()
         return jsonify(CourseTypeSchema(many=True).dump(course_types))
 
+    @restricted
     def post(self: None) -> CourseType:
         """Create a new CourseType in the database
 
@@ -464,6 +467,7 @@ class CourseTypeAPI(MethodView):
 
         return jsonify(CourseTypeSchema().dump(course_type))
 
+    @restricted
     def put(self: None, coursetype_id: int) -> CourseType:
         """Update details for a single CourseType
 
@@ -484,6 +488,7 @@ class CourseTypeAPI(MethodView):
         except Exception as e:
             return jsonify(e)
 
+    @admin_only
     def delete(self: None, coursetype_id: int) -> dict:
         """Delete a course type.
 
@@ -519,6 +524,7 @@ class CoursePresentersAPI(MethodView):
 
         return jsonify(CoursePresenterSchema(many=True).dump(presenters))
 
+    @restricted
     def post(self: None, course_id: int, *args: list) -> List[User]:
         """ Add a presenter to an event. Accepts a list of any length.
 
@@ -568,6 +574,7 @@ class CoursePresentersAPI(MethodView):
 
 
 class CoursePresenterAPI(MethodView):
+    @restricted
     def post(self: None, course_id: int, user_id: int) -> List[User]:
         """Add a single user as a presenter to an event.
 
@@ -602,6 +609,7 @@ class CoursePresenterAPI(MethodView):
         response.headers.set('HX-Trigger', json.dumps({'showToast': 'Added {} as a presenter'.format(user.name)}))
         return response
 
+    @restricted
     def delete(self: None, course_id: int, user_id: int) -> List[User]:
         """Remove a single presenter from an event.
 
@@ -627,6 +635,7 @@ class CoursePresenterAPI(MethodView):
 
 
 class CourseAttendeesAPI(MethodView):
+    @restricted
     def get(self: None, course_id: int) -> List[User]:
         """Get a list of event attendees
 
@@ -645,6 +654,7 @@ class CourseAttendeesAPI(MethodView):
         ]
         return jsonify(UserAttended(many=True).dump(registrations))
 
+    @restricted
     def put(self: None, course_id: int, *args: list) -> List[User]:
         """Bulk update user attended status.
 
@@ -676,6 +686,7 @@ class CourseAttendeesAPI(MethodView):
         return response
         # return jsonify(UserAttended(many=True).dump(course.registrations))
 
+    @restricted
     def post(self: None, course_id: int, *args: list) -> List[User]:
         """Add multiple users to a course as an attendee
 
@@ -767,6 +778,7 @@ class CourseAttendeesAPI(MethodView):
 
 
 class CourseAttendeeAPI(MethodView):
+    @restricted
     def post(self: None, course_id: int) -> User:
         """Register a single user for a course
 
@@ -850,6 +862,7 @@ class CourseAttendeeAPI(MethodView):
 
         return response
 
+    @restricted
     def put(self: None, course_id: int, user_id: int) -> dict:
         """Update a single course registration for an attendee
 
@@ -874,6 +887,7 @@ class CourseAttendeeAPI(MethodView):
 
         return jsonify(UserAttended().dump(user))
 
+    @admin_or_self
     def delete(self: None, course_id: int) -> dict:
         """Remove a user from a course
 

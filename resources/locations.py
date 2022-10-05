@@ -7,7 +7,7 @@ from webargs.flaskparser import parser
 
 from app.models import Location
 from app.schemas import LocationCourseSchema, LocationSchema, LocationUserSchema
-
+from app.wrappers import restricted
 
 class LocationListAPI(MethodView):
     def get(self: None) -> List[Location]:
@@ -27,6 +27,7 @@ class LocationListAPI(MethodView):
             
         return jsonify(LocationSchema(many=True).dump(locations))
 
+    @restricted
     def post(self: None) -> Location:
         """Create a new Location
 
@@ -73,6 +74,7 @@ class LocationAPI(MethodView):
 
 
 class LocationUsersAPI(MethodView):
+    @restricted
     def get(self: None, location_id: int) -> List["User"]:
         """Get a list of users at a single location.
 

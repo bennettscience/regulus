@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 from flask_login import current_user
 
 from app.utils import get_user_navigation
+from app.wrappers import restricted
 
 home_bp = Blueprint('home_bp', __name__)
 
@@ -20,6 +21,7 @@ def index():
             return render_template('home/index.html', menuitems=nav_items)
 
 @home_bp.get('/create')
+@restricted
 def create():
     from app.models import CourseType, Location
     from app.schemas import CourseTypeSchema, LocationSchema

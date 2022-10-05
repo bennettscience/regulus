@@ -1,6 +1,5 @@
 import json
 from math import ceil
-from webbrowser import get
 
 from flask import jsonify, request, abort, make_response, render_template
 from flask.views import MethodView
@@ -12,7 +11,7 @@ from webargs.flaskparser import parser, use_args, use_kwargs
 from app import db
 
 from app.static.assets.icons import attended, registered
-from app.auth import admin_only
+from app.wrappers import admin_only, admin_or_self
 from app.models import Course, CourseUserAttended, Location, User
 from app.schemas import (
     CourseSchema,
@@ -27,32 +26,28 @@ from app.utils import get_user_navigation
 
 
 class UserListAPI(MethodView):
-    @parser.use_kwargs({'user_type': fields.Int()}, location="querystring")
-    def get(self: None, user_type=None) -> List[User]:
-        """ Get a list of all users.
+    # @parser.use_kwargs({'user_type': fields.Int()}, location="querystring")
+    # @restricted
+    # def get(self: None, user_type=None) -> List[User]:
+    #     """ Get a list of all users.
 
-        Returns:
-            List[User]: List of users.
-        """
-        # TODO: Clean this up somehow?
-        if current_user.usertype_id == 4:
-            abort(401)
-        elif current_user.usertype_id != 1 and user_type is None:
-            # abort a request from non-admins for all users
-            abort(401)
-        elif current_user.usertype_id < 4 and current_user.usertype_id != 1 and user_type != 1:
-            # presenters, observers, and admins can request non-admins
-            users = User.query.filter_by(usertype_id=user_type).all()
-        elif current_user.usertype_id == 1 and user_type:
-            users = User.query.filter_by(usertype_id=user_type).all()
-        elif current_user.usertype_id == 1 and user_type is None:
-            users = User.query.all()
-        else:
-            abort(422)
+    #     Returns:
+    #         List[User]: List of users.
+    #     """
+    #     breakpoint()
+    #     if current_user.usertype_id != 1 and user_type != 1:
+    #         # presenters and admins can request non-admins
+    #         users = User.query.filter_by(usertype_id=user_type).all()
+    #     elif current_user.usertype_id == 1 and user_type:
+    #         users = User.query.filter_by(usertype_id=user_type).all()
+    #     elif current_user.usertype_id == 1 and user_type is None:
+    #         users = User.query.all()
+    #     else:
+    #         abort(422)
 
-        # TODO: Sort users by last name
-        sorted_users = sorted(users)
-        return jsonify(UserSchema(many=True).dump(sorted_users))
+    #     # TODO: Sort users by last name
+    #     sorted_users = sorted(users)
+    #     return jsonify(UserSchema(many=True).dump(sorted_users))
 
     def post(self: None) -> User:
         """ Create a new user
@@ -74,6 +69,7 @@ class UserListAPI(MethodView):
 
 
 class UserAPI(MethodView):
+    @admin_or_self
     def get(self: None, user_id: int) -> User:
         """Get a single user
 
@@ -83,23 +79,20 @@ class UserAPI(MethodView):
         Returns:
             User: JSON representation of the user.
         """
-        # Limit this to SuperAdmin, Presenters, or the user making the request
-        if current_user.usertype_id == 1 or current_user.usertype_id == 2 or user_id is current_user.id:
-            options = [{"value": location.id, "text": location.name} for location in Location.query.all()]
-            user = User.query.get(user_id)
+        options = [{"value": location.id, "text": location.name} for location in Location.query.all()]
+        user = User.query.get(user_id)
 
-            content = {
-                "data": options,
-                "user": user,
-            }
-            return render_template(
-                'shared/partials/sidebar.html',
-                partial='users/partials/user-edit-account-form.html',
-                **content
-            )
-        else:
-            abort(403)
+        content = {
+            "data": options,
+            "user": user,
+        }
+        return render_template(
+            'shared/partials/sidebar.html',
+            partial='users/partials/user-edit-account-form.html',
+            **content
+        )
 
+    @admin_or_self
     def put(self: None, user_id: int) -> User:
         """ Update a user's details
 
@@ -134,6 +127,7 @@ class UserAPI(MethodView):
         else:
             abort(403)
 
+    @admin_only
     def delete(self: None, user_id: int) -> dict:
         """ Delete a user.
 
