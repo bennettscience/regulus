@@ -6,7 +6,7 @@ from app import app
 from authlib.integrations.flask_client import OAuth
 
 
-def admin_only(func):
+def restricted(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if current_user.is_anonymous:
