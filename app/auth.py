@@ -1,20 +1,5 @@
-from functools import wraps
-from flask import abort, current_app, url_for
-from flask_login import current_user
-
 from app import app
 from authlib.integrations.flask_client import OAuth
-
-
-def restricted(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if current_user.is_anonymous:
-            abort(401)
-        if current_user.usertype_id == 3 or current_user.usertype_id == 4:
-            abort(403)
-        return func(*args, **kwargs)
-    return wrapper
 
 
 class OAuthSignIn(object):
