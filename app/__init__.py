@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from flask import (
     Flask,
     jsonify,
+    make_response,
     redirect,
-    render_template
+    render_template,
+    request
 )
 
 from flask_login import (
@@ -13,6 +17,7 @@ from flask_login import (
 )
 
 from flask_caching import Cache
+from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -36,6 +41,7 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 cache = Cache(app)
+cors = CORS(app, resources={r"/events-json": {"origins": "*"}})
 # toolbar = DebugToolbarExtension(app)
 jinja_partials.register_extensions(app)
 
@@ -43,12 +49,12 @@ jinja_partials.register_extensions(app)
 from app import app, db
 from app.logging import create_log
 from app.auth import OAuthSignIn
-from app.models import User, Log
+from app.models import Course, User, Log
 from resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
 from resources.courses import CourseTypeAPI
 
 from resources.usertypes import UserTypesAPI
-from app.schemas import UserSchema, LogSchema
+from app.schemas import UserSchema, LogSchema, TinyCourseSchema
 
 # from app.blueprints import users_blueprint
 from app.blueprints.admin_blueprint import admin_bp
@@ -81,6 +87,12 @@ app.register_error_handler(404, page_not_found)
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
+
+@app.route("/events-json", methods=['GET', 'OPTIONS'])
+def extension_index():
+    now = datetime.now()
+    events = Course.query.filter(Course.active == True, Course.starts >= now).order_by(Course.starts).limit(5).all()
+    return jsonify(TinyCourseSchema(many=True).dump(events))
 
 # Authorization routes run on the main app instead of through a blueprint
 @app.route("/authorize/<provider>")

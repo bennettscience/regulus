@@ -54,7 +54,7 @@ class SmallCourseSchema(Schema):
 class TinyCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
-    starts = fields.DateTime()
+    starts = fields.DateTime(format="%m/%d/%y, %I:%M %p")
     reg_length = fields.Int()
 
     class Meta:
