@@ -52,9 +52,9 @@ class CourseListAPI(MethodView):
         Returns:
             List: List of Course objects.
         """
-        args = parser.parse({"format": fields.Str()}, location="querystring")
+        args = parser.parse({"format": fields.Str(missing=None)}, location="querystring")
 
-        if args['format'] == 'json':
+        if args['format'] and args['format'] == 'json':
             now = datetime.now()
             events = Course.query.filter(Course.active == True, Course.starts >= now).order_by(Course.starts).limit(5).all()
             return jsonify(TinyCourseSchema(many=True).dump(events))
