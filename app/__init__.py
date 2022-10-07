@@ -41,7 +41,7 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 cache = Cache(app)
-cors = CORS(app, resources={r"/events": {"origins": "*"}})
+cors = CORS(app, resources={r"/courses": {"origins": "*"}})
 # toolbar = DebugToolbarExtension(app)
 jinja_partials.register_extensions(app)
 
