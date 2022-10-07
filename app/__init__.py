@@ -41,7 +41,7 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 cache = Cache(app)
-cors = CORS(app, resources={r"/events-json": {"origins": "*"}})
+cors = CORS(app, resources={r"/events": {"origins": "*"}})
 # toolbar = DebugToolbarExtension(app)
 jinja_partials.register_extensions(app)
 
@@ -87,12 +87,6 @@ app.register_error_handler(404, page_not_found)
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
-
-@app.route("/events-json", methods=['GET', 'OPTIONS'])
-def extension_index():
-    now = datetime.now()
-    events = Course.query.filter(Course.active == True, Course.starts >= now).order_by(Course.starts).limit(5).all()
-    return jsonify(TinyCourseSchema(many=True).dump(events))
 
 # Authorization routes run on the main app instead of through a blueprint
 @app.route("/authorize/<provider>")

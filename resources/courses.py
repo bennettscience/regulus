@@ -52,46 +52,53 @@ class CourseListAPI(MethodView):
         Returns:
             List: List of Course objects.
         """
-        from app.static.assets.icons import edit
-        if current_user.is_anonymous:
-            abort(401)
+        args = parser.parse({"format": fields.Str()}, location="querystring")
 
-        now = datetime.now()
-        
-        # This filters events down to active, future events.
-        args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
+        if args['format'] == 'json':
+            now = datetime.now()
+            events = Course.query.filter(Course.active == True, Course.starts >= now).order_by(Course.starts).limit(5).all()
+            return jsonify(TinyCourseSchema(many=True).dump(events))
+        else:
+            if current_user.is_anonymous:
+                abort(401)
+
+            from app.static.assets.icons import edit
+            now = datetime.now()
             
-        if args:
-            courses = Course.query.all()
-        else:
-            courses = Course.query.filter(
-                Course.active == True, Course.starts >= now
-            ).all()
+            # This filters events down to active, future events.
+            args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
+                
+            if args:
+                courses = Course.query.all()
+            else:
+                courses = Course.query.filter(
+                    Course.active == True, Course.starts >= now
+                ).all()
 
-        if len(courses) > 0:
-            # calculate the remaining number of seats at request time.
-            for course in courses:
-                course.available = course.available_size()
+            if len(courses) > 0:
+                # calculate the remaining number of seats at request time.
+                for course in courses:
+                    course.available = course.available_size()
 
-                # Determine the current state for the user
-                if current_user.is_enrolled(course) and current_user.is_attended(course):
-                    course.state = 'attended'
-                    course.icon = attended
-                elif current_user.is_enrolled(course) and not current_user.is_attended(course):
-                    course.state = 'registered'
-                    course.icon = registered
-                else:
-                    course.state = 'available'
+                    # Determine the current state for the user
+                    if current_user.is_enrolled(course) and current_user.is_attended(course):
+                        course.state = 'attended'
+                        course.icon = attended
+                    elif current_user.is_enrolled(course) and not current_user.is_attended(course):
+                        course.state = 'registered'
+                        course.icon = registered
+                    else:
+                        course.state = 'available'
 
-            sorted_courses = sorted(courses)
+                sorted_courses = sorted(courses)
 
-            return render_template(
-                'events/index.html',
-                events=SmallCourseSchema(many=True).dump(sorted_courses)
-            )
-        else:
-            return render_template('shared/partials/no-upcoming.html',
-            email=current_app.config['CONTACT_EMAIL'])
+                return render_template(
+                    'events/index.html',
+                    events=SmallCourseSchema(many=True).dump(sorted_courses)
+                )
+            else:
+                return render_template('shared/partials/no-upcoming.html',
+                email=current_app.config['CONTACT_EMAIL'])
 
     @restricted
     def post(self: None) -> Course:
