@@ -158,7 +158,7 @@ app.add_url_rule(
 app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
 
 @app.route('/resource-query')
-@cache.cached(timeout=120)
+@cache.cached(timeout=3600)
 def update():
     today = datetime.now()
 
