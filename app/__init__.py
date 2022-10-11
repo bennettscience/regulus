@@ -1,4 +1,5 @@
 from datetime import datetime
+import requests
 
 from flask import (
     Flask,
@@ -152,3 +153,47 @@ app.add_url_rule(
 
 
 app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
+
+@app.route('/resource-query')
+@cache.cached(timeout=120)
+def update():
+    today = datetime.now()
+
+    # Get the blog post and youtube video
+    blog_post = get_blog_post()
+    # youtube_video = get_youtube_video()
+
+    # if (today - blog_post['published_at']) < (today - youtube_video['published_at']):
+    #     resource = blog_post
+    # else:
+    #     resource = youtube_video
+
+    return jsonify(**blog_post)
+
+def get_blog_post():
+    headers = {
+        'Authorization': 'Bearer ' + app.config['BLOG_AUTH_TOKEN']
+    }
+
+    response = requests.get(
+        'https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed', 
+        headers=headers
+    ).json()[0]
+    
+    return {
+        "published_at": datetime.strptime(response['date'], '%Y-%m-%dT%H:%M:%S'),
+        "link": response['link'],
+        "thumbnail": response['_embedded']['wp:featuredmedia'][0]['source_url'],
+        "title": response['title']['rendered']
+    }
+
+def get_youtube_video():
+    yt_request = requests.get('https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUgwJ38NKsSVTBW_yzw8n1eQ&sort=desc&maxResults=1&key=AIzaSyBQxyTw84mwp5yUiGq5FDPlw1K-UvAcsq8').json()
+    breakpoint()
+    response = yt_request['items'][0]['snippet']
+    return {
+        "published_at": datetime.strptime(response['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
+        "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
+        "thumbnail": response['thumbnails']['standard']['url'],
+        "title": response['title']
+    }
