@@ -166,45 +166,76 @@ def update():
     blog_post = get_blog_post()
     youtube_video = get_youtube_video()
 
-    if (today - blog_post['published_at']) < (today - youtube_video['published_at']):
-        resource = blog_post
+    default = {
+        "published_at": None,
+        "link": None,
+        "thumbnail": None,
+        "title": None
+    }
+
+    # This is kind of a mess, but it helps handle all cases. It can probably be done better.
+    # Both calls come back successfully
+    if not isinstance(blog_post, Exception) and not isinstance(youtube_video, Exception):
+        if (today - blog_post['published_at']) < (today - youtube_video['published_at']):
+            resource = blog_post
+        else:
+            resource = youtube_video
     else:
-        resource = youtube_video
+        if isinstance(blog_post, Exception) and isinstance(youtube_video, Exception):
+            resource = {'message': 'Something has gone terribly wrong' }
+        elif not isinstance(blog_post, Exception) and isinstance(youtube_video, Exception):
+            resource = blog_post
+        elif isinstance(blog_post, Exception) and not isinstance(youtube_video, Exception):
+            resource = youtube_video
+        else:
+            resource = {'message': 'You should not have reached this spot.'}
 
     return jsonify(**resource)
 
+@cache.cached(timeout=3600, key_prefix='last_blog')
 def get_blog_post():
     headers = {
         'Authorization': 'Bearer ' + app.config['BLOG_AUTH_TOKEN']
     }
 
-    response = requests.get(
-        'https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed', 
-        headers=headers
-    ).json()[0]
-    
-    return {
-        "published_at": datetime.strptime(response['date'], '%Y-%m-%dT%H:%M:%S'),
-        "link": response['link'],
-        "thumbnail": response['_embedded']['wp:featuredmedia'][0]['source_url'],
-        "title": response['title']['rendered']
-    }
+    try:
+        response = requests.get(
+            'https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed', 
+            headers=headers
+        ).json()[0]
 
+        result = {
+            "published_at": datetime.strptime(response['date'], '%Y-%m-%dT%H:%M:%S'),
+            "link": response['link'],
+            "thumbnail": response['_embedded']['wp:featuredmedia'][0]['source_url'],
+            "title": response['title']['rendered']
+        }
+    except Exception as e:
+        result = e
+    
+    return result
+
+@cache.cached(timeout=3600, key_prefix='last_youtube')
 def get_youtube_video():
+
     token = app.config['YOUTUBE_AUTH_TOKEN']
     # Set the referrer header
     headers = {
-        'Referer': request.base_url
+        'Referer': 'https://events.elkhart.k12.in.us'
     }
     yt_request = requests.get(
         f'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUgwJ38NKsSVTBW_yzw8n1eQ&sort=desc&maxResults=1&key={token}',
         headers=headers
     )
-
-    response = yt_request.json()['items'][0]['snippet']
-    return {
-        "published_at": datetime.strptime(response['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
-        "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
-        "thumbnail": response['thumbnails']['standard']['url'],
-        "title": response['title']
-    }
+    try:
+        response = yt_request.json()['items'][0]['snippet']
+        result = {
+            "published_at": datetime.strptime(response['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
+            "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
+            "thumbnail": response['thumbnails']['standard']['url'],
+            "title": response['title']
+        }
+    except Exception as e:
+        result = e
+    
+    return result
