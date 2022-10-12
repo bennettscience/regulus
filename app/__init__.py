@@ -165,8 +165,6 @@ def update():
     # Get the blog post and youtube video
     blog_post = get_blog_post()
     youtube_video = get_youtube_video()
-    
-    breakpoint()
 
     if (today - blog_post['published_at']) < (today - youtube_video['published_at']):
         resource = blog_post
