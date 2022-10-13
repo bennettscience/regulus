@@ -54,7 +54,6 @@ class CourseListAPI(MethodView):
             List: List of Course objects.
         """
         args = parser.parse({"format": fields.Str(missing=None), 'all': fields.Bool(missing=False)}, location="querystring")
-        breakpoint()
 
         if args['format'] == 'json':
             now = datetime.now()
