@@ -875,7 +875,6 @@ class CourseAttendeeAPI(MethodView):
 
         return response
 
-    @restricted
     def put(self: None, course_id: int, user_id: int) -> dict:
         """Update a single course registration for an attendee
 
@@ -900,7 +899,6 @@ class CourseAttendeeAPI(MethodView):
 
         return jsonify(UserAttended().dump(user))
 
-    @admin_or_self
     def delete(self: None, course_id: int) -> dict:
         """Remove a user from a course
 
