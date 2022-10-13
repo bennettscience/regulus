@@ -7,9 +7,10 @@ from flask import abort, current_app, jsonify, make_response, render_template, r
 from flask.views import MethodView
 from flask_login import current_user
 from webargs import fields
+from webargs.multidictproxy import MultiDictProxy
 from webargs.flaskparser import parser
 
-from app import db
+from app import db, cache
 
 from config import Config
 
@@ -44,8 +45,8 @@ users_schema = UserSchema(many=True)
 attended_schema = UserAttended()
 attendee_schema = UserAttended(many=True)
 
-
 class CourseListAPI(MethodView):
+    @cache.cached(timeout=50, key_prefix='all_comments')
     def get(self: None) -> List[Course]:
         """Get a list of future active courses.
 
@@ -694,7 +695,7 @@ class CourseAttendeesAPI(MethodView):
         # return jsonify(UserAttended(many=True).dump(course.registrations))
 
     @restricted
-    def post(self: None, course_id: int, *args: list) -> List[User]:
+    def post(self: None, course_id: int) -> List[User]:
         """Add multiple users to a course as an attendee
 
         Each user can have one registration record per course. This filters the user's current
@@ -703,21 +704,21 @@ class CourseAttendeesAPI(MethodView):
         Single users can also be added at /courses/:course_id/registrations/:user_id
 
         Args:
-            self (None): [description]
-            course_id (int): [description]
-
-        Returns:
-            List[User]: [description]
+            course_id (int): Event ID
+            force (bool) optional: Allow a registration beyond the course_size cap
         """
+        from app.static.assets.icons import left_arrow
+
         webhook_url = Config.CALENDAR_HOOK_URL
         args = parser.parse({"user_id": fields.List(fields.Int())}, location="form")
+        override = parser.parse({"force": fields.Boolean()}, location="querystring")
 
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
 
         # If the list is longer than the number of seats left, throw an error
-        if len(args["user_id"]) > course.available_size():
+        if len(args["user_id"]) > course.available_size() and not override['force']:
             abort(409)
 
         for user_id in args["user_id"]:
@@ -774,7 +775,8 @@ class CourseAttendeesAPI(MethodView):
 
         content = {
             'event': schema.dump(course),
-            'data': data
+            'data': data,
+            'icon': left_arrow,
         }
         response = make_response(
             render_template('admin/partials/event-detail.html', **content)
@@ -785,7 +787,6 @@ class CourseAttendeesAPI(MethodView):
 
 
 class CourseAttendeeAPI(MethodView):
-    @restricted
     def post(self: None, course_id: int) -> User:
         """Register a single user for a course
 

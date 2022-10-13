@@ -25,6 +25,8 @@ def admin_or_self(func):
 def admin_only(func):
     @wraps(func)
     def admin_only_wrapper(*args, **kwargs):
+        if current_user.is_anonymous:
+            abort(401)
         if current_user.usertype_id != 1:
             abort(403)
         return func(*args, **kwargs)

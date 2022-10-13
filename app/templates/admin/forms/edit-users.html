@@ -25,9 +25,9 @@ container="#course-data--register",placeholder="Search by name...")}}
 <form
     id="course-data--register"
     hx-trigger="request from:#edit-user--submit"
-    hx-target="#course-data--result"
+    hx-target=".main-container"
     hx-swap="innerHTML"
-    hx-post="/courses/{{event.id}}/registrations"
+    hx-post="/courses/{{event.id}}/registrations?force=true"
     hx-indicator="#toast"
     _="on htmx:afterSwap from .main-container trigger closeSidebar end"
 >
