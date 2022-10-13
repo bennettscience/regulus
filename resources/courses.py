@@ -46,16 +46,17 @@ attended_schema = UserAttended()
 attendee_schema = UserAttended(many=True)
 
 class CourseListAPI(MethodView):
-    @cache.cached(timeout=50, key_prefix='all_comments')
+    @cache.cached(timeout=50, key_prefix='all_courses')
     def get(self: None) -> List[Course]:
         """Get a list of future active courses.
 
         Returns:
             List: List of Course objects.
         """
-        args = parser.parse({"format": fields.Str(missing=None)}, location="querystring")
+        args = parser.parse({"format": fields.Str(missing=None), 'all': fields.Bool(missing=False)}, location="querystring")
+        breakpoint()
 
-        if args['format'] and args['format'] == 'json':
+        if args['format'] == 'json':
             now = datetime.now()
             events = Course.query.filter(Course.active == True, Course.starts >= now).order_by(Course.starts).limit(5).all()
             return jsonify(TinyCourseSchema(many=True).dump(events))
@@ -67,9 +68,9 @@ class CourseListAPI(MethodView):
             now = datetime.now()
             
             # This filters events down to active, future events.
-            args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
+            # args = parser.parse({'all': fields.Bool(), 'missing': False}, location='querystring')
                 
-            if args:
+            if args['all']:
                 courses = Course.query.all()
             else:
                 courses = Course.query.filter(
