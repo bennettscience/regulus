@@ -46,14 +46,19 @@ attended_schema = UserAttended()
 attendee_schema = UserAttended(many=True)
 
 class CourseListAPI(MethodView):
-    @cache.cached(timeout=50, key_prefix='all_courses')
+    # @cache.cached(timeout=50, key_prefix='all_courses')
     def get(self: None) -> List[Course]:
         """Get a list of future active courses.
 
         Returns:
             List: List of Course objects.
         """
-        args = parser.parse({"format": fields.Str(missing=None), 'all': fields.Bool(missing=False)}, location="querystring")
+        args = parser.parse(
+            {
+                "format": fields.Str(missing=None),
+                'all': fields.Bool(missing=False)
+            }, location="querystring"
+        )
 
         if args['format'] == 'json':
             now = datetime.now()
