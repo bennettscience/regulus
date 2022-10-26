@@ -6,19 +6,22 @@
                 "id": 1,
                 "name": "Admin",
                 "email": "admin@example.com",
-                "usertype_id": 1
+                "usertype_id": 1,
+                "location_id": 1
             },
             {
                 "id": 2,
                 "name": "Presenter",
                 "email": "presenter@example.com",
-                "usertype_id": 2
+                "usertype_id": 2,
+                "location_id": 2
             },
             {
                 "id": 3,
                 "name": "User",
                 "email": "user@example.com",
-                "usertype_id": 4
+                "usertype_id": 4,
+                "location_id": 1
             }
         ]
     }
