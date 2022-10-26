@@ -9,8 +9,11 @@ function makeQuill(el, placeholder) {
         theme: 'snow',
         placeholder: placeholder,
         modules: {
-            toolbar: toolbarOptions
-        }
+            toolbar: toolbarOptions,
+            clipboard: {
+                matchVisual: false
+            }
+        },
     })
 
     window.quill = quill
@@ -25,7 +28,7 @@ function setInitial(text) {
 function formatDate(target, dateStr) {
 
     const formatted_date = new Date(dateStr)
-    
+
     const formats = {
         dateOnly: {
             year: 'numeric',
@@ -44,7 +47,7 @@ function formatDate(target, dateStr) {
             minute: 'numeric',
         }
     }
-    
+
     return new Intl.DateTimeFormat('en', formats[target]).format(formatted_date)
 }
 
