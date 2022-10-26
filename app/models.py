@@ -3,6 +3,7 @@ from datetime import datetime
 from app import db, lm
 from flask_login import UserMixin
 
+
 class Manager(object):
     def create(self, cls, data):
         item = cls(**data)
@@ -76,14 +77,14 @@ course_accommodations = db.Table(
         "course_id",
         db.Integer,
         db.ForeignKey("course.id", onupdate="CASCADE", ondelete="CASCADE"),
-        primary_key=True
+        primary_key=True,
     ),
     db.Column(
         "accommodation_id",
         db.Integer,
         db.ForeignKey("user_accommodation.id", onupdate="CASCADE", ondelete="CASCADE"),
-        primary_key=True
-    )
+        primary_key=True,
+    ),
 )
 
 
@@ -141,7 +142,10 @@ class Course(Manager, db.Model):
     type = db.relationship(CourseType, backref="course")
     links = db.relationship("CourseLink", uselist=True)
     presenters = db.relationship(
-        "User", secondary=course_presenters, backref=db.backref("presenting", lazy='dynamic'), uselist=True
+        "User",
+        secondary=course_presenters,
+        backref=db.backref("presenting", lazy="dynamic"),
+        uselist=True,
     )
     registrations = db.relationship(
         "CourseUserAttended",
@@ -154,7 +158,7 @@ class Course(Manager, db.Model):
         "UserAccommodation",
         secondary=course_accommodations,
         backref="course",
-        uselist=True
+        uselist=True,
     )
 
     # calculate the number of remaining seats
@@ -200,12 +204,17 @@ class User(Manager, UserMixin, db.Model):
     )
 
     def is_enrolled(self, course):
-        return self.registrations.filter(CourseUserAttended.course_id == course.id).count() > 0
+        return (
+            self.registrations.filter(CourseUserAttended.course_id == course.id).count()
+            > 0
+        )
 
     def is_attended(self, course):
-        return self.registrations.filter(
-            CourseUserAttended.course_id == course.id
-        ).first().attended
+        return (
+            self.registrations.filter(CourseUserAttended.course_id == course.id)
+            .first()
+            .attended
+        )
 
     def __eq__(self, other):
         return self.name.split(" ")[::-1][0] == other.name.split(" ")[::-1][0]
@@ -220,7 +229,7 @@ class Log(db.Model):
     source_uri = db.Column(db.String(255))
     endpoint = db.Column(db.String(255))
     method = db.Column(db.String(64))
-    json_data = db.Column(db.String(1000))
+    json_data = db.Column(db.String(2500))
     occurred = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User", backref="actions")
