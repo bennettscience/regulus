@@ -157,7 +157,7 @@ def get_user_navigation():
             1,
             {
                 "element": "documents",
-                "label": "Account & Documents",
+                "label": "My Account",
                 "href": "/users/{}/documents".format(current_user.id),
                 "icon": documents,
             },
