@@ -81,7 +81,7 @@ class UserAPI(MethodView):
                 response = make_response("ok")
                 response.headers.set(
                     "HX-Trigger",
-                    json.dumps({"showToast": "Successfully updated the user."}),
+                    json.dumps({"showToast": "Successfully updated!"}),
                 )
                 return response
                 # return jsonify(UserSchema().dump(user))

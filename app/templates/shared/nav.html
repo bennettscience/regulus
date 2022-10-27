@@ -28,7 +28,7 @@
                 hx-push-url="true"
                 hx-indicator="#toast"
                 _="
-                on click 
+                on click
                 remove .active from .nav-item
                 add .active to the closest .nav-item
                 end
@@ -50,19 +50,19 @@
                 Home
             </a>
         </span>
-        {% for item in menuitems %}
+        {% for item in session['navigation'] %}
         <span class="nav-item {{ 'logout' if item.element == 'logout' }}" id="{{item.element}}">
             {% if item.element == 'logout' %}
                 <a href="{{item.href}}">
             {% else %}
-                <a 
+                <a
                     hx-get="{{item.href}}"
                     hx-target=".main-container"
                     hx-replace="outerHTML"
                     hx-push-url="true"
                     hx-indicator="#toast"
                     _="
-                        on click 
+                        on click
                             remove .active from .nav-item
                             add .active to the closest .nav-item
                         end
@@ -80,7 +80,7 @@
                     </svg>
                     {{item.label}}
                 </a>
-        </span> 
+        </span>
     {% endfor %}
     </div>
 </nav>
