@@ -40,8 +40,6 @@ def index():
         {"usertype_id": fields.Int(missing=None)}, location="querystring"
     )
 
-    nav_items = get_user_navigation()
-
     usertypes = UserType.query.all()
     options = [{"value": usertype.id, "text": usertype.name} for usertype in usertypes]
 
@@ -75,7 +73,6 @@ def index():
             "options": options,
             "name": "usertype_id",
             "users": UserSchema(many=True).dump(query),
-            "menuitems": nav_items,
         }
 
     return render_template(template, **content)

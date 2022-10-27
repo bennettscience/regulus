@@ -121,7 +121,6 @@ class CourseListAPI(MethodView):
         """
         args = parser.parse(NewCourseSchema(), location="json")
 
-        # breakpoint()
         # Becuase this is done through a hook, the times need to be converted to JS (milliseconds)
         # instead of Python timestamps (seconds).
         starts = CalendarService().convertToISO(args["starts"])

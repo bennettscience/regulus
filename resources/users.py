@@ -197,10 +197,8 @@ class UserAttendingAPI(MethodView):
 
         if request.headers.get("HX-Request"):
             template = "registrations/index-partial.html"
-            nav_items = None
         else:
             template = "registrations/index.html"
-            nav_items = get_user_navigation()
 
         registrations = user.registrations.all()
 
@@ -220,7 +218,6 @@ class UserAttendingAPI(MethodView):
         return render_template(
             template,
             events=SmallCourseSchema(many=True).dump(sorted_regs),
-            menuitems=nav_items,
         )
 
 

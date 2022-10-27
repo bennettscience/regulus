@@ -4,10 +4,8 @@ import requests
 from flask import (
     Flask,
     jsonify,
-    make_response,
     redirect,
-    render_template,
-    request
+    session,
 )
 
 from flask_login import (
@@ -29,9 +27,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from config import Config
 
 sentry_sdk.init(
-    dsn=Config.SENTRY_DSN,
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=0.5
+    dsn=Config.SENTRY_DSN, integrations=[FlaskIntegration()], traces_sample_rate=0.5
 )
 
 app = Flask(__name__)
@@ -43,10 +39,13 @@ migrate = Migrate(app, db, render_as_batch=True)
 lm = LoginManager(app)
 cache = Cache(app)
 cors = CORS(
-    app, 
-    resources={r"/courses": {"origins": "chrome-extension://*"}, r"/resource-query": {"origins":"chrome-extension://*"}}
+    app,
+    resources={
+        r"/courses": {"origins": "chrome-extension://*"},
+        r"/resource-query": {"origins": "chrome-extension://*"},
+    },
 )
-# toolbar = DebugToolbarExtension(app)
+
 jinja_partials.register_extensions(app)
 
 # TODO: Check all sensititve API routes for access control logic.
@@ -69,7 +68,7 @@ from app.blueprints.locations_blueprint import locations_bp
 from app.blueprints.users_blueprint import users_bp
 
 from app.errors import forbidden, page_not_found
-
+from app.utils import get_user_navigation
 
 course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
@@ -88,9 +87,11 @@ app.register_blueprint(users_bp)
 app.register_error_handler(403, forbidden)
 app.register_error_handler(404, page_not_found)
 
+
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
+
 
 # Authorization routes run on the main app instead of through a blueprint
 @app.route("/authorize/<provider>")
@@ -98,6 +99,7 @@ def oauth_authorize(provider):
     # redirect_uri = url_for('auth', _external=True)
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
+
 
 @app.route("/callback")
 def callback():
@@ -115,13 +117,20 @@ def callback():
         db.session.add(user)
         db.session.commit()
 
+    # Get the user's navigation and store it as a session variable.
     login_user(user, False)
-    return redirect('/')
+
+    nav_items = get_user_navigation()
+    session["navigation"] = nav_items
+
+    return redirect("/")
 
 
 @app.route("/logout")
 def logout():
     logout_user()
+    # Removes the user's navigation items on logout
+    session.clear()
     return redirect("/")
 
 
@@ -139,11 +148,13 @@ def log_request():
     if not current_user.is_anonymous:
         create_log()
 
+
 # Request all logs for an event
-@app.route("/logs/<int:course_id>", methods=['GET'])
+@app.route("/logs/<int:course_id>", methods=["GET"])
 def get_logs(course_id):
-    query = Log.query.filter(Log.endpoint.like(f'/courses/{course_id}/%')).all()
+    query = Log.query.filter(Log.endpoint.like(f"/courses/{course_id}/%")).all()
     return jsonify(LogSchema(many=True).dump(query))
+
 
 app.add_url_rule(
     "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
@@ -157,7 +168,8 @@ app.add_url_rule(
 
 app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
 
-@app.route('/resource-query')
+
+@app.route("/resource-query")
 @cache.cached(timeout=3600)
 def update():
     today = datetime.now()
@@ -166,76 +178,77 @@ def update():
     blog_post = get_blog_post()
     youtube_video = get_youtube_video()
 
-    default = {
-        "published_at": None,
-        "link": None,
-        "thumbnail": None,
-        "title": None
-    }
-
     # This is kind of a mess, but it helps handle all cases. It can probably be done better.
     # Both calls come back successfully
-    if not isinstance(blog_post, Exception) and not isinstance(youtube_video, Exception):
-        if (today - blog_post['published_at']) < (today - youtube_video['published_at']):
+    if not isinstance(blog_post, Exception) and not isinstance(
+        youtube_video, Exception
+    ):
+        if (today - blog_post["published_at"]) < (
+            today - youtube_video["published_at"]
+        ):
             resource = blog_post
         else:
             resource = youtube_video
     else:
         if isinstance(blog_post, Exception) and isinstance(youtube_video, Exception):
-            resource = {'message': 'Something has gone terribly wrong' }
-        elif not isinstance(blog_post, Exception) and isinstance(youtube_video, Exception):
+            resource = {"message": "Something has gone terribly wrong"}
+        elif not isinstance(blog_post, Exception) and isinstance(
+            youtube_video, Exception
+        ):
             resource = blog_post
-        elif isinstance(blog_post, Exception) and not isinstance(youtube_video, Exception):
+        elif isinstance(blog_post, Exception) and not isinstance(
+            youtube_video, Exception
+        ):
             resource = youtube_video
         else:
-            resource = {'message': 'You should not have reached this spot.'}
+            resource = {"message": "You should not have reached this spot."}
 
     return jsonify(**resource)
 
-@cache.cached(timeout=3600, key_prefix='last_blog')
+
+@cache.cached(timeout=3600, key_prefix="last_blog")
 def get_blog_post():
-    headers = {
-        'Authorization': 'Bearer ' + app.config['BLOG_AUTH_TOKEN']
-    }
+    headers = {"Authorization": "Bearer " + app.config["BLOG_AUTH_TOKEN"]}
 
     try:
         response = requests.get(
-            'https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed', 
-            headers=headers
+            "https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed",
+            headers=headers,
         ).json()[0]
 
         result = {
-            "published_at": datetime.strptime(response['date'], '%Y-%m-%dT%H:%M:%S'),
-            "link": response['link'],
-            "thumbnail": response['_embedded']['wp:featuredmedia'][0]['source_url'],
-            "title": response['title']['rendered']
+            "published_at": datetime.strptime(response["date"], "%Y-%m-%dT%H:%M:%S"),
+            "link": response["link"],
+            "thumbnail": response["_embedded"]["wp:featuredmedia"][0]["source_url"],
+            "title": response["title"]["rendered"],
         }
     except Exception as e:
         result = e
-    
+
     return result
 
-@cache.cached(timeout=3600, key_prefix='last_youtube')
+
+@cache.cached(timeout=3600, key_prefix="last_youtube")
 def get_youtube_video():
 
-    token = app.config['YOUTUBE_AUTH_TOKEN']
+    token = app.config["YOUTUBE_AUTH_TOKEN"]
     # Set the referrer header
-    headers = {
-        'Referer': 'https://events.elkhart.k12.in.us'
-    }
+    headers = {"Referer": "https://events.elkhart.k12.in.us"}
     yt_request = requests.get(
-        f'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUgwJ38NKsSVTBW_yzw8n1eQ&sort=desc&maxResults=1&key={token}',
-        headers=headers
+        f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUgwJ38NKsSVTBW_yzw8n1eQ&sort=desc&maxResults=1&key={token}",  # noqa
+        headers=headers,
     )
     try:
-        response = yt_request.json()['items'][0]['snippet']
+        response = yt_request.json()["items"][0]["snippet"]
         result = {
-            "published_at": datetime.strptime(response['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
+            "published_at": datetime.strptime(
+                response["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
+            ),
             "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
-            "thumbnail": response['thumbnails']['standard']['url'],
-            "title": response['title']
+            "thumbnail": response["thumbnails"]["standard"]["url"],
+            "title": response["title"],
         }
     except Exception as e:
         result = e
-    
+
     return result

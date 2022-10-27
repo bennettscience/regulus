@@ -15,18 +15,33 @@ from werkzeug.wrappers import Response
 
 from app import cache
 from app.wrappers import restricted
-from app.models import Course, CourseLink, CourseUserAttended, Location, User, CourseLinkType, CourseType
-from app.schemas import CourseSchema, CourseDetailSchema, CourseLinkTypeSchema, TinyCourseSchema, UserSchema
+from app.models import (
+    Course,
+    CourseLink,
+    CourseUserAttended,
+    Location,
+    User,
+    CourseLinkType,
+    CourseType,
+)
+from app.schemas import (
+    CourseSchema,
+    CourseDetailSchema,
+    CourseLinkTypeSchema,
+    TinyCourseSchema,
+    UserSchema,
+)
 from app.static.assets.icons import attended, close, left_arrow
 from app.utils import get_user_navigation, object_to_select
 
 from resources.courses import CourseAPI
 
-course_view = CourseAPI.as_view('course_view')
+course_view = CourseAPI.as_view("course_view")
 
-admin_bp = Blueprint('admin_bp', __name__, url_prefix="/admin")
+admin_bp = Blueprint("admin_bp", __name__, url_prefix="/admin")
 
-admin_bp.add_url_rule('/events/<int:course_id>', view_func=course_view, methods=["PUT"])
+admin_bp.add_url_rule("/events/<int:course_id>", view_func=course_view, methods=["PUT"])
+
 
 @cache.memoize(60)
 def get_event(event_id):
@@ -35,85 +50,92 @@ def get_event(event_id):
 
     return CourseSchema().dump(event)
 
+
 @admin_bp.get("/events")
 @restricted
 def index():
-    args = parser.parse({
-        'event_id': fields.Int(missing=False)
-    }, location='querystring')
+    args = parser.parse({"event_id": fields.Int(missing=False)}, location="querystring")
 
-    nav_items = get_user_navigation()
-    if args['event_id']:
+    if args["event_id"]:
 
-        if request.headers.get('HX-Request'):
-            template = 'admin/partials/event-detail.html'
+        if request.headers.get("HX-Request"):
+            template = "admin/partials/event-detail.html"
         else:
-            template = 'admin/event-detail.html'
+            template = "admin/event-detail.html"
         schema = CourseDetailSchema()
-        result = Course.query.get(args['event_id'])
+        result = Course.query.get(args["event_id"])
 
         result.available = result.available_size()
         result.description = html.escape(result.description)
 
         # Get the last registration activity
-        ordered_regs = result.registrations.order_by(CourseUserAttended.created_at).all()
+        ordered_regs = result.registrations.order_by(
+            CourseUserAttended.created_at
+        ).all()
         if ordered_regs:
-            last_reg = result.registrations.order_by(CourseUserAttended.created_at)[-1].created_at
+            last_reg = result.registrations.order_by(CourseUserAttended.created_at)[
+                -1
+            ].created_at
             formatted_date = last_reg.astimezone(EST).strftime("%m/%d/%y, %I:%M %p")
         else:
             formatted_date = "-"
 
         # Add some calculated stats about the event
         data = [
-            {
-                'label': 'Registrations',
-                'value': len(result.registrations.all())
-            },
-            {
-                'label': 'Last Registration',
-                'value': formatted_date
-            }
+            {"label": "Registrations", "value": len(result.registrations.all())},
+            {"label": "Last Registration", "value": formatted_date},
         ]
 
         content = {
-            'event': schema.dump(result),
-            'data': data,
-            'icon': left_arrow,
-            'menuitems': nav_items
+            "event": schema.dump(result),
+            "data": data,
+            "icon": left_arrow,
         }
 
     else:
         today = date.today()
         schema = TinyCourseSchema(many=True)
 
-        if request.headers.get('HX-Request'):
-            template = 'admin/index-partial.html'
+        if request.headers.get("HX-Request"):
+            template = "admin/index-partial.html"
         else:
-            template = 'admin/index.html'
-        
+            template = "admin/index.html"
+
         if current_user.usertype_id == 1:
-            upcoming = Course.query.filter(Course.starts > today).order_by(Course.starts).all()
-            past = Course.query.filter(Course.starts < today).order_by(Course.starts).all()
+            upcoming = (
+                Course.query.filter(Course.starts > today).order_by(Course.starts).all()
+            )
+            past = (
+                Course.query.filter(Course.starts < today).order_by(Course.starts).all()
+            )
         elif current_user.usertype_id == 2:
-            upcoming = current_user.presenting.filter(Course.starts > today).order_by(Course.starts).all()
-            past = current_user.presenting.filter(Course.starts < today).order_by(Course.starts).all()
+            upcoming = (
+                current_user.presenting.filter(Course.starts > today)
+                .order_by(Course.starts)
+                .all()
+            )
+            past = (
+                current_user.presenting.filter(Course.starts < today)
+                .order_by(Course.starts)
+                .all()
+            )
         else:
             abort(403)
-        
+
         # Find the number of registrations before serializing
         for result in upcoming:
             result.reg_length = len(result.registrations.all())
-        
+
         for result in past:
             result.reg_length = len(result.registrations.all())
 
         content = {
-            'past': schema.dump(past),
-            'upcoming': schema.dump(upcoming),
-            'menuitems': nav_items
+            "past": schema.dump(past),
+            "upcoming": schema.dump(upcoming),
         }
 
     return render_template(template, **content)
+
 
 @admin_bp.get("/events/<int:event_id>/edit")
 @restricted
@@ -126,20 +148,19 @@ def edit_event(event_id):
         abort(404)
 
     content = {
-        'event': event,
-        'data': {
-            'locations': locations,
-            'types': types,
-            'location_selected': event['location']['id'],
-            'type_selected': event['type']['id'],
-        }
+        "event": event,
+        "data": {
+            "locations": locations,
+            "types": types,
+            "location_selected": event["location"]["id"],
+            "type_selected": event["type"]["id"],
+        },
     }
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/edit-event.html',
-        **content
+        "shared/partials/sidebar.html", partial="admin/forms/edit-event.html", **content
     )
+
 
 @admin_bp.get("/events/<int:event_id>/copy")
 def copy_event(event_id):
@@ -149,25 +170,26 @@ def copy_event(event_id):
         abort(404)
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/duplicate-event.html',
-        event=event
+        "shared/partials/sidebar.html",
+        partial="admin/forms/duplicate-event.html",
+        event=event,
     )
+
 
 @admin_bp.get("/events/<int:event_id>/registrations/save")
 @restricted
 def get_roster(event_id):
-    
+
     course = Course.query.get(event_id)
     if not course:
         abort(404)
-    
+
     @stream_with_context
     def generate():
         data = StringIO()
         w = csv.writer(data)
 
-        w.writerow(('Name', 'Email', 'Location', 'Attended', 'Created At'))
+        w.writerow(("Name", "Email", "Location", "Attended", "Created At"))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -179,27 +201,30 @@ def get_roster(event_id):
             else:
                 location = reg.user.location.name
 
-            w.writerow((
-                reg.user.name,
-                reg.user.email,
-                location,
-                reg.attended,
-                reg.created_at.isoformat(),
-            ))
+            w.writerow(
+                (
+                    reg.user.name,
+                    reg.user.email,
+                    location,
+                    reg.attended,
+                    reg.created_at.isoformat(),
+                )
+            )
             yield data.getvalue()
             data.seek(0)
             data.truncate(0)
-    
+
     response = Response(generate(), mimetype="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=registrations.csv"
 
     return response
-        
+
 
 @admin_bp.get("/events/<int:event_id>/presenters/edit")
 @restricted
 def edit_event_presenters(event_id):
     from app.schemas import CoursePresenterSchema
+
     event = get_event(event_id)
 
     # Get a list of all available presenters
@@ -208,16 +233,14 @@ def edit_event_presenters(event_id):
     # Map to a dict structure to pass to the select partial
     prepared = [{"value": user.id, "text": user.name} for user in presenters]
 
-    content = {
-        "event": event,
-        "data": prepared
-    }
+    content = {"event": event, "data": prepared}
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/edit-presenters.html',
+        "shared/partials/sidebar.html",
+        partial="admin/forms/edit-presenters.html",
         **content
     )
+
 
 @admin_bp.get("/events/<int:event_id>/links/edit")
 @restricted
@@ -227,16 +250,12 @@ def edit_event_links(event_id):
     linktypes = CourseLinkType.query.all()
     prepared = [{"value": linktype.id, "text": linktype.name} for linktype in linktypes]
 
-    content = {
-        "event": event,
-        "data": prepared
-    }
+    content = {"event": event, "data": prepared}
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/edit-links.html',
-        **content
+        "shared/partials/sidebar.html", partial="admin/forms/edit-links.html", **content
     )
+
 
 @admin_bp.get("/events/<int:event_id>/users/edit")
 @restricted
@@ -248,18 +267,14 @@ def edit_event_regisrations(event_id):
     query = User.query.order_by(User.name.asc()).all()
 
     content = {
-        "event": {
-            "title": event['title'],
-            "id": event['id']
-        },
-        "data": UserSchema(many=True).dump(query)
+        "event": {"title": event["title"], "id": event["id"]},
+        "data": UserSchema(many=True).dump(query),
     }
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/edit-users.html',
-        **content
+        "shared/partials/sidebar.html", partial="admin/forms/edit-users.html", **content
     )
+
 
 @admin_bp.get("/events/<int:event_id>/delete")
 @restricted
@@ -267,7 +282,7 @@ def delete_event(event_id):
     event = get_event(event_id)
 
     return render_template(
-        'shared/partials/sidebar.html',
-        partial='admin/forms/delete-event.html',
-        event=event
+        "shared/partials/sidebar.html",
+        partial="admin/forms/delete-event.html",
+        event=event,
     )
