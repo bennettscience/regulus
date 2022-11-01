@@ -53,10 +53,10 @@ from app import app, db
 from app.logging import create_log
 from app.auth import OAuthSignIn
 from app.models import Course, User, Log
-from resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
-from resources.courses import CourseTypeAPI
+from app.resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
+from app.resources.courses import CourseTypeAPI
 
-from resources.usertypes import UserTypesAPI
+from app.resources.usertypes import UserTypesAPI
 from app.schemas import UserSchema, LogSchema, TinyCourseSchema
 
 # from app.blueprints import users_blueprint

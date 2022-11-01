@@ -9,7 +9,7 @@ from webargs.flaskparser import parser
 from app.wrappers import admin_only
 from app.utils import get_user_navigation
 
-from resources.users import (
+from app.resources.users import (
     UserAPI,
     UserAttendingAPI,
     UserLocationAPI,

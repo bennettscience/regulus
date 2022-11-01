@@ -2,18 +2,18 @@ import json
 from flask import Blueprint, make_response, render_template
 from app.wrappers import restricted
 
-from resources.courselinks import CourseLinksAPI, CourseLinkAPI
-from resources.courses import (
+from app.resources.courselinks import CourseLinksAPI, CourseLinkAPI
+from app.resources.courses import (
     CourseListAPI,
     CourseAPI,
     CourseAttendeesAPI,
     CourseAttendeeAPI,
     CoursePresentersAPI,
     CoursePresenterAPI,
-    CourseTypesAPI
+    CourseTypesAPI,
 )
 
-events_bp = Blueprint('events_bp', __name__)
+events_bp = Blueprint("events_bp", __name__)
 
 courses_view = CourseListAPI.as_view("courses_api")
 course_view = CourseAPI.as_view("course_api")
@@ -25,23 +25,28 @@ course_presenters_view = CoursePresentersAPI.as_view("course_presenters_view")
 course_presenter_view = CoursePresenterAPI.as_view("course_presenter_view")
 course_types_view = CourseTypesAPI.as_view("course_types_view")
 
-@events_bp.get('/courses/types/create')
+
+@events_bp.get("/courses/types/create")
 @restricted
 def new_event_type():
     response = make_response(
         render_template(
-            'shared/partials/sidebar.html',
-            partial='events/partials/new-type-form.html'
+            "shared/partials/sidebar.html", partial="events/partials/new-type-form.html"
         )
     )
-    response.headers.set('HX-Trigger', json.dumps({
-            'makeQuill': {
-                "placeholder": "Edit event type description",
-                "element": "#editor--event"
+    response.headers.set(
+        "HX-Trigger",
+        json.dumps(
+            {
+                "makeQuill": {
+                    "placeholder": "Edit event type description",
+                    "element": "#editor--event",
+                }
             }
-        }
-    ))
+        ),
+    )
     return response
+
 
 events_bp.add_url_rule("/courses", view_func=courses_view, methods=["GET", "POST"])
 events_bp.add_url_rule(
@@ -79,7 +84,7 @@ events_bp.add_url_rule(
 events_bp.add_url_rule(
     "/courses/<int:course_id>/register",
     view_func=course_attendee_view,
-    methods=["POST", "DELETE"]
+    methods=["POST", "DELETE"],
 )
 events_bp.add_url_rule(
     "/courses/<int:course_id>/registrations/<int:user_id>",

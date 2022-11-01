@@ -34,7 +34,7 @@ from app.schemas import (
 from app.static.assets.icons import attended, close, left_arrow
 from app.utils import get_user_navigation, object_to_select
 
-from resources.courses import CourseAPI
+from app.resources.courses import CourseAPI
 
 course_view = CourseAPI.as_view("course_view")
 

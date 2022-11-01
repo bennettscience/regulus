@@ -9,6 +9,7 @@ from app.models import Location
 from app.schemas import LocationCourseSchema, LocationSchema, LocationUserSchema
 from app.wrappers import restricted
 
+
 class LocationListAPI(MethodView):
     def get(self: None) -> List[Location]:
         """Get a list of all locations
@@ -19,12 +20,14 @@ class LocationListAPI(MethodView):
         # Some routes only show buildings. Use a query param to filter out all
         # locations other than physical places.
         # TODO: This is brittle, relying on missing address fields. Add a field to check against?
-        args = parser.parse({'locationType': fields.Str(required=False)}, location='querystring')
-        if args and args['locationType'] == 'physical':
+        args = parser.parse(
+            {"locationType": fields.Str(required=False)}, location="querystring"
+        )
+        if args and args["locationType"] == "physical":
             locations = Location.query.filter(Location.address != "").all()
         else:
             locations = Location.query.all()
-            
+
         return jsonify(LocationSchema(many=True).dump(locations))
 
     @restricted
@@ -39,18 +42,24 @@ class LocationListAPI(MethodView):
         try:
             location = Location().create(Location, args)
 
-            data = [{"value": location.id, "text": location.name} for location in Location.query.all()]
+            data = [
+                {"value": location.id, "text": location.name}
+                for location in Location.query.all()
+            ]
             response = make_response(
                 render_template(
-                    'shared/form-fields/select.html',
-                    name='location_id',
+                    "shared/form-fields/select.html",
+                    name="location_id",
                     options=data,
-                    oob='True',
-                    method='innerHTML',
-                    el="#location_id"
+                    oob="True",
+                    method="innerHTML",
+                    el="#location_id",
                 )
             )
-            response.headers.set('HX-Trigger', json.dumps({'showToast': 'Successfully added the location.'}))
+            response.headers.set(
+                "HX-Trigger",
+                json.dumps({"showToast": "Successfully added the location."}),
+            )
             return response
         except Exception as e:
             return jsonify(e)

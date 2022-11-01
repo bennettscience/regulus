@@ -51,9 +51,13 @@ class CourseLinksAPI(MethodView):
             return jsonify(e)
 
         response = make_response(
-            render_template('shared/partials/event-link.html', link=link, event_id=course.id)
+            render_template(
+                "shared/partials/event-link.html", link=link, event_id=course.id
+            )
         )
-        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Link successfully created.'}))
+        response.headers.set(
+            "HX-Trigger", json.dumps({"showToast": "Link successfully created."})
+        )
         return response
 
 
@@ -111,12 +115,14 @@ class CourseLinkAPI(MethodView):
         link = CourseLink.query.filter_by(course_id=course_id, id=link_id).first()
         if link is None:
             abort(404)
-            
+
         db.session.delete(link)
         db.session.commit()
 
         links = Course.query.get(course_id).links
-        response = make_response('Ok', 200)
-        response.headers.set('HX-Trigger', json.dumps({'showToast': 'Link deleted successfully.'}))
+        response = make_response("Ok", 200)
+        response.headers.set(
+            "HX-Trigger", json.dumps({"showToast": "Link deleted successfully."})
+        )
 
         return response
