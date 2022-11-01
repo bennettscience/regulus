@@ -4,7 +4,6 @@ from flask.views import MethodView
 from webargs import fields, validate
 from webargs.flaskparser import parser, use_args, use_kwargs
 
-from app import db
 from app.models import UserType
 from app.schemas import UserRoleSchema
 from app.wrappers import admin_only

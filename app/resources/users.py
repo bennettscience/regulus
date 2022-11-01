@@ -8,7 +8,7 @@ from typing import List
 from webargs import fields, validate
 from webargs.flaskparser import parser, use_args, use_kwargs
 
-from app import db
+from app.extensions import db
 
 from app.static.assets.icons import attended, registered
 from app.wrappers import admin_only, admin_or_self

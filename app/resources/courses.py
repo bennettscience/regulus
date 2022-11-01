@@ -10,7 +10,7 @@ from webargs import fields
 from webargs.multidictproxy import MultiDictProxy
 from webargs.flaskparser import parser
 
-from app import db, cache
+from app.extensions import db, cache
 
 from config import Config
 

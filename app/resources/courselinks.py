@@ -4,7 +4,7 @@ from flask import abort, jsonify, make_response, render_template
 from flask.views import MethodView
 from webargs.flaskparser import parser
 
-from app import db
+from app.extensions import db
 from app.models import Course, CourseLink
 from app.schemas import (
     DisplayCourseLinkSchema,

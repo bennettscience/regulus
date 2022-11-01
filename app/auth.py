@@ -1,7 +1,6 @@
 from flask import abort, current_app, url_for
 from flask_login import current_user
 
-from app import app
 from authlib.integrations.flask_client import OAuth
 
 
@@ -34,7 +33,7 @@ class OAuthSignIn(object):
 class GoogleSignIn(OAuthSignIn):
     def __init__(self):
         super(GoogleSignIn, self).__init__("google")
-        self.oauth = OAuth(app)
+        self.oauth = OAuth(current_app)
 
         self.oauth.register(
             name="google",
@@ -45,7 +44,7 @@ class GoogleSignIn(OAuthSignIn):
         )
 
     def authorize(self):
-        redirect_uri = url_for("callback", _external=True)
+        redirect_uri = url_for("auth_bp.callback", _external=True)
         return self.oauth.google.authorize_redirect(redirect_uri)
 
     def authorize_access_token(self):
@@ -53,4 +52,4 @@ class GoogleSignIn(OAuthSignIn):
         return self.token
 
     def parse_id_token(self, token):
-        return self.oauth.google.parse_id_token(token, nonce=token['userinfo']['nonce'])
+        return self.oauth.google.parse_id_token(token, nonce=token["userinfo"]["nonce"])

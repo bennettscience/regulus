@@ -1,6 +1,6 @@
 from flask import abort, Blueprint, render_template, request
 from flask_login import current_user
-from app import app, db
+from app.extensions import db
 from app.models import UserType, User
 
 from webargs import fields

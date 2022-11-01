@@ -5,7 +5,7 @@ from flask import abort, jsonify
 from flask.views import MethodView
 from webargs.flaskparser import parser
 
-from app import db
+from app.extensions import db
 from app.models import CourseLink, CourseLinkType
 from app.schemas import CourseLinkTypeSchema, NewCourseLinkTypeSchema
 from app.wrappers import admin_only, restricted

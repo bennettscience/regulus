@@ -13,7 +13,7 @@ from webargs import fields
 from webargs.flaskparser import parser
 from werkzeug.wrappers import Response
 
-from app import cache
+from app.extensions import cache
 from app.wrappers import restricted
 from app.models import (
     Course,
