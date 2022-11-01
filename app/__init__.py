@@ -1,74 +1,256 @@
-from datetime import datetime
-import requests
+import click
+from flask import Flask
 
-from flask import (
-    Flask,
-    jsonify,
-    redirect,
-    session,
-)
+from flask_login import current_user
 
-from flask_login import (
-    LoginManager,
-    current_user,
-    login_user,
-    logout_user,
-)
-
-from flask_caching import Cache
-from flask_cors import CORS
-from flask_marshmallow import Marshmallow
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-import jinja_partials
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from config import Config
+from app.extensions import cache, cors, db, partials, lm, ma, migrate
 
 sentry_sdk.init(
     dsn=Config.SENTRY_DSN, integrations=[FlaskIntegration()], traces_sample_rate=0.5
 )
 
-app = Flask(__name__)
-app.secret_key = "!secret"
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
-migrate = Migrate(app, db, render_as_batch=True)
-lm = LoginManager(app)
-cache = Cache(app)
-cors = CORS(
-    app,
-    resources={
-        r"/courses": {"origins": "chrome-extension://*"},
-        r"/resource-query": {"origins": "chrome-extension://*"},
-    },
-)
-
-jinja_partials.register_extensions(app)
-
-# TODO: Check all sensititve API routes for access control logic.
-from app import app, db
-from app.logging import create_log
-from app.auth import OAuthSignIn
-from app.models import Course, User, Log
-from app.resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
-from app.resources.courses import CourseTypeAPI
-
-from app.resources.usertypes import UserTypesAPI
-from app.schemas import UserSchema, LogSchema, TinyCourseSchema
-
-# from app.blueprints import users_blueprint
 from app.blueprints.admin_blueprint import admin_bp
+from app.blueprints.auth_blueprint import auth_bp
 from app.blueprints.documents_blueprint import documents_bp
 from app.blueprints.events_blueprint import events_bp
 from app.blueprints.home_blueprint import home_bp
 from app.blueprints.locations_blueprint import locations_bp
 from app.blueprints.users_blueprint import users_bp
 
-from app.errors import forbidden, page_not_found
+from app.errors import (
+    forbidden,
+    handle_error,
+    internal_error,
+    page_not_found,
+    request_conflict,
+    unauthorized,
+)
+from app.logging import create_log
+
+from app.models import (
+    Course,
+    CourseLink,
+    CourseLinkType,
+    CourseType,
+    CourseUserAttended,
+    Location,
+    Log,
+    User,
+    UserType,
+)
 from app.utils import get_user_navigation
+
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    cache.init_app(app)
+    cors.init_app(
+        app,
+        resources={
+            r"/courses": {"origins": "chrome-extension://*"},
+            r"/resource-query": {"origins": "chrome-extension://*"},
+        },
+    )
+    db.init_app(app)
+    lm.init_app(app)
+    ma.init_app(app)
+    migrate.init_app(app, db, render_as_batch=True)
+
+    partials.register_extensions(app)
+
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(documents_bp)
+    app.register_blueprint(events_bp)
+    app.register_blueprint(home_bp)
+    app.register_blueprint(locations_bp)
+    app.register_blueprint(users_bp)
+
+    app.register_error_handler(400, handle_error)
+    app.register_error_handler(401, unauthorized)
+    app.register_error_handler(403, forbidden)
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(409, request_conflict)
+    app.register_error_handler(422, handle_error)
+    app.register_error_handler(500, internal_error)
+
+    # Logging
+    @app.before_request
+    def log_request():
+        if not current_user.is_anonymous:
+            create_log()
+
+    @app.shell_context_processor
+    def make_shell_context():
+        return {
+            "db": db,
+            "CourseType": CourseType,
+            "CourseUserAttended": CourseUserAttended,
+            "CourseLinkType": CourseLinkType,
+            "Location": Location,
+            "UserType": UserType,
+            "Course": Course,
+            "CourseLink": CourseLink,
+            "User": User,
+            "Log": Log,
+        }
+
+    @app.cli.command("seed-location")
+    @click.argument("filename")
+    def seed_location(filename):
+        import sys
+        import csv
+
+        if filename is None:
+            print("Please provide a csv file for processing")
+            sys.exit(1)
+
+        with open(filename, "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                loc = Location.query.filter(Location.name == row[0]).first()
+                if loc is None:
+                    print("Adding {}".format(row[0]))
+                    db.session.add(Location(name=row[0], address=row[2]))
+                else:
+                    print("Location {} already exists, updating address".format(row[0]))
+                    loc.address = row[2]
+
+        db.session.commit()
+        sys.exit()
+
+    @app.cli.command("seed-events")
+    @click.argument("filename")
+    def seed_events(filename):
+        import sys
+        import csv
+        from dateutil import parser
+
+        if filename is None:
+            print("Please provide a csv file for processing")
+            sys.exit(1)
+
+        with open(filename, "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                print("Checking for {}...".format(row[3]))
+                exists = Course.query.filter(Course.ext_calendar == row[9]).first()
+                if exists is None:
+                    print("{} does not exist. Creating...".format(row[3]))
+                    starts = parser.parse(row[5])
+                    ends = parser.parse(row[6])
+                    created_at = parser.parse(row[10])
+                    event = Course(
+                        coursetype_id=row[0],
+                        location_id=row[1],
+                        course_size=row[2],
+                        title=row[3],
+                        description=row[4],
+                        starts=starts,
+                        ends=ends,
+                        active=bool(row[7]),
+                        occurred=bool(row[8]),
+                        ext_calendar=row[9],
+                        created_at=created_at,
+                    )
+                    db.session.add(event)
+        db.session.commit()
+        print("Added events successfully.")
+        sys.exit()
+
+    @app.cli.command("seed-role")
+    def seed_role():
+        import sys
+
+        print("Creating all roles")
+        site_roles = [
+            UserType(name="SuperAdmin"),
+            UserType(name="Presenter"),
+            UserType(name="Observer"),
+            UserType(name="User"),
+        ]
+        db.session.add_all(site_roles)
+        db.session.commit()
+        print("Successfully created all roles.")
+        sys.exit()
+
+    @app.cli.command("import-users")
+    @click.argument("filename")
+    def import_users(filename):
+        import sys
+        import csv
+
+        if filename is None:
+            print("Please provide a csv file for processing")
+            sys.exit(1)
+
+        with open(filename, "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                print("Checking for {}...".format(row[3]))
+                exists = User.query.filter(User.email == row[0]).first()
+                if exists is None:
+                    print("{} does not exist. Creating...".format(row[3]))
+                    location_id = row[3] or None
+                    user = User(
+                        email=row[0],
+                        name=row[1],
+                        location_id=location_id,
+                        usertype_id=4,
+                    )
+                    db.session.add(user)
+        db.session.commit()
+        print("Added users successfully.")
+        sys.exit()
+
+    @app.cli.command("fix-registrations")
+    @click.argument("filename")
+    def fix_registrations(filename):
+        # Loop through the file and append each user to the course attendees object
+        # look up each user by their email
+        import sys
+        import csv
+
+        if filename is None:
+            print("Please provide a csv file for processing")
+            sys.exit(1)
+
+        with open(filename, "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                course = Course.query.filter(Course.ext_calendar == row[1]).first()
+                users = row[2].split(",")
+                for user in users:
+                    print("Searching for {}".format(user))
+                    u = User.query.filter(User.email == user).first()
+                    if u is not None:
+                        course.registrations.append(
+                            CourseUserAttended(
+                                course_id=course.id,
+                                user_id=u.id,
+                            )
+                        )
+                        db.session.commit()
+                    else:
+                        print("Could not find {}".format(user))
+
+    return app
+
+
+# TODO: Check all sensititve API routes for access control logic.
+
+from app.models import User
+from app.resources.courselinktypes import CourseLinkTypeAPI, CourseLinkTypesAPI
+from app.resources.courses import CourseTypeAPI
+
+from app.resources.usertypes import UserTypesAPI
+
 
 course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
@@ -76,179 +258,27 @@ course_linktype_view = CourseLinkTypeAPI.as_view("course_linktype_api")
 
 user_types_view = UserTypesAPI.as_view("user_types_api")
 
-# Register all the blueprints
-app.register_blueprint(admin_bp)
-app.register_blueprint(documents_bp)
-app.register_blueprint(events_bp)
-app.register_blueprint(home_bp)
-app.register_blueprint(locations_bp)
-app.register_blueprint(users_bp)
-
-app.register_error_handler(403, forbidden)
-app.register_error_handler(404, page_not_found)
-
 
 @lm.user_loader
 def load_user(id):
     return User.query.get(id)
 
 
-# Authorization routes run on the main app instead of through a blueprint
-@app.route("/authorize/<provider>")
-def oauth_authorize(provider):
-    # redirect_uri = url_for('auth', _external=True)
-    oauth = OAuthSignIn.get_provider(provider)
-    return oauth.authorize()
+# # Request all logs for an event
+# @app.route("/logs/<int:course_id>", methods=["GET"])
+# def get_logs(course_id):
+#     query = Log.query.filter(Log.endpoint.like(f"/courses/{course_id}/%")).all()
+#     return jsonify(LogSchema(many=True).dump(query))
 
 
-@app.route("/callback")
-def callback():
-    oauth = OAuthSignIn.get_provider("google")
-    token = oauth.authorize_access_token()
-    received_user = oauth.parse_id_token(token)
-    email = received_user["email"]
-    name = received_user["name"]
-    if email is None:
-        return jsonify({"message": "Unable to login, email is null"})
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        user = User(name=name, email=email, usertype_id=4)
-        db.session.add(user)
-        db.session.commit()
-
-    # Get the user's navigation and store it as a session variable.
-    login_user(user, False)
-
-    nav_items = get_user_navigation()
-    session["navigation"] = nav_items
-
-    return redirect("/")
+# app.add_url_rule(
+#     "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
+# )
+# app.add_url_rule(
+#     "/courselinktypes/<int:linktype_id>",
+#     view_func=course_linktype_view,
+#     methods=["GET", "PUT", "DELETE"],
+# )
 
 
-@app.route("/logout")
-def logout():
-    logout_user()
-    # Removes the user's navigation items on logout
-    session.clear()
-    return redirect("/")
-
-
-@app.route("/getsession")
-def check_session():
-    if current_user.is_authenticated:
-        user = User.query.get(current_user.id)
-        return jsonify({"login": True, "user": UserSchema().dump(user)})
-    return jsonify({"login": False})
-
-
-# Logging
-@app.before_request
-def log_request():
-    if not current_user.is_anonymous:
-        create_log()
-
-
-# Request all logs for an event
-@app.route("/logs/<int:course_id>", methods=["GET"])
-def get_logs(course_id):
-    query = Log.query.filter(Log.endpoint.like(f"/courses/{course_id}/%")).all()
-    return jsonify(LogSchema(many=True).dump(query))
-
-
-app.add_url_rule(
-    "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
-)
-app.add_url_rule(
-    "/courselinktypes/<int:linktype_id>",
-    view_func=course_linktype_view,
-    methods=["GET", "PUT", "DELETE"],
-)
-
-
-app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
-
-
-@app.route("/resource-query")
-@cache.cached(timeout=3600)
-def update():
-    today = datetime.now()
-
-    # Get the blog post and youtube video
-    blog_post = get_blog_post()
-    youtube_video = get_youtube_video()
-
-    # This is kind of a mess, but it helps handle all cases. It can probably be done better.
-    # Both calls come back successfully
-    if not isinstance(blog_post, Exception) and not isinstance(
-        youtube_video, Exception
-    ):
-        if (today - blog_post["published_at"]) < (
-            today - youtube_video["published_at"]
-        ):
-            resource = blog_post
-        else:
-            resource = youtube_video
-    else:
-        if isinstance(blog_post, Exception) and isinstance(youtube_video, Exception):
-            resource = {"message": "Something has gone terribly wrong"}
-        elif not isinstance(blog_post, Exception) and isinstance(
-            youtube_video, Exception
-        ):
-            resource = blog_post
-        elif isinstance(blog_post, Exception) and not isinstance(
-            youtube_video, Exception
-        ):
-            resource = youtube_video
-        else:
-            resource = {"message": "You should not have reached this spot."}
-
-    return jsonify(**resource)
-
-
-@cache.cached(timeout=3600, key_prefix="last_blog")
-def get_blog_post():
-    headers = {"Authorization": "Bearer " + app.config["BLOG_AUTH_TOKEN"]}
-
-    try:
-        response = requests.get(
-            "https://blog.elkhart.k12.in.us/wp-json/wp/v2/posts?per_page=1&order=desc&_embed",
-            headers=headers,
-        ).json()[0]
-
-        result = {
-            "published_at": datetime.strptime(response["date"], "%Y-%m-%dT%H:%M:%S"),
-            "link": response["link"],
-            "thumbnail": response["_embedded"]["wp:featuredmedia"][0]["source_url"],
-            "title": response["title"]["rendered"],
-        }
-    except Exception as e:
-        result = e
-
-    return result
-
-
-@cache.cached(timeout=3600, key_prefix="last_youtube")
-def get_youtube_video():
-
-    token = app.config["YOUTUBE_AUTH_TOKEN"]
-    # Set the referrer header
-    headers = {"Referer": "https://events.elkhart.k12.in.us"}
-    yt_request = requests.get(
-        f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUgwJ38NKsSVTBW_yzw8n1eQ&sort=desc&maxResults=1&key={token}",  # noqa
-        headers=headers,
-    )
-    try:
-        response = yt_request.json()["items"][0]["snippet"]
-        result = {
-            "published_at": datetime.strptime(
-                response["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
-            ),
-            "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
-            "thumbnail": response["thumbnails"]["standard"]["url"],
-            "title": response["title"],
-        }
-    except Exception as e:
-        result = e
-
-    return result
+# app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])
