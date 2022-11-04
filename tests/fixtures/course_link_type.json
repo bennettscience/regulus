@@ -1,0 +1,12 @@
+[
+    {
+        "table": "course_link_type",
+        "records": [
+            {
+                "id": 1,
+                "name": "Notes",
+                "description": "Notes for a session."
+            }
+        ]
+    }
+]

@@ -1,30 +1,35 @@
-import json
 import unittest
 
 from contextlib import contextmanager
 from flask import template_rendered
 from flask_login.utils import login_user
 
-from app import app
+from app import create_app
+from app.extensions import db
 from app.models import User
-
-
-class Loader(object):
-
-    def load(filename):
-        with open(filename) as file_in:
-            return json.load(file_in)
+from app.schemas import UserSchema
+from config import TestConfig
 
 
 class TestBase(unittest.TestCase):
-    @app.route('/auto_login/<user_name>')
-    def auto_login(user_name):
-        user = User.query.filter(User.name == user_name).first()
-        login_user(user, remember=True)
-        return "ok"
+    def create(self):
+        self.app = create_app(TestConfig)
+
+        # Build the database structure in the application context
+        with self.app.app_context():
+            db.init_app(self.app)
+            db.create_all()
+
+            @self.app.route("/auto_login/<user_name>")
+            def auto_login(user_name):
+                user = User.query.filter(User.name == user_name).first()
+                login_user(user, remember=True)
+                return UserSchema().dump(user)
+
+        return self.app
 
     def login(self, user_name):
-        response = self.client.get(f"/auto_login/{user_name}")
+        return self.client.get(f"/auto_login/{user_name}")
 
 
 @contextmanager
@@ -33,10 +38,8 @@ def captured_templates(app):
     recorded = []
 
     def record(sender, template, context, **extra):
-        recorded.append({
-            "template_name": template.name,
-            "context": context
-        })
+        recorded.append({"template_name": template.name, "context": context})
+
     template_rendered.connect(record, app)
     try:
         yield recorded
