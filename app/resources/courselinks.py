@@ -3,6 +3,7 @@ from typing import List
 from flask import abort, jsonify, make_response, render_template
 from flask.views import MethodView
 from webargs.flaskparser import parser
+from flask_login import login_required
 
 from app.extensions import db
 from app.models import Course, CourseLink
@@ -14,6 +15,7 @@ from app.wrappers import restricted
 
 
 class CourseLinksAPI(MethodView):
+    @login_required
     def get(self: None, course_id: int) -> List[CourseLink]:
         """Get a list of links for an event
 
