@@ -45,9 +45,9 @@ from app.models import (
 from app.utils import get_user_navigation
 
 
-def create_app():
+def create_app(config=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config)
 
     cache.init_app(app)
     cors.init_app(
