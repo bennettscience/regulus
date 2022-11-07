@@ -54,7 +54,9 @@ def get_event(event_id):
 @admin_bp.get("/events")
 @restricted
 def index():
-    args = parser.parse({"event_id": fields.Int(missing=False)}, location="querystring")
+    args = parser.parse(
+        {"event_id": fields.Int(load_default=False)}, location="querystring"
+    )
 
     if args["event_id"]:
 
