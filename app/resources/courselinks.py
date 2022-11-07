@@ -15,7 +15,6 @@ from app.wrappers import restricted
 
 
 class CourseLinksAPI(MethodView):
-    @login_required
     def get(self: None, course_id: int) -> List[CourseLink]:
         """Get a list of links for an event
 
