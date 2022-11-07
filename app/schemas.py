@@ -9,22 +9,21 @@ class DateTime(fields.DateTime):
     Class extends marshmallow standard DateTime with "timestamp" format.
     """
 
-    SERIALIZATION_FUNCS = \
-        fields.DateTime.SERIALIZATION_FUNCS.copy()
-    DESERIALIZATION_FUNCS = \
-        fields.DateTime.DESERIALIZATION_FUNCS.copy()
+    SERIALIZATION_FUNCS = fields.DateTime.SERIALIZATION_FUNCS.copy()
+    DESERIALIZATION_FUNCS = fields.DateTime.DESERIALIZATION_FUNCS.copy()
 
     # Return a JS formatted timestamp when dumping course details
-    SERIALIZATION_FUNCS['timestamp'] = lambda x: int(x.timestamp()) * 1000
+    SERIALIZATION_FUNCS["timestamp"] = lambda x: int(x.timestamp()) * 1000
     # Create a datetime object using a Python formatted timestamp from the client
-    DESERIALIZATION_FUNCS['timestamp'] = datetime.fromtimestamp
+    DESERIALIZATION_FUNCS["timestamp"] = datetime.fromtimestamp
+
 
 # Course Schemas
 class CourseLocationSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     description = fields.Str()
-    address = fields.Str(missing="")
+    address = fields.Str(load_default="")
     users = fields.Nested("LocationUserSchema")
     courses = fields.Nested("LocationCourseSchema")
 
@@ -45,7 +44,7 @@ class SmallCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str()
     description = fields.Str()
-    starts = DateTime(format='timestamp')
+    starts = DateTime(format="timestamp")
     available = fields.Int()
     state = fields.Str()
     icon = fields.Str()
@@ -89,7 +88,7 @@ class NewCourseSchema(Schema):
 
 class CourseSchema(Schema):
     id = fields.Int(dump_only=True)
-    created_at = DateTime(format='timestamp')
+    created_at = DateTime(format="timestamp")
     location_id = fields.Int()
     coursetype_id = fields.Int()
     type = fields.Nested("CourseTypeSchema")
@@ -119,8 +118,8 @@ class CourseRegistrationSchema(Schema):
 
 class CourseAttendingSchema(Schema):
     id = fields.Int(dump_only=True)
-    starts = DateTime(format='timestamp')
-    ends = DateTime(format='timestamp')
+    starts = DateTime(format="timestamp")
+    ends = DateTime(format="timestamp")
     location = fields.Nested("LocationSchema")
     title = fields.String()
     description = fields.String()
@@ -175,15 +174,15 @@ class LocationSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     description = fields.Str()
-    address = fields.Str(missing="")
+    address = fields.Str(load_default="")
 
 
 # Log Schema
 
 
 class LogSchema(Schema):
-    occurred = DateTime('timestamp')
-    user = fields.Nested("UserSchema", only=('id', 'name', 'role'))
+    occurred = DateTime("timestamp")
+    user = fields.Nested("UserSchema", only=("id", "name", "role"))
     endpoint = fields.Str()
     method = fields.Str()
     json_data = fields.Str()
