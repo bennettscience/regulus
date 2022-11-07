@@ -4,8 +4,13 @@
         "records": [
             {
                 "id": 1,
-                "name": "Notes",
-                "description": "Notes for a session."
+                "name": "Type 1",
+                "description": "Link type 1"
+            },
+            {
+                "id": 2,
+                "name": "Type 2",
+                "description": "Link type 2"
             }
         ]
     }

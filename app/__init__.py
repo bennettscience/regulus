@@ -15,6 +15,7 @@ sentry_sdk.init(
 
 from app.blueprints.admin_blueprint import admin_bp
 from app.blueprints.auth_blueprint import auth_bp
+from app.blueprints.courselinktype_blueprint import course_link_type_bp
 from app.blueprints.documents_blueprint import documents_bp
 from app.blueprints.events_blueprint import events_bp
 from app.blueprints.home_blueprint import home_bp
@@ -66,6 +67,7 @@ def create_app(config=Config):
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(course_link_type_bp)
     app.register_blueprint(documents_bp)
     app.register_blueprint(events_bp)
     app.register_blueprint(home_bp)
@@ -269,16 +271,6 @@ def load_user(id):
 # def get_logs(course_id):
 #     query = Log.query.filter(Log.endpoint.like(f"/courses/{course_id}/%")).all()
 #     return jsonify(LogSchema(many=True).dump(query))
-
-
-# app.add_url_rule(
-#     "/courselinktypes", view_func=course_linktypes_view, methods=["GET", "POST"]
-# )
-# app.add_url_rule(
-#     "/courselinktypes/<int:linktype_id>",
-#     view_func=course_linktype_view,
-#     methods=["GET", "PUT", "DELETE"],
-# )
 
 
 # app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])

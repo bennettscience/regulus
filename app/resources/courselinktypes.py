@@ -6,7 +6,7 @@ from flask.views import MethodView
 from webargs.flaskparser import parser
 
 from app.extensions import db
-from app.models import CourseLink, CourseLinkType
+from app.models import CourseLinkType
 from app.schemas import CourseLinkTypeSchema, NewCourseLinkTypeSchema
 from app.wrappers import admin_only, restricted
 
