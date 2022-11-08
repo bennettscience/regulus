@@ -6,6 +6,7 @@ from typing import List
 from flask import abort, current_app, jsonify, make_response, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
+import requests
 from webargs import fields
 from webargs.multidictproxy import MultiDictProxy
 from webargs.flaskparser import parser
@@ -52,7 +53,10 @@ class CourseListAPI(MethodView):
             List: List of Course objects.
         """
         args = parser.parse(
-            {"format": fields.Str(missing=None), "all": fields.Bool(missing=False)},
+            {
+                "format": fields.Str(load_default=None),
+                "all": fields.Bool(load_default=False),
+            },
             location="querystring",
         )
 
@@ -155,8 +159,6 @@ class CourseListAPI(MethodView):
             }
 
         # post to a webhook to handle the event creation
-        import requests
-
         webhook_url = Config.CALENDAR_HOOK_URL
 
         payload = {
@@ -291,7 +293,6 @@ class CourseAPI(MethodView):
         Returns:
             Course: JSON representation of the updated event
         """
-        import requests
         from app.static.assets.icons import left_arrow
 
         # This bug was fixable by sending everything as JSON, but I'm not sure why.
@@ -400,8 +401,6 @@ class CourseAPI(MethodView):
         Returns:
             dict: Status of the removal as an error or success message.
         """
-        import requests
-
         webhook_url = Config.CALENDAR_HOOK_URL
         calendar_id = Config.GOOGLE_CALENDAR_ID
 
@@ -565,18 +564,15 @@ class CoursePresentersAPI(MethodView):
         Returns:
             list: event presenters
         """
-        args = request.form
+        args = parser.parse({"user_ids": fields.List(fields.Int())}, location="form")
 
         course = Course.query.get(course_id)
 
         if course is None:
             abort(404)
 
-        import requests
-
         webhook_url = Config.CALENDAR_HOOK_URL
-
-        user = User.query.get(args["user_id"])
+        user = User.query.get(args["user_ids"])
         if user is not None:
 
             # Update the user to a presenter so they get the dashboard at login
@@ -768,8 +764,6 @@ class CourseAttendeesAPI(MethodView):
                         CourseUserAttended(course_id=course.id, user_id=user.id)
                     )
 
-                import requests
-
                 raw = {
                     "method": "patch",
                     "token": Config.CALENDAR_HOOK_TOKEN,
@@ -871,8 +865,6 @@ class CourseAttendeeAPI(MethodView):
             # The service account can't add people directly without Domain-Wide Delegation, which is a major
             # security concern. POSTing to a private webhook will allow the PD account to manupulate
             # the Calendar directly to add/remove people.
-            import requests
-
             raw = {
                 "method": "patch",
                 "token": Config.CALENDAR_HOOK_TOKEN,
@@ -966,8 +958,6 @@ class CourseAttendeeAPI(MethodView):
             "calendarId": Config.GOOGLE_CALENDAR_ID,
             "eventId": course.ext_calendar,
         }
-
-        import requests
 
         response = requests.post(webhook_url, json=raw)
 
