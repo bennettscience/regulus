@@ -1,27 +1,31 @@
 import json
 import unittest
 
-from app import app, db
-from app.models import Course, Location, User
+from app.extensions import db
+from tests.loader import Loader
+from tests.utils import captured_templates, TestBase
 
 
-class TestUsers(unittest.TestCase):
+class TestLocations(TestBase):
     def setUp(self):
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-        db.create_all()
-        self.client = app.test_client()
+        self.app = self.create()
 
-        l1 = Location(
-            name="Location 1", description="High School", address="123 main st"
-        )
-        u1 = User(name="User 1", email="user1@example.com", location_id=1)
-        c1 = Course(title="Course 1", location_id=1)
-        db.session.add_all([c1, l1, u1])
-        db.session.commit()
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
+
+        self.client = self.app.test_client()
+
+        fixtures = ["courses.json", "locations.json", "users.json"]
+
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
     def tearDown(self):
-        db.session.remove()
         db.drop_all()
+        db.session.close()
 
     def test_get_locations(self):
         resp = self.client.get("/locations")
@@ -30,46 +34,54 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(resp.json[0]["name"], "Location 1")
 
     def test_post_location(self):
-        headers = {"Content-Type": "application/json"}
+        self.login("Admin")
         payload = {
-            "name": "Location 2",
-            "description": "Another location",
+            "name": "Location 3",
+            "description": "Location 3",
             "address": "999 Oak St.",
         }
-        resp = self.client.post("/locations", data=json.dumps(payload), headers=headers)
-        self.assertTrue(resp.status_code == 200)
-        self.assertEqual(resp.json["name"], "Location 2")
+        with captured_templates(self.app) as templates:
+            resp = self.client.post("/locations", data=payload)
+
+            titles = [template["template_name"] for template in templates]
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue("shared/form-fields/select.html" in titles)
 
     def test_post_bad_location(self):
-        headers = {"Content-Type": "application/json"}
+        self.login("Admin")
         payload = {"description": "Another location", "address": "999 Oak St."}
-        resp = self.client.post("/locations", data=json.dumps(payload), headers=headers)
-        self.assertTrue(resp.status_code == 422)
+        resp = self.client.post("/locations", data=payload)
+        self.assertEqual(resp.status_code, 422)
         self.assertEqual(
-            resp.json["messages"]["name"][0], "Missing data for required field."
+            resp.json["errors"]["form"]["name"][0], "Missing data for required field."
         )
 
     def test_get_single_location(self):
+        self.login("Admin")
         resp = self.client.get("/locations/1")
-        self.assertTrue(resp.status_code == 200)
+        self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json["name"], "Location 1")
 
     def test_get_unknown_location(self):
-        resp = self.client.get("/locations/2")
+        resp = self.client.get("/locations/20")
         self.assertEqual(resp.status_code, 404)
 
     def test_get_location_users(self):
+        self.login("Admin")
         resp = self.client.get("/locations/1/users")
         self.assertTrue(resp.status_code == 200)
         self.assertIsInstance(resp.json, list)
-        self.assertEqual(resp.json[0]["name"], "User 1")
+        self.assertEqual(resp.json[0]["name"], "Admin")
 
-    def test_get_missing_location_useres(self):
+    def test_get_missing_location_users(self):
+        self.login("Admin")
         resp = self.client.get("/locations/10/users")
-        self.assertTrue(resp.status_code == 404)
+        self.assertEqual(resp.status_code, 404)
 
     def test_get_location_courses(self):
+        self.login("Admin")
         resp = self.client.get("/locations/1/courses")
-        self.assertTrue(resp.status_code == 200)
+        self.assertEqual(resp.status_code, 200)
         self.assertIsInstance(resp.json, list)
-        self.assertEqual(len(resp.json), 1)
+        self.assertEqual(len(resp.json), 2)
