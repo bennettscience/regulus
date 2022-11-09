@@ -1,22 +1,22 @@
 import json
-import os
 
-from sqlalchemy import Table
+from app.extensions import db
+from app.models import Log
 
-from app import app, db
-from app.models import Course, Log, Location, User, UserType
-
-from tests.utils import TestBase, Loader
+from tests.loader import Loader
+from tests.utils import TestBase
 
 
 class TestLogging(TestBase):
-    def setUp(self) -> None:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"
-        app.config["TESTING"] = True
+    def setUp(self):
+        self.app = self.create()
 
-        db.create_all()
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
 
-        self.client = app.test_client()
+        self.client = self.app.test_client()
 
         fixtures = [
             "courses.json",
@@ -26,21 +26,11 @@ class TestLogging(TestBase):
             "users.json",
         ]
 
-        conn = db.engine.connect()
-        metadata = db.metadata
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
-        for filename in fixtures:
-            filepath = os.path.join(app.config.get("FIXTURES_DIR"), filename)
-            if os.path.exists(filepath):
-                data = Loader.load(filepath)
-                table = Table(data[0]["table"], metadata)
-                conn.execute(table.insert(), data[0]["records"])
-            else:
-                raise IOError(
-                    "Error loading '{0}'. File could not be found".format(filename)
-                )
-
-    def tearDown(self) -> None:
+    def tearDown(self):
         db.drop_all()
         db.session.close()
 
@@ -59,15 +49,14 @@ class TestLogging(TestBase):
     # Simulate creating a new user
     def test_post_request(self):
         self.login("Admin")
-        headers = {"Content-Type": "application/json"}
         payload = {
-            "name": "User 3",
+            "name": "User 5",
             "location_id": 1,
             "usertype_id": 1,
             "email": "user3@example.com",
         }
-        self.client.post("/users", data=json.dumps(payload), headers=headers)
+        self.client.post("/users", data=payload)
         log = Log.query.get(1)
         log_json = json.loads(log.json_data)
         self.assertTrue(log.method == "POST")
-        self.assertEqual(log_json["name"], "User 3")
+        self.assertEqual(log_json["name"], "User 5")
