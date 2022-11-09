@@ -258,8 +258,6 @@ course_type_view = CourseTypeAPI.as_view("course_type_api")
 course_linktypes_view = CourseLinkTypesAPI.as_view("course_linktypes_api")
 course_linktype_view = CourseLinkTypeAPI.as_view("course_linktype_api")
 
-user_types_view = UserTypesAPI.as_view("user_types_api")
-
 
 @lm.user_loader
 def load_user(id):
@@ -271,6 +269,3 @@ def load_user(id):
 # def get_logs(course_id):
 #     query = Log.query.filter(Log.endpoint.like(f"/courses/{course_id}/%")).all()
 #     return jsonify(LogSchema(many=True).dump(query))
-
-
-# app.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])

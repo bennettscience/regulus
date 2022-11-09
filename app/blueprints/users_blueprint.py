@@ -16,6 +16,7 @@ from app.resources.users import (
     UserPresentingAPI,
     UserConfirmedAPI,
 )
+from app.resources.usertypes import UserTypesAPI
 
 from app.schemas import UserRoleSchema, UserSchema
 
@@ -26,6 +27,7 @@ user_location_view = UserLocationAPI.as_view("user_location_api")
 user_attending_view = UserAttendingAPI.as_view("user_attending_api")
 user_confirmed_view = UserConfirmedAPI.as_view("user_confirmed_api")
 user_presenting_view = UserPresentingAPI.as_view("user_presenting_api")
+user_types_view = UserTypesAPI.as_view("user_types_api")
 
 
 @users_bp.get("/admin/users")
@@ -95,3 +97,5 @@ users_bp.add_url_rule(
 users_bp.add_url_rule(
     "/users/<int:user_id>/presenting", view_func=user_presenting_view, methods=["GET"]
 )
+
+users_bp.add_url_rule("/usertypes", view_func=user_types_view, methods=["GET", "POST"])

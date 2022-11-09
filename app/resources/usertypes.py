@@ -27,7 +27,7 @@ class UserTypesAPI(MethodView):
         Returns:
             UserType: <UserType> as JSON.
         """
-        args = parser.parse(UserRoleSchema(), location="json")
+        args = parser.parse(UserRoleSchema(), location="form")
         try:
             user_type = UserType().create(UserType, args)
             result = UserType.query.get(user_type.id)
