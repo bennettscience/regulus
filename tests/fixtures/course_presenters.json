@@ -1,0 +1,11 @@
+[
+    {
+        "table": "course_presenters",
+        "records": [
+            {
+                "user_id": 1,
+                "course_id": 1
+            }
+        ]
+    }
+]
