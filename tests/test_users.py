@@ -1,17 +1,19 @@
-import json
-import os
-
-from sqlalchemy import Table
-from app import app, db
-from app.models import Course, CourseUserAttended, Location, User, UserType
-from tests.utils import TestBase, Loader, captured_templates
+from app.extensions import db
+from tests.loader import Loader
+from app.models import Course, CourseUserAttended, User
+from tests.utils import TestBase, captured_templates
 
 
 class TestUsers(TestBase):
     def setUp(self) -> None:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-        app.config["TESTING"] = True
-        db.create_all()
+        self.app = self.create()
+
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
+
+        self.client = self.app.test_client()
 
         fixtures = [
             "courses.json",
@@ -20,21 +22,9 @@ class TestUsers(TestBase):
             "users.json",
         ]
 
-        self.client = app.test_client()
-
-        conn = db.engine.connect()
-        metadata = db.metadata
-
-        for filename in fixtures:
-            filepath = os.path.join(app.config.get("FIXTURES_DIR"), filename)
-            if os.path.exists(filepath):
-                data = Loader.load(filepath)
-                table = Table(data[0]["table"], metadata)
-                conn.execute(table.insert(), data[0]["records"])
-            else:
-                raise IOError(
-                    "Error loading '{0}'. File could not be found".format(filename)
-                )
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
     def tearDown(self):
         db.drop_all()
@@ -45,7 +35,7 @@ class TestUsers(TestBase):
     def test_get_users_as_admin(self):
         self.login("Admin")
 
-        with captured_templates(app) as templates:
+        with captured_templates(self.app) as templates:
             resp = self.client.get("/admin/users")
 
             self.assertEqual(resp.status_code, 200)
@@ -61,7 +51,7 @@ class TestUsers(TestBase):
     def test_get_users_of_type(self):
         self.login("Admin")
 
-        with captured_templates(app) as templates:
+        with captured_templates(self.app) as templates:
             resp = self.client.get("/admin/users?usertype_id=2")
 
             self.assertEqual(resp.status_code, 200)
@@ -215,7 +205,7 @@ class TestUsers(TestBase):
 
         self.login("User")
 
-        with captured_templates(app) as templates:
+        with captured_templates(self.app) as templates:
             resp = self.client.get("/users/3/registrations")
             self.assertEqual(resp.status_code, 200)
 
@@ -237,7 +227,7 @@ class TestUsers(TestBase):
 
         self.login("Admin")
 
-        with captured_templates(app) as templates:
+        with captured_templates(self.app) as templates:
             resp = self.client.get("/users/3/registrations")
             self.assertEqual(resp.status_code, 200)
 
