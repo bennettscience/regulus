@@ -564,7 +564,9 @@ class CoursePresentersAPI(MethodView):
         Returns:
             list: event presenters
         """
-        args = parser.parse({"user_ids": fields.List(fields.Int())}, location="form")
+        args = parser.parse(
+            {"user_ids": fields.List(fields.Int(), required=True)}, location="form"
+        )
 
         course = Course.query.get(course_id)
 
@@ -741,18 +743,22 @@ class CourseAttendeesAPI(MethodView):
         from app.static.assets.icons import left_arrow
 
         webhook_url = Config.CALENDAR_HOOK_URL
-        args = parser.parse({"user_id": fields.List(fields.Int())}, location="form")
-        override = parser.parse({"force": fields.Boolean()}, location="querystring")
+        args = parser.parse(
+            {"user_ids": fields.List(fields.Int(), required=True)}, location="form"
+        )
+        override = parser.parse(
+            {"force": fields.Boolean(default=False)}, location="querystring"
+        )
 
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
 
         # If the list is longer than the number of seats left, throw an error
-        if len(args["user_id"]) > course.available_size() and not override["force"]:
+        if len(args["user_ids"]) > course.available_size() and not override["force"]:
             abort(409)
 
-        for user_id in args["user_id"]:
+        for user_id in args["user_ids"]:
             user = User.query.get(user_id)
 
             # TODO: Handle NoneType IDs with an error?
@@ -924,7 +930,18 @@ class CourseAttendeeAPI(MethodView):
 
         user = course.registrations.filter_by(user_id=user_id).first()
         if user is None:
-            abort(404, f"No user with id <{user_id}> registered for this course")
+            response = make_response(
+                f"No user with id <{user_id}> registered for this course"
+            )
+            response.headers.set(
+                "HX-Trigger",
+                json.dumps(
+                    {
+                        "showToast": f"No user with id <{user_id}> registered for this course."
+                    }
+                ),
+            )
+            return response, 404
 
         user.attended = not user.attended
         db.session.commit()

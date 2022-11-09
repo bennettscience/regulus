@@ -199,154 +199,271 @@ class TestSingleCourse(TestBase):
         self.assertEqual(resp.status_code, 200)
 
 
-# class TestCoursePresenters(TestBase):
-#     def setUp(self):
-#         self.app = self.create()
-#         ctx = self.app.app_context()
-#         ctx.push()
+class TestCoursePresenters(TestBase):
+    def setUp(self):
+        self.app = self.create()
+        ctx = self.app.app_context()
+        ctx.push()
 
-#         self.client = self.app.test_client()
+        self.client = self.app.test_client()
 
-#         fixtures = [
-#             "courses.json",
-#             "roles.json",
-#             "users.json"
-#         ]
+        fixtures = [
+            "courses.json",
+            "roles.json",
+            "users.json",
+            "course_presenters.json",
+        ]
 
-#         loader = Loader(self.app, db, fixtures)
-#         loader.load()
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
-#     def test_get_course_presenters(self):
-#         self.login("Admin")
-#         resp = self.client.get("/courses/1/presenters")
-#         self.assertEqual(resp.status_code, 200)
+    def tearDown(self):
+        db.drop_all()
+        db.session.close()
 
-#     @unittest.skip()
-#     def test_add_course_presenters(self):
-#         self.login("Admin")
-#         payload = {"user_ids": [2]}
-#         resp = self.client.post(
-#             "/courses/1/presenters", data=payload
-#         )
-#         self.assertEqual(resp.status_code, 200)
+    def test_get_course_presenters(self):
+        self.login("Admin")
+        resp = self.client.get("/courses/1/presenters")
 
-#     def test_bad_add_course_presenters(self):
-#         self.login("Admin")
-#         headers = {"Content-Type": "application/json"}
-#         payload = {"user_ids": 2}
-#         resp = self.client.post(
-#             "/courses/1/presenters", data=json.dumps(payload), headers=headers
-#         )
-#         self.assertEqual(resp.status_code, 422)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.json), 1)
+        self.assertEqual(resp.json[0]["name"], "Admin")
 
-#     def test_delete_course_presenter(self):
-#         self.login("Admin")
-#         resp = self.client.delete("/courses/1/presenters/1")
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertEqual(resp.json["message"], "Deletion successful")
+    @patch("app.resources.courses.requests.post")
+    def test_add_course_presenters(self, mock_put):
+        self.login("Admin")
+        payload = {"user_ids": [2]}
+        mock_response = {
+            "status": "ok",
+            "statusCode": 200,
+            "message": "The event was updated successfully.",
+        }
 
+        mock_put.return_value = Mock(
+            status_code=200, json=lambda: json.dumps(mock_response)
+        )
+        with captured_templates(self.app) as templates:
+            resp = self.client.post("/courses/1/presenters", data=payload)
+            titles = [template["template_name"] for template in templates]
 
-# class TestCourseAttendees(unittest.TestCase):
-#     fixtures = [
-#         "courses.json",
-#         "users.json"
-#     ]
-#     def setUp(self):
-#         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-#         db.create_all()
-#         self.client = app.test_client()
+            self.assertTrue("shared/partials/event-presenter.html" in titles)
+            self.assertEqual(resp.status_code, 200)
 
-#         c1 = Course(title="Course 1")
-#         p1 = User(name="Presenter", email="presenter@example.com")
-#         u1 = User(name="Attendee 1", email="attendee@example.com")
-#         u2 = User(name="Attendee 2", email="attendee2@example.com")
+    def test_bad_add_course_presenters(self):
+        self.login("Admin")
+        headers = {"Content-Type": "application/json"}
+        payload = {"user_ids": 2}
+        resp = self.client.post(
+            "/courses/1/presenters", data=json.dumps(payload), headers=headers
+        )
+        self.assertEqual(resp.status_code, 422)
 
-#         cr1 = CourseUserAttended(course_id=1, user_id=1)
-#         cr2 = CourseUserAttended(course_id=1, user_id=2)
+    def test_delete_course_presenter(self):
+        self.login("Admin")
+        resp = self.client.delete("/courses/1/presenters/1")
 
-#         db.session.add_all([c1, p1, u1, u2, cr1, cr2])
-#         db.session.commit()
-
-#     def tearDown(self):
-#         db.session.remove()
-#         db.drop_all()
-
-#     def test_get_course_attendees(self):
-#         resp = self.client.get("/courses/1/registrations")
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertIsInstance(resp.json, list)
-#         self.assertEqual(len(resp.json), 2)
-
-#     def test_update_attendee_attended(self):
-#         headers = {"Content-Type": "application/json"}
-#         payload = {"user_ids": [1, 2]}
-#         resp = self.client.put(
-#             "/courses/1/registrations", data=json.dumps(payload), headers=headers
-#         )
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertIsInstance(resp.json, list)
-#         self.assertEqual(resp.json[0]["attended"], True)
-
-#     def test_bad_update_attendee_attended(self):
-#         headers = {"Content-Type": "application/json"}
-#         payload = {"user_ids": 2}
-#         resp = self.client.post(
-#             "/courses/1/registrations", data=json.dumps(payload), headers=headers
-#         )
-#         self.assertEqual(resp.status_code, 422)
-
-#     def test_add_attendees_to_course(self):
-#         pass
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.text, "ok")
+        self.assertEqual(
+            resp.headers.get("HX-Trigger"),
+            '{"showToast": "Successfully removed the presenter."}',
+        )
 
 
-# class TestCourseAttendeeAPI(unittest.TestCase):
-#     def setUp(self):
-#         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-#         db.create_all()
-#         self.client = app.test_client()
+class TestCourseAttendees(TestBase):
+    def setUp(self):
+        self.app = self.create()
 
-#         c1 = Course(title="Course 1")
-#         u1 = User(name="Attendee 1", email="attendee@example.com")
-#         u2 = User(name="Attendee 2", email="attendee2@example.com")
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
 
-#         cr1 = CourseUserAttended(course_id=1, user_id=1)
+        self.client = self.app.test_client()
 
-#         db.session.add_all([c1, u1, u2, cr1])
-#         db.session.commit()
+        fixtures = [
+            "courses.json",
+            "course_registrations.json",
+            "users.json",
+        ]
 
-#     def tearDown(self):
-#         db.session.remove()
-#         db.drop_all()
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
-#     def test_post_single_user_to_course(self):
-#         headers = {"Content-Type": "application/json"}
-#         resp = self.client.post("/courses/1/registrations/2", headers=headers)
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertEqual(resp.json["attended"], False)
-#         self.assertEqual(resp.json["user"]["name"], "Attendee 2")
+    def tearDown(self):
+        db.drop_all()
+        db.session.close()
 
-#     def test_bad_post_single_user(self):
-#         headers = {"Content-Type": "application/json"}
-#         resp = self.client.post("/courses/1/registrations/3", headers=headers)
-#         self.assertEqual(resp.status_code, 404)
-#         self.assertEqual(resp.json["description"], "No user with id <3>")
+    def test_get_course_attendees(self):
+        self.login("Admin")
+        resp = self.client.get("/courses/1/registrations")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsInstance(resp.json, list)
+        self.assertEqual(len(resp.json), 2)
 
-#     def test_update_single_user(self):
-#         headers = {"Content-Type": "application/json"}
-#         resp = self.client.put("/courses/1/registrations/1", headers=headers)
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertEqual(resp.json["attended"], True)
-#         self.assertEqual(resp.json["user"]["name"], "Attendee 1")
+    def test_update_all_attendees_attended_as_admin(self):
+        """
+        Calls app.resources.courses.CourseAttendeesAPI.put
+        """
+        self.login("Admin")
 
-#     def test_bad_update_single_user(self):
-#         headers = {"Content-Type": "application/json"}
-#         resp = self.client.put("/courses/1/registrations/3", headers=headers)
-#         self.assertEqual(resp.status_code, 404)
-#         self.assertEqual(
-#             resp.json["description"], "No user with id <3> registered for this course"
-#         )
+        with captured_templates(self.app) as templates:
+            resp = self.client.put("/courses/1/registrations")
+            titles = [template["template_name"] for template in templates]
 
-#     def test_delete_user_from_course(self):
-#         resp = self.client.delete("/courses/1/registrations/1")
-#         self.assertEqual(resp.status_code, 200)
-#         self.assertEqual(resp.json["message"], "Registration successfully cancelled")
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue("admin/partials/registration-table.html" in titles)
+
+            registrations = templates[0]["context"]["registrations"].all()
+
+            # Check that both registrations are attended
+            for reg in registrations:
+                self.assertEqual(reg.attended, True)
+
+    def test_update_all_attendees_attended_as_presenter(self):
+        """
+        Calls app.resources.courses.CourseAttendeesAPI.put
+        """
+        self.login("Presenter")
+        with captured_templates(self.app) as templates:
+            resp = self.client.put("/courses/1/registrations")
+            titles = [template["template_name"] for template in templates]
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue("admin/partials/registration-table.html" in titles)
+
+            registrations = templates[0]["context"]["registrations"].all()
+
+            # Check that both registrations are attended
+            for reg in registrations:
+                self.assertEqual(reg.attended, True)
+
+    @patch("app.resources.courses.requests.post")
+    def test_bulk_add_attendees_to_course(self, mock_post):
+        """
+        Calls app.resources.courses.CourseAttendeesAPI.post
+        Expects an array of user_ids[int]
+        """
+        self.login("Admin")
+        payload = {"user_ids": [4, 5]}
+
+        mock_response = {
+            "status": "ok",
+            "statusCode": 200,
+            "message": "The event was updated successfully.",
+        }
+        mock_post.return_value = Mock(
+            status_code=200, json=lambda: json.dumps(mock_response)
+        )
+
+        resp = self.client.post("/courses/1/registrations", data=payload)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers.get("HX-Trigger"),
+            '{"showToast": "Updated registrations successfully."}',
+        )
+
+    def test_bad_bulk_add_attendees_to_course(self):
+        """
+        Calls app.resources.courses.CourseAttendeesAPI.post
+        Expects an array of user_ids[int]
+        """
+        self.login("Admin")
+
+        resp = self.client.post("/courses/1/registrations")
+
+        self.assertEqual(resp.status_code, 422)
+
+
+class TestCourseAttendeeAPI(TestBase):
+    def setUp(self):
+        self.app = self.create()
+
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
+
+        self.client = self.app.test_client()
+
+        fixtures = ["courses.json", "users.json", "course_registrations.json"]
+
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
+
+    def tearDown(self):
+        db.drop_all()
+        db.session.close()
+
+    @patch("app.resources.courses.requests.post")
+    def test_post_single_user_to_course(self, mock_post):
+        """
+        A user self-registers for a course.
+        Calls `app.courses.CourseAttendeeAPI.post'
+        """
+        self.login("User 2")
+        payload = {"acc_required": False, "acc_details": ""}
+
+        mock_response = {
+            "status": "ok",
+            "statusCode": 200,
+            "message": "The event was updated successfully.",
+        }
+        mock_post.return_value = Mock(
+            status_code=200, json=lambda: json.dumps(mock_response)
+        )
+
+        with captured_templates(self.app) as templates:
+            resp = self.client.post("/courses/1/register", data=payload)
+
+            titles = [template["template_name"] for template in templates]
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue("events/partials/event-card.html" in titles)
+
+    def test_update_single_user(self):
+        """
+        Update a single user's registration status
+        Calls `app.resources.courses.CourseAttendeeAPI.put`
+        """
+        payload = {"attended": True}
+        resp = self.client.put("/courses/1/registrations/1", data=payload)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json["attended"], True)
+        self.assertEqual(resp.json["user"]["name"], "Admin")
+
+    def test_bad_update_single_user(self):
+        payload = {"attended": True}
+        resp = self.client.put("/courses/1/registrations/3", data=payload)
+
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(
+            resp.headers.get("HX-Trigger"),
+            '{"showToast": "No user with id <3> registered for this course."}',
+        )
+
+    @patch("app.resources.courses.requests.post")
+    def test_delete_user_from_course(self, mock_post):
+        """
+        A user cancells their registration.
+        Calls `app.resources.courses.CourseAttendeeAPI.delete`
+        """
+        self.login("Admin")
+        mock_response = {
+            "status": "ok",
+            "statusCode": 200,
+            "message": "The event was updated successfully.",
+        }
+        mock_post.return_value = Mock(
+            status_code=200, json=lambda: json.dumps(mock_response)
+        )
+
+        resp = self.client.delete("/courses/1/register")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers.get("HX-Trigger"),
+            '{"showToast": "Successfully cancelled registration for Course 1"}',
+        )
