@@ -1,39 +1,26 @@
-import os
-from unittest import skip
-
-from app import app, db
-from sqlalchemy import Table
+from app.extensions import db
 
 from app.utils import get_user_navigation
-from tests.utils import captured_templates, Loader, TestBase
+from tests.loader import Loader
+from tests.utils import TestBase
 
 
 class TestUtils(TestBase):
     def setUp(self):
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-        app.config["TESTING"] = True
-        db.create_all()
+        self.app = self.create()
 
-        fixtures = [
-            "roles.json",
-            "users.json",
-        ]
+        # Set up the application context manually to build the database
+        # and test client for requests.
+        ctx = self.app.app_context()
+        ctx.push()
 
-        self.client = app.test_client()
+        self.client = self.app.test_client()
 
-        conn = db.engine.connect()
-        metadata = db.metadata
+        fixtures = ["roles.json", "users.json"]
 
-        for filename in fixtures:
-            filepath = os.path.join(app.config.get("FIXTURES_DIR"), filename)
-            if os.path.exists(filepath):
-                data = Loader.load(filepath)
-                table = Table(data[0]["table"], metadata)
-                conn.execute(table.insert(), data[0]["records"])
-            else:
-                raise IOError(
-                    "Error loading '{0}'. File could not be found".format(filename)
-                )
+        # Now that we're in context, we can load the database.
+        loader = Loader(self.app, db, fixtures)
+        loader.load()
 
     def tearDown(self):
         db.drop_all()
@@ -42,6 +29,6 @@ class TestUtils(TestBase):
     # Anonymous users don't get extra nav items
     def test_get_user_navigation(self):
 
-        with app.test_request_context():
+        with self.app.test_request_context():
             nav = get_user_navigation()
             self.assertEqual(len(nav), 0)
