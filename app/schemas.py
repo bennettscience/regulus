@@ -98,7 +98,7 @@ class CourseSchema(Schema):
     description = fields.Str()
     starts = DateTime(format="timestamp")
     ends = DateTime(format="timestamp")
-    active = fields.Bool(default=True)
+    active = fields.Bool(dump_default=True)
     occurred = fields.Bool()
     ext_calendar = fields.Str()
     presenters = fields.Nested("CoursePresenterSchema", many=True)
@@ -195,8 +195,8 @@ class NewUserSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     email = fields.Str(required=True)
-    usertype_id = fields.Int(default=4)
-    location_id = fields.Int(default=None)
+    usertype_id = fields.Int(dump_default=4)
+    location_id = fields.Int(dump_default=None)
 
 
 class UserSchema(Schema):

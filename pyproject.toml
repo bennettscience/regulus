@@ -7,7 +7,6 @@ authors = ["bennettscience <brian.bennett2@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 Flask-Migrate = "^3.0.0"
-flask-marshmallow = "^0.14.0"
 marshmallow-sqlalchemy = "^0.25.0"
 webargs = "^8.0.0"
 Flask-Login = "^0.6.2"

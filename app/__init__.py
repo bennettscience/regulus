@@ -7,7 +7,7 @@ import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from config import Config
-from app.extensions import cache, cors, db, partials, lm, ma, migrate
+from app.extensions import cache, cors, db, partials, lm, migrate
 
 sentry_sdk.init(
     dsn=Config.SENTRY_DSN, integrations=[FlaskIntegration()], traces_sample_rate=0.5
@@ -60,7 +60,6 @@ def create_app(config=Config):
     )
     db.init_app(app)
     lm.init_app(app)
-    ma.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
 
     partials.register_extensions(app)
