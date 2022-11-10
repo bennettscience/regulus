@@ -747,7 +747,7 @@ class CourseAttendeesAPI(MethodView):
             {"user_ids": fields.List(fields.Int(), required=True)}, location="form"
         )
         override = parser.parse(
-            {"force": fields.Boolean(default=False)}, location="querystring"
+            {"force": fields.Boolean(dump_default=False)}, location="querystring"
         )
 
         course = Course.query.get(course_id)
