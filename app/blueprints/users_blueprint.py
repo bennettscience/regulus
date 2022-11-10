@@ -39,7 +39,7 @@ def index():
         _type_: _description_
     """
     args = parser.parse(
-        {"usertype_id": fields.Int(missing=None)}, location="querystring"
+        {"usertype_id": fields.Int(load_default=None)}, location="querystring"
     )
 
     usertypes = UserType.query.all()
