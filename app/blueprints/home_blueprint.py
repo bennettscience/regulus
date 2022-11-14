@@ -95,7 +95,7 @@ def get_blog_post():
 
         result = {
             "published_at": datetime.strptime(response["date"], "%Y-%m-%dT%H:%M:%S"),
-            "link": response["link"],
+            "link": f"{response['link']}?utm_source=chrome_extension",
             "thumbnail": response["_embedded"]["wp:featuredmedia"][0]["source_url"],
             "title": response["title"]["rendered"],
         }
@@ -121,7 +121,7 @@ def get_youtube_video():
             "published_at": datetime.strptime(
                 response["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
             ),
-            "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}",
+            "link": f"https://youtube.com/watch?v={response['resourceId']['videoId']}/?utm_source=chrome_extension",
             "thumbnail": response["thumbnails"]["standard"]["url"],
             "title": response["title"],
         }
