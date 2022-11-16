@@ -6,7 +6,7 @@
     --accent-green: #32c192;
     --site-dark: #1f2833;
     --text-white: #f0ecec;
-    
+
     /* shadow */
     --box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 3px 0px,
     rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
@@ -453,7 +453,7 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
     padding: 0;
     position: fixed;
     top: 0;
-    
+
     box-sizing: border-box;
     background-color: #fff;
     padding: 15px;
@@ -477,8 +477,8 @@ table tbody tr td label input[type="checkbox"]:checked+svg .attended__false {
     flex-direction: column;
 }
 
-#event--details 
-time, 
+#event--details
+time,
 #event--size,
 #event--location {
     display: flex;
@@ -486,8 +486,8 @@ time,
     align-items: center;
 }
 
-time svg, 
-#event--size svg, 
+time svg,
+#event--size svg,
 #event--location svg {
     margin-right: 0.6rem;
 }
@@ -649,13 +649,13 @@ hr {
 
 #course-data--result {
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
     'title title'
     'actions actions'
     'registrations stats';
     grid-gap: 1.5rem;
     grid-template-rows: auto auto 1fr;
-    
+
     background: #fff;
     padding: 1.2rem;
     margin: 0;
@@ -716,7 +716,7 @@ hr {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100px;
+    height: auto;
     box-sizing: border-box;
     border: 1px solid black;
     border-radius: 3px;
@@ -725,6 +725,8 @@ hr {
     margin-bottom: 0.6rem;
     padding: 0.6rem
 }
+
+.stats--item img { width: 100% }
 
 #delete {
     background-color: var(--accent-red);
@@ -752,7 +754,7 @@ fieldset {
     justify-content: space-evenly;
     align-content: center;
     margin-bottom: 20px;
-    
+
     /* Fieldset styles */
     border: 0;
     padding-left: 215px;
@@ -780,8 +782,8 @@ label > span.length-meta {
     color: var(--site-gray);
 }
 
-input, 
-textarea, 
+input,
+textarea,
 select {
     display: block;
     box-sizing: border-box;
@@ -792,7 +794,7 @@ select {
     border-radius: 0;
     border-bottom: 3px solid var(--site-gray);
     transition: all 0.25s ease-in-out;
-    
+
     margin: 0.6rem 0;
     padding: 0.6rem;
     width: 100%;
@@ -866,30 +868,30 @@ input:focus, textarea:focus {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .course-calendar {
         width: 100%;
     }
-    
+
     .course-details {
         padding: 5px;
         display: grid;
         grid-template-areas: 'title''description''status';
     }
-    
+
     .course-details h1 {
         grid-area: title;
         font-size: 24px;
     }
-    
+
     .course-details span {
         grid-area: status;
     }
-    
+
     .course-details p {
         grid-area: description;
     }
-    
+
     .calendar {
         width: 100%;
         display: flex;
@@ -901,26 +903,26 @@ input:focus, textarea:focus {
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
     }
-    
+
     .day {
         width: auto;
         font-size: 24px;
     }
-    
+
     .date {
         font-size: 32px;
     }
-    
+
     .mobile-icon {
         display: none;
     }
-    
+
     .navbar-list {
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    
+
     nav {
         width: 60px;
     }
@@ -987,21 +989,21 @@ input:focus, textarea:focus {
         padding: 0;
         width: 100%;
     }
-    
+
     .active {
         border: none;
     }
-    
+
     .logout {
         width: 56px;
     }
-    
+
     .mobile-icon svg {
         height: 32px;
         width: 32px;
         margin-right: 0;
     }
-    
+
     .nav-item {
         display: none;
     }

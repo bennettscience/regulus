@@ -1,4 +1,8 @@
 <div class="stats--item">
+    {% if stat.type == "image" %}
+    <img src="data:image/png;base64,{{stat.value}}" />
+    {% else %}
     <p>{{stat.label}}</p>
     <b>{{stat.value}}</b>
+    {% endif %}
 </div>

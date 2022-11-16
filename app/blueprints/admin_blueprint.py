@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime, date
+import datetime as dt
 import html
 import pytz
 
@@ -9,11 +9,13 @@ EST = pytz.timezone("US/Eastern")
 from flask import abort, Blueprint, render_template, request, stream_with_context
 from flask_login import current_user
 from io import StringIO
+from sqlalchemy import func
 from webargs import fields
 from webargs.flaskparser import parser
 from werkzeug.wrappers import Response
 
-from app.extensions import cache
+from app.charts import Chart
+from app.extensions import cache, db
 from app.wrappers import restricted
 from app.models import (
     Course,
@@ -70,22 +72,62 @@ def index():
         result.available = result.available_size()
         result.description = html.escape(result.description)
 
-        # Get the last registration activity
-        ordered_regs = result.registrations.order_by(
-            CourseUserAttended.created_at
-        ).all()
-        if ordered_regs:
-            last_reg = result.registrations.order_by(CourseUserAttended.created_at)[
-                -1
-            ].created_at
-            formatted_date = last_reg.astimezone(EST).strftime("%m/%d/%y, %I:%M %p")
+        # Create a sparkline for the registration trends.
+        # This gathers all the registrations in a list and then finds missing dates to
+        # display as 0 in the chart.
+
+        # BUG: func.DATE returns datetime.datetime as 'YYYY-MM-DD' strings, so they need
+        # to be converted to datetime.date() objects before sorting on line 92
+        dates = (
+            db.session.query(CourseUserAttended.created_at, func.count())
+            .group_by(func.DATE(CourseUserAttended.created_at))
+            .filter(CourseUserAttended.course_id == args["event_id"])
+            .all()
+        )
+
+        # Find the range of dates between when the course was created and today
+        # If the event is in the past, stop at the event start date instead
+        today = dt.datetime.today().date()
+        created_at = result.created_at.date()
+
+        if today > result.starts.date():
+            last = result.starts.date()
         else:
-            formatted_date = "-"
+            last = today
+
+        # date_set = set(created_at + dt.timedelta(x) for x in range((last - created_at).days))
+
+        # # Turn the dates_only list into set of datetime.date objects for comparison
+        # dates_only = set(date[0].date() for date in dates)
+        # missing = sorted(date_set - dates_only)
+
+        # # Finally, push the results back into the original list
+        # for item in missing:
+        #     dates.append((dt.datetime.combine(item, dt.datetime.min.time()), 0))
+
+        # chart = Chart(sorted(dates, key=lambda x: x[0]))
+        # image = chart.sparkline()
+
+        confirmed = result.registrations.filter(
+            CourseUserAttended.attended == True
+        ).all()
+
+        attendance = [
+            len(confirmed),
+            (len(result.registrations.all()) - len(confirmed)),
+        ]
+
+        chart = Chart(attendance, ["attended", "not attended"])
+        image = chart.pie()
 
         # Add some calculated stats about the event
         data = [
-            {"label": "Registrations", "value": len(result.registrations.all())},
-            {"label": "Last Registration", "value": formatted_date},
+            {
+                "type": "text",
+                "label": "Registrations",
+                "value": len(result.registrations.all()),
+            },
+            {"type": "image", "label": "Attendance", "value": image},
         ]
 
         content = {
@@ -95,7 +137,7 @@ def index():
         }
 
     else:
-        today = date.today()
+        today = dt.date.today()
         schema = TinyCourseSchema(many=True)
 
         if request.headers.get("HX-Request"):
