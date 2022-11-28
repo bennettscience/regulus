@@ -108,27 +108,30 @@ def index():
         # chart = Chart(sorted(dates, key=lambda x: x[0]))
         # image = chart.sparkline()
 
-        confirmed = result.registrations.filter(
-            CourseUserAttended.attended == True
-        ).all()
-
-        attendance = [
-            len(confirmed),
-            (len(result.registrations.all()) - len(confirmed)),
-        ]
-
-        chart = Chart(attendance, ["attended", "not attended"])
-        image = chart.pie()
-
         # Add some calculated stats about the event
         data = [
             {
                 "type": "text",
                 "label": "Registrations",
                 "value": len(result.registrations.all()),
-            },
-            {"type": "image", "label": "Attendance", "value": image},
+            }
         ]
+
+        # Only create a chart if there are registrations to report
+        if len(result.registrations.all()) > 0:
+            confirmed = result.registrations.filter(
+                CourseUserAttended.attended == True
+            ).all()
+
+            attendance = [
+                len(confirmed),
+                (len(result.registrations.all()) - len(confirmed)),
+            ]
+
+            chart = Chart(attendance, ["attended", "not attended"])
+            image = chart.pie()
+
+            data.append({"type": "image", "label": "Attendance", "value": image})
 
         content = {
             "event": schema.dump(result),
