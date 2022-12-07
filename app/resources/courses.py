@@ -750,6 +750,8 @@ class CourseAttendeesAPI(MethodView):
             {"force": fields.Boolean(dump_default=False)}, location="querystring"
         )
 
+        users_to_register = []
+
         course = Course.query.get(course_id)
         if course is None:
             abort(404)
@@ -769,16 +771,19 @@ class CourseAttendeesAPI(MethodView):
                     course.registrations.append(
                         CourseUserAttended(course_id=course.id, user_id=user.id)
                     )
+                    users_to_register.append(
+                        {"email": user.email, "responseStatus": "needsAction"}
+                    )
 
-                raw = {
-                    "method": "patch",
-                    "token": Config.CALENDAR_HOOK_TOKEN,
-                    "userId": user.email,
-                    "calendarId": Config.GOOGLE_CALENDAR_ID,
-                    "eventId": course.ext_calendar,
-                }
+        raw = {
+            "method": "patch",
+            "token": Config.CALENDAR_HOOK_TOKEN,
+            "userIds": users_to_register,
+            "calendarId": Config.GOOGLE_CALENDAR_ID,
+            "eventId": course.ext_calendar,
+        }
 
-                requests.post(webhook_url, json=raw)
+        requests.post(webhook_url, json=raw)
 
         db.session.commit()
 
