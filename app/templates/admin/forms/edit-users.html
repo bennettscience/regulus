@@ -37,16 +37,16 @@ container="#course-data--register",placeholder="Search by name...")}}
         _="
             on load set $counter to 0 end
             on mouseup debounced at 150ms set $counter to (<input[name='user_id']:checked/>).length
-                then 
-                    if $counter === 1 
+                then
+                    if $counter === 1
                         put `Register ${$counter} user` into #edit-user--submit
-                    otherwise 
+                    otherwise
                         put `Register ${$counter} users` into #edit-user--submit
                     end
             if $counter > 0 remove @disabled from #edit-user--submit end
             "
     >
-        <input type="checkbox" name="user_id" value="{{user.id}}" />
+        <input type="checkbox" name="user_ids" value="{{user.id}}" />
         <span>{{user.name}}</span>
     </label>
     {% endfor %}
