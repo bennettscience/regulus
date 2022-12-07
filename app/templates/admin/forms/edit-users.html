@@ -36,7 +36,7 @@ container="#course-data--register",placeholder="Search by name...")}}
         class="user"
         _="
             on load set $counter to 0 end
-            on mouseup debounced at 150ms set $counter to (<input[name='user_id']:checked/>).length
+            on mouseup debounced at 150ms set $counter to (<input[name='user_ids']:checked/>).length
                 then
                     if $counter === 1
                         put `Register ${$counter} user` into #edit-user--submit
