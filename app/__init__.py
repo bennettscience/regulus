@@ -9,8 +9,25 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from config import Config
 from app.extensions import cache, cors, db, partials, lm, migrate
 
+
+def traces_sampler(sampling_context):
+    # wsgi_environ is set by Sentry's flask integration
+    # https://docs.sentry.io/platforms/python/guides/flask/configuration/sampling
+    try:
+        request_uri = sampling_context["wsgi_environ"]["REQUEST_URI"]
+    except KeyError:
+        return 0
+
+    if request_uri in ["https://events.elkhart.k12.in.us/resource-query"]:
+        return 0
+
+    return 0.1
+
+
 sentry_sdk.init(
-    dsn=Config.SENTRY_DSN, integrations=[FlaskIntegration()], traces_sample_rate=0.5
+    dsn=Config.SENTRY_DSN,
+    integrations=[FlaskIntegration()],
+    traces_sampler=traces_sampler,
 )
 
 from app.blueprints.admin_blueprint import admin_bp
