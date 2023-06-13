@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, jsonify, redirect, session
 from flask_login import current_user, login_user, logout_user
 
@@ -5,7 +7,7 @@ from app.auth import OAuthSignIn
 from app.extensions import db
 from app.models import User
 from app.schemas import UserSchema
-from app.utils import get_user_navigation
+from app.utils import email_is_student, get_user_navigation
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -24,12 +26,15 @@ def callback():
     received_user = oauth.parse_id_token(token)
     email = received_user["email"]
     name = received_user["name"]
+    is_student = False
+
     if email is None:
         return jsonify({"message": "Unable to login, email is null"})
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        user = User(name=name, email=email, usertype_id=4)
+        is_student = email_is_student(email)
+        user = User(name=name, email=email, usertype_id=4, is_student=is_student)
         db.session.add(user)
         db.session.commit()
 

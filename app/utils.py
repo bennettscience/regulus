@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 import nh3
@@ -158,3 +159,12 @@ def get_user_navigation():
         )
 
     return nav_items
+
+
+def email_is_student(email):
+    regex = r"\d*6"
+    result = re.search(regex, email)
+    if result is not None:
+        return True
+
+    return False
