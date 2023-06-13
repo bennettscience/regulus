@@ -1,8 +1,7 @@
 <div
     hx-trigger="request"
     hx-delete="/courses/{{event.id}}"
-    hx-target=".main-container"
-    hx-swap="innerHTML"
+    hx-swap="none"
     _="on htmx:afterSwap from .main-container trigger closeSidebar end"
 >
     <h2>DANGER</h2>
@@ -19,7 +18,7 @@
         <button
             class="btn btn--cancel"
             _="
-                on click trigger request add @disabled 
+                on click trigger request add @disabled
                 then
                     showToast('Deleting {{event.title}}...') end
             "
