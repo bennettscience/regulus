@@ -45,7 +45,7 @@ class TestUsers(TestBase):
             for template in templates:
                 if template["template_name"] == "users/partials/user-table-rows":
                     context = template["context"]
-                    self.assertEqual(len(context["users"]), 3)
+                    self.assertEqual(len(context["users"]), 6)
 
     # request only users of a certain type
     def test_get_users_of_type(self):

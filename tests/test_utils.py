@@ -1,6 +1,6 @@
 from app.extensions import db
 
-from app.utils import get_user_navigation
+from app.utils import email_is_student, get_user_navigation
 from tests.loader import Loader
 from tests.utils import TestBase
 
@@ -32,3 +32,15 @@ class TestUtils(TestBase):
         with self.app.test_request_context():
             nav = get_user_navigation()
             self.assertEqual(len(nav), 0)
+
+    def test_email_is_not_student(self):
+        email = "staff@example.com"
+        is_student = email_is_student(email)
+
+        self.assertFalse(is_student)
+
+    def test_email_is_student(self):
+        email = "astudent123456@example.com"
+        is_student = email_is_student(email)
+
+        self.assertTrue(is_student)

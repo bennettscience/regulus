@@ -7,35 +7,48 @@
                 "name": "Admin",
                 "email": "admin@example.com",
                 "usertype_id": 1,
-                "location_id": 1
+                "location_id": 1,
+                "is_student": false
             },
             {
                 "id": 2,
                 "name": "Presenter",
                 "email": "presenter@example.com",
                 "usertype_id": 2,
-                "location_id": 2
+                "location_id": 2,
+                "is_student": false
             },
             {
                 "id": 3,
                 "name": "User",
                 "email": "user@example.com",
                 "usertype_id": 4,
-                "location_id": 1
+                "location_id": 1,
+                "is_student": false
             },
             {
                 "id": 4,
                 "name": "User 2",
                 "email": "user2@example.com",
                 "usertype_id": 4,
-                "location_id": 1
+                "location_id": 1,
+                "is_student": false
             },
             {
                 "id": 5,
                 "name": "User 3",
                 "email": "user3@example.com",
                 "usertype_id": 4,
-                "location_id": 1
+                "location_id": 1,
+                "is_student": false
+            },
+            {
+                "id": 6,
+                "name": "Student User",
+                "email": "astudent123456@example.com",
+                "usertype_id": 4,
+                "location_id": 1,
+                "is_student": true
             }
         ]
     }
