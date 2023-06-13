@@ -138,6 +138,7 @@ class Course(Manager, db.Model):
     active = db.Column(db.Boolean, default=True)
     occurred = db.Column(db.Boolean, default=False)
     ext_calendar = db.Column(db.String(255), unique=True)
+    student_allowed = db.Column(db.Boolean, default=False)
 
     type = db.relationship(CourseType, backref="course")
     links = db.relationship("CourseLink", uselist=True)
@@ -194,6 +195,7 @@ class User(Manager, UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     location_id = db.Column(db.Integer, db.ForeignKey("location.id"))
     usertype_id = db.Column(db.Integer, db.ForeignKey("user_type.id"))
+    is_student = db.Column(db.Boolean)
 
     role = db.relationship("UserType", backref="users")
     registrations = db.relationship(
