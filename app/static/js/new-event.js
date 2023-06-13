@@ -6,7 +6,7 @@ function getDescription() {
     return quill.root.innerHTML;
 }
 
-// Handle params for creating a new event. This is necessary to 
+// Handle params for creating a new event. This is necessary to
 // convert JS timestamps into Python timestamps and to extract
 // the description from the Quill editor.
 htmx.defineExtension('new-event', {
@@ -19,6 +19,7 @@ htmx.defineExtension('new-event', {
             request.starts = convertString(request.starts);
             request.ends = convertString(request.ends)
             request.description = getDescription()
+            request.student_allowed = Boolean(request.student_allowed)
             evt.detail.headers['Content-Type'] = 'application/json'
         }
     },

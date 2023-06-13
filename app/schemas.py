@@ -81,6 +81,7 @@ class NewCourseSchema(Schema):
     starts = DateTime(format="timestamp")
     ends = DateTime(format="timestamp")
     type = fields.Nested("CourseTypeSchema")
+    student_allowed = fields.Boolean()
 
     class Meta:
         unknown = INCLUDE
@@ -106,6 +107,7 @@ class CourseSchema(Schema):
     links = fields.Nested("DisplayCourseLinkSchema", many=True)
     available = fields.Int()
     accommodations = fields.Nested("CourseAccommodationSchema", many=True)
+    student_allowed = fields.Bool()
 
 
 class CourseAccommodationSchema(Schema):

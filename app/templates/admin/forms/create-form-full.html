@@ -18,7 +18,7 @@
             <fieldset class="basics">
                 <legend><h1>Basics</h1></legend>
                 <label
-                    ><b>Event title</b> 
+                    ><b>Event title</b>
                     <span class="length-meta">
                         <span id="max-len"></span> characters left
                     </span>
@@ -43,7 +43,7 @@
                 </div>
             </fieldset>
             <fieldset class="details">
-                <legend><h1>Event Details</h1></legend>
+                <legend><h1>Details</h1></legend>
                 <label id="type"
                     ><b>Event type</b>
                     <select
@@ -127,12 +127,22 @@
                         required
                     /></label
                 >
+                <label
+                    id="students"
+                    ><b>Allow student registrations?</b>
+                    <input
+                        tabindex="0"
+                        name="student_allowed"
+                        value="0"
+                        type="checkbox"
+                    /></label
+                >
             </fieldset>
-            <button 
-                class="btn btn--primary" 
-                tabindex="0" 
+            <button
+                class="btn btn--primary"
+                tabindex="0"
                 type="submit"
-                _="on submit 
+                _="on submit
                     showToast('Creating the event...') end
                     on htmx:afterSwap trigger closeSidebar end
                 "
