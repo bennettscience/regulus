@@ -1,6 +1,6 @@
 from typing import List
 
-import bleach_extras
+import nh3
 
 from flask import abort, session
 from flask_login import current_user
@@ -89,20 +89,14 @@ def get_user_navigation_menu() -> List[dict]:
 def clean_escaped_html(value: str) -> str:
     """Remove non-whitelist HTML tags from user input.
 
-    On the frontend, Jodit escapes HTML characters on the fly,
-    sending unicode strings.
-    Those need to be removed before processing with bleach to
-    remove non-whitelisted tags.
+    Update 6/13/2023
+    The bleach package was deprecated in Jan, 2023. bleach_extras relied on
+    that in order to clean html.
+    https://github.com/mozilla/bleach/issues/698
 
-    This is a little goofy because the escaped HTML needs to be
-    parsed back into unicode characters to be removed correctly by bleach.
-
-    The bleach_extras package removes non-whitelisted tag children
-    elements as well as the tags.
-
-    This solution is a combination of approaches from
-      - https://stackoverflow.com/questions/701704/convert-html-entities-to-unicode-and-vice-versa
-      - https://github.com/jvanasco/bleach_extras
+    nh3 is a replacement which includes a kwarg to remove specific tag children.
+    - https://github.com/messense/nh3
+    - https://nh3.readthedocs.io/en/latest/
 
     Args:
         value (str): string containing HTML
@@ -110,8 +104,8 @@ def clean_escaped_html(value: str) -> str:
     Returns:
         str: Sanitized HTML
     """
-    clean = bleach_extras.clean_strip_content(
-        unescape(value), tags=["br", "p", "strong", "em", "u", "ul", "ol", "li"]
+    clean = nh3.clean(
+        unescape(value), tags={"br", "p", "strong", "em", "u", "ul", "ol", "li"}
     )
     return clean
 

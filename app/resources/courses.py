@@ -130,6 +130,9 @@ class CourseListAPI(MethodView):
         starts = CalendarService().convertToISO(args["starts"])
         ends = CalendarService().convertToISO(args["ends"])
 
+        # Remove any disallowed tags and their children.
+        args["description"] = clean_escaped_html(args["description"])
+
         body = {
             "summary": args["title"],
             "description": args["description"],
@@ -173,7 +176,6 @@ class CourseListAPI(MethodView):
 
         # Upate the args object before posting to the database
         args["ext_calendar"] = response.json()["id"]
-        args["description"] = clean_escaped_html(args["description"])
 
         course = Course().create(Course, args)
         result = Course.query.get(course.id)
