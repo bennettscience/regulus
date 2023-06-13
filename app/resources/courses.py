@@ -88,6 +88,7 @@ class CourseListAPI(MethodView):
                 ).all()
 
             if len(courses) > 0:
+                template = "events/index.html"
                 # calculate the remaining number of seats at request time.
                 for course in courses:
                     course.available = course.available_size()
@@ -106,10 +107,17 @@ class CourseListAPI(MethodView):
                     else:
                         course.state = "available"
 
-                sorted_courses = sorted(courses)
+                if current_user.is_student:
+                    sorted_courses = [
+                        course for course in sorted(courses) if course.student_allowed
+                    ]
+                    if not len(sorted_courses):
+                        template = "shared/partials/no-upcoming.html"
+                else:
+                    sorted_courses = sorted(courses)
 
                 return render_template(
-                    "events/index.html",
+                    template,
                     events=SmallCourseSchema(many=True).dump(sorted_courses),
                 )
             else:
@@ -122,6 +130,9 @@ class CourseListAPI(MethodView):
     def post(self: None) -> Course:
         """
         Create a new event
+
+        Note that this submits data as JSON using new-event.js! If you add new
+        parameters, make sure to update the post hook in that file as well.
         """
         args = parser.parse(NewCourseSchema(), location="json")
 
@@ -442,6 +453,7 @@ class CourseAPI(MethodView):
             "HX-Trigger",
             json.dumps({"showToast": "Successfully deleted {}".format(course.title)}),
         )
+        response.headers.set("HX-Redirect", "/")
 
         return response
 
