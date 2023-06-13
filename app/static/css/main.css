@@ -754,11 +754,16 @@ fieldset {
     justify-content: space-evenly;
     align-content: center;
     margin-bottom: 20px;
-
+    gap: 1rem;
+    flex: 1 1;
     /* Fieldset styles */
     border: 0;
     padding-left: 215px;
     position: relative;
+}
+
+fieldset.details > label {
+    max-width: 49%;
 }
 
 legend {
@@ -769,13 +774,23 @@ legend {
 label {
     width: 100%;
     box-sizing: border-box;
-    padding: 5px;
+    padding: 1rem 0;
 }
 
-/* Specific labels in the Create form */
-label#type, label#location {
-    width: 50%;
+fieldset.details > label#students {
+    display: flex;
+    flex-direction: row;
+    flex: 2 1;
+    align-items: center;
+    gap: 2rem;
+    padding-left: 1rem;
 }
+
+fieldset.details > label#students > input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
 
 label > span.length-meta {
     font-style: italic;
@@ -823,10 +838,6 @@ input:focus, textarea:focus {
     text-decoration: underline;
 }
 
-#starts,
-#ends {
-    width: 50%;
-}
 
 #result {
     position: relative;
