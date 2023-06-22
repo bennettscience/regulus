@@ -4,7 +4,7 @@
     class="course-data--bottom"
     _="
         on hideEventDetail add .hide--bottom to me
-        then wait 1s 
+        then wait 1s
         then remove me
         end
     "
@@ -14,7 +14,7 @@
         <button
             tabindex="0"
             class="btn"
-            hx-get="/"
+            hx-get="/admin/events"
             hx-target=".main-container"
             hx-swap="innerHTML"
             hx-push-url="true"
