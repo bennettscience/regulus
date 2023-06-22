@@ -194,12 +194,14 @@ def edit_event(event_id):
     if event is None:
         abort(404)
 
+    location_selected = event["location_id"] if event["location_id"] else None
+
     content = {
         "event": event,
         "data": {
             "locations": locations,
             "types": types,
-            "location_selected": event["location"]["id"],
+            "location_selected": location_selected,
             "type_selected": event["type"]["id"],
         },
     }
